@@ -1,0 +1,167 @@
+{
+  "workspace_id": "06db0015",
+  "created_at": "2026-01-18T15:25:49.768301",
+  "updated_at": "2026-01-18T15:26:47.239751",
+  "status": "in-progress",
+  "dataset_name": "nev_battery_charging.csv",
+  "dataset_shape": [
+    1900,
+    21
+  ],
+  "target_col": "charging_time",
+  "task_type": "regression",
+  "timeline": [
+    {
+      "timestamp": "2026-01-18T15:25:49.768301",
+      "event": "workspace_created",
+      "description": "New workspace initialized",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:26:00.587632",
+      "event": "dataset_uploaded",
+      "description": "Uploaded nev_battery_charging.csv with shape (1900, 21)",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:26:47.239751",
+      "event": "preprocessing_complete",
+      "description": "Applied 21 preprocessing steps",
+      "metadata": {}
+    }
+  ],
+  "profile_summary": {},
+  "preprocessing_steps": [
+    {
+      "step": "Data Loading",
+      "action": "DataFrame provided directly",
+      "reason": "Skipping file load",
+      "status": "applied"
+    },
+    {
+      "step": "Deduplication",
+      "action": "No duplicates found",
+      "reason": "Data is unique",
+      "status": "skipped"
+    },
+    {
+      "step": "Schema Validation",
+      "action": "Flagged 1 constant columns",
+      "reason": "Single unique value",
+      "status": "applied"
+    },
+    {
+      "step": "Correlation Analysis",
+      "action": "6 highly correlated pairs",
+      "reason": "Consider removing redundant features",
+      "status": "applied"
+    },
+    {
+      "step": "Basic Stats",
+      "action": "1900 rows, 20 columns",
+      "reason": "Memory: 0.29 MB",
+      "status": "applied"
+    },
+    {
+      "step": "Missing Analysis",
+      "action": "No severe missing values",
+      "reason": "All columns < 30% missing",
+      "status": "applied"
+    },
+    {
+      "step": "Numeric Analysis",
+      "action": "3 skewed columns detected",
+      "reason": "May need transformation",
+      "status": "applied"
+    },
+    {
+      "step": "Target Detection",
+      "action": "Task type: regression",
+      "reason": "Target has 1305 unique values",
+      "status": "applied"
+    },
+    {
+      "step": "Class Imbalance",
+      "action": "Minority class: 0.05%",
+      "reason": "Recommend SMOTE or class weights",
+      "status": "applied"
+    },
+    {
+      "step": "Boolean Normalize",
+      "action": "Converted: over_temp_flag",
+      "reason": "Mapped to 0/1",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped dT_dt",
+      "reason": "42 outliers capped to [-0.49, 1.57]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped dV_dt",
+      "reason": "13 outliers capped to [-0.06, 0.06]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped soc_delta",
+      "reason": "7 outliers capped to [0.01, 0.09]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped thermal_stress_index",
+      "reason": "51 outliers capped to [1.00, 1.00]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped aging_indicator",
+      "reason": "24 outliers capped to [-0.13, 0.40]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped charging_efficiency",
+      "reason": "15 outliers capped to [0.80, 0.91]",
+      "status": "applied"
+    },
+    {
+      "step": "Outlier Handling",
+      "action": "Capped over_temp_flag",
+      "reason": "44 outliers capped to [1.00, 1.00]",
+      "status": "applied"
+    },
+    {
+      "step": "Scaling",
+      "action": "Standard scaling on 6 columns",
+      "reason": "No significant outliers, using StandardScaler",
+      "status": "applied"
+    },
+    {
+      "step": "Variance Filter",
+      "action": "Dropped 10 columns",
+      "reason": "Variance < 0.01",
+      "status": "applied"
+    },
+    {
+      "step": "Correlation Filter",
+      "action": "Dropped 3 columns",
+      "reason": "Correlation > 0.95",
+      "status": "applied"
+    },
+    {
+      "step": "Data Split",
+      "action": "Random split for regression",
+      "reason": "Train: 1520, Test: 380",
+      "status": "applied"
+    }
+  ],
+  "recommendations": [],
+  "model_results": {},
+  "best_model": null,
+  "best_score": null,
+  "user_config": {}
+}

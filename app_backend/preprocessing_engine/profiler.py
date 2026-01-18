@@ -12,7 +12,7 @@ class DatasetProfiler:
     
     def __init__(self):
         self.log: List[Dict[str, Any]] = []
-        self.profile: Dict[str, Any] = {}
+        self._profile_data: Dict[str, Any] = {}
     
     def _log(self, step: str, action: str, reason: str, status: str = "applied"):
         self.log.append({"step": step, "action": action, "reason": reason, "status": status})
@@ -136,18 +136,21 @@ class DatasetProfiler:
         
         return {"imbalanced": is_imbalanced, "min_ratio": round(min_ratio, 4), "distribution": value_counts.to_dict()}
     
-    def profile(self, df: pd.DataFrame, target_col: str = None) -> Dict[str, Any]:
+    def generate_profile(self, df: pd.DataFrame, target_col: str = None) -> Dict[str, Any]:
         """Generate complete dataset profile."""
-        self.profile = {
+        corr_result = self.compute_correlation(df)
+        
+        self._profile_data = {
             "basic_stats": self.get_basic_stats(df),
             "missing_values": self.analyze_missing_values(df),
             "numeric_stats": self.analyze_numeric_columns(df),
             "categorical_stats": self.analyze_categorical_columns(df),
-            "correlation": self.compute_correlation(df).to_dict() if not self.compute_correlation(df).empty else {},
+            "correlation": corr_result.to_dict() if not corr_result.empty else {},
         }
         
         if target_col:
-            self.profile["task_type"] = self.detect_target_type(df, target_col)
-            self.profile["class_imbalance"] = self.detect_class_imbalance(df, target_col)
+            self._profile_data["task_type"] = self.detect_target_type(df, target_col)
+            self._profile_data["class_imbalance"] = self.detect_class_imbalance(df, target_col)
         
-        return self.profile
+        return self._profile_data
+

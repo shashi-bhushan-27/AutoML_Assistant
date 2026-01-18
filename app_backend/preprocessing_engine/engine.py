@@ -106,7 +106,7 @@ class AutoPreprocessor:
         
         # ========== 2. PROFILING ==========
         self._print("Step 2: Dataset Profiling")
-        self.profile = self.profiler.profile(df, target_col=self.target_col)
+        self.profile = self.profiler.generate_profile(df, target_col=self.target_col)
         
         # Auto-detect task type
         if self.task_type == "auto" and self.target_col:

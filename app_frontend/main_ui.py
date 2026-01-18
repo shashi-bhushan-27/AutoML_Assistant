@@ -13,6 +13,8 @@ from app_backend.llm_rag_core import ModelAdvisor
 from app_backend.model_trainer import ModelTrainer
 from app_backend.model_tuner import ModelTuner
 from app_backend.preprocessing_engine.engine import AutoPreprocessor
+from app_backend.workspace_manager import WorkspaceManager, Workspace
+from app_backend.report_generator import ReportGenerator
 
 # --- SET CONFIG ---
 st.set_page_config(
@@ -50,6 +52,72 @@ if 'results_df' not in st.session_state: st.session_state.results_df = None
 if 'df_clean' not in st.session_state: st.session_state.df_clean = None
 if 'preprocessor' not in st.session_state: st.session_state.preprocessor = None
 if 'preprocess_report' not in st.session_state: st.session_state.preprocess_report = None
+if 'current_workspace' not in st.session_state: st.session_state.current_workspace = None
+if 'workspace_manager' not in st.session_state: st.session_state.workspace_manager = WorkspaceManager()
+if 'view_mode' not in st.session_state: st.session_state.view_mode = "home"  # "home" or "workspace"
+
+# === WORKSPACE-FIRST UI FLOW ===
+wm = st.session_state.workspace_manager
+workspaces = wm.list_workspaces()
+
+# Show workspace selector if no active workspace
+if st.session_state.current_workspace is None:
+    st.markdown("### 📁 Select or Create a Workspace")
+    
+    col_create, col_spacer = st.columns([1, 3])
+    with col_create:
+        if st.button("➕ Create New Workspace", type="primary", use_container_width=True):
+            new_ws = wm.create_workspace(dataset_name="New Analysis", dataset_shape=(0, 0))
+            st.session_state.current_workspace = new_ws
+            st.rerun()
+    
+    if workspaces:
+        st.markdown("#### Previous Sessions")
+        cols = st.columns(3)
+        for idx, ws_data in enumerate(workspaces):
+            with cols[idx % 3]:
+                status_icon = "🟢" if ws_data['status'] == "completed" else "🟡"
+                st.markdown(f"""
+                <div style="border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 8px; background: rgba(50,50,60,0.5);">
+                    <h5 style="margin: 0;">{status_icon} {ws_data['dataset_name']}</h5>
+                    <p style="font-size: 0.8rem; color: #888;">Task: {(ws_data['task_type'] or 'Unknown').title()}</p>
+                    <p style="font-size: 0.8rem;">Best: {ws_data['best_model'] or 'N/A'}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("Open", key=f"open_{ws_data['workspace_id']}", use_container_width=True):
+                    loaded_ws = wm.load_workspace(ws_data['workspace_id'])
+                    st.session_state.current_workspace = loaded_ws
+                    
+                    # Restore saved state
+                    saved_df = wm.load_dataset(ws_data['workspace_id'])
+                    if saved_df is not None:
+                        st.session_state.df_clean = saved_df
+                    
+                    saved_state = wm.load_session_state(ws_data['workspace_id'])
+                    if saved_state:
+                        st.session_state.stats = saved_state.get('stats')
+                        st.session_state.recommendations = saved_state.get('recommendations', [])
+                        st.session_state.preprocess_report = saved_state.get('preprocess_report')
+                    
+                    st.rerun()
+    else:
+        st.info("No workspaces yet. Create one to get started!")
+    
+    st.stop()  # Don't show tabs unless workspace is selected
+
+# Active workspace header
+ws = st.session_state.current_workspace
+col_back, col_title, col_status = st.columns([1, 4, 1])
+with col_back:
+    if st.button("← All Workspaces"):
+        st.session_state.current_workspace = None
+        st.rerun()
+with col_title:
+    st.markdown(f"### 🔬 {ws.dataset_name}")
+with col_status:
+    st.caption(f"Status: {ws.status}")
+
+st.divider()
 
 # --- WORKFLOW TABS ---
 tab1, tab2, tab2b, tab3, tab4 = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization"])
@@ -74,20 +142,25 @@ with tab1:
             
             st.divider()
             
-            col_clean_1, col_clean_2 = st.columns([1, 1])
-            with col_clean_1:
-                st.markdown("### Data Cleaning", unsafe_allow_html=True)
-                cols_to_drop = st.multiselect("Select columns to remove:", df_original.columns)
+            cols_to_drop = st.multiselect("Select columns to remove:", df_original.columns)
             
             if cols_to_drop:
                 df = df_original.drop(columns=cols_to_drop)
                 st.toast(f"✅ Dropped {len(cols_to_drop)} columns.")
-                st.info(f"Analysis will use {len(df.columns)} columns.")
             else:
                 df = df_original.copy()
             
             st.session_state.df_clean = df
             
+            # Update workspace with dataset
+            if ws.dataset_name == "New Analysis" or ws.dataset_name != uploaded_file.name:
+                ws.dataset_name = uploaded_file.name
+                ws.dataset_shape = df.shape
+                ws.add_event("dataset_uploaded", f"Uploaded {uploaded_file.name} with shape {df.shape}")
+                wm.save_workspace(ws)
+                wm.save_dataset(ws.workspace_id, df)  # Persist dataset
+                st.rerun()
+                
         except Exception as e:
             st.error(f"❌ Error parsing CSV: {e}")
     else:
@@ -102,7 +175,7 @@ with tab2:
         df = st.session_state.df_clean
         
         st.markdown("### 🔧 Advanced Preprocessing Engine", unsafe_allow_html=True)
-        st.write("Automated preprocessing with full explainability. Every step is logged with reasons.")
+        st.write("Automated preprocessing with full explainability.")
         
         col_p1, col_p2 = st.columns([1, 2])
         
@@ -137,6 +210,22 @@ with tab2:
                     st.session_state.X_test = result["X_test"]
                     st.session_state.y_train = result["y_train"]
                     st.session_state.y_test = result["y_test"]
+                    
+                    # Update workspace
+                    if st.session_state.current_workspace:
+                        ws = st.session_state.current_workspace
+                        ws.target_col = target_col
+                        ws.task_type = preprocessor.task_type
+                        ws.preprocessing_steps = preprocessor.full_log
+                        ws.add_event("preprocessing_complete", f"Applied {len(preprocessor.full_log)} preprocessing steps")
+                        st.session_state.workspace_manager.save_workspace(ws)
+                        
+                        # Save session state for restoration
+                        st.session_state.workspace_manager.save_session_state(ws.workspace_id, {
+                            'stats': st.session_state.stats,
+                            'recommendations': st.session_state.recommendations,
+                            'preprocess_report': st.session_state.preprocess_report
+                        })
                     
                     st.success("✅ Preprocessing Complete!")
         
@@ -216,6 +305,15 @@ with tab2b:
                         advisor = get_advisor()
                         recs = advisor.get_recommendations(stats)
                         st.session_state.recommendations = recs
+                        
+                        # 4. Update workspace with user-selected target
+                        if st.session_state.current_workspace:
+                            ws = st.session_state.current_workspace
+                            ws.target_col = target_col
+                            ws.task_type = stats['task_type']
+                            ws.profile_summary = stats
+                            ws.add_event("analysis_complete", f"Target: {target_col}, Task: {stats['task_type']}")
+                            st.session_state.workspace_manager.save_workspace(ws)
             else:
                 st.error("Dataset is empty.")
         
@@ -275,6 +373,27 @@ with tab3:
                     trainer = st.session_state.trainer
                     results_df = trainer.run_selected_models(selected_models)
                     st.session_state.results_df = results_df
+                    
+                    # Update workspace with training results
+                    if st.session_state.current_workspace and not results_df.empty:
+                        ws = st.session_state.current_workspace
+                        ws.recommendations = selected_models
+                        ws.model_results = results_df.to_dict()
+                        
+                        # Find best model
+                        sort_col = "RMSE" if ws.task_type == "regression" else "Accuracy"
+                        if sort_col in results_df.columns:
+                            if sort_col == "RMSE":
+                                best_idx = results_df[sort_col].idxmin()
+                            else:
+                                best_idx = results_df[sort_col].idxmax()
+                            ws.best_model = results_df.loc[best_idx, "Model"]
+                            ws.best_score = float(results_df.loc[best_idx, sort_col])
+                        
+                        ws.status = "completed"
+                        ws.add_event("training_complete", f"Trained {len(selected_models)} models. Best: {ws.best_model}")
+                        st.session_state.workspace_manager.save_workspace(ws)
+                    
                     status.update(label="✅ Training Complete!", state="complete", expanded=False)
         
         # LEADERBOARD
