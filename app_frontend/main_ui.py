@@ -84,22 +84,31 @@ if st.session_state.current_workspace is None:
                     <p style="font-size: 0.8rem;">Best: {ws_data['best_model'] or 'N/A'}</p>
                 </div>
                 """, unsafe_allow_html=True)
-                if st.button("Open", key=f"open_{ws_data['workspace_id']}", use_container_width=True):
-                    loaded_ws = wm.load_workspace(ws_data['workspace_id'])
-                    st.session_state.current_workspace = loaded_ws
-                    
-                    # Restore saved state
-                    saved_df = wm.load_dataset(ws_data['workspace_id'])
-                    if saved_df is not None:
-                        st.session_state.df_clean = saved_df
-                    
-                    saved_state = wm.load_session_state(ws_data['workspace_id'])
-                    if saved_state:
-                        st.session_state.stats = saved_state.get('stats')
-                        st.session_state.recommendations = saved_state.get('recommendations', [])
-                        st.session_state.preprocess_report = saved_state.get('preprocess_report')
-                    
-                    st.rerun()
+                
+                btn_col1, btn_col2 = st.columns(2)
+                with btn_col1:
+                    if st.button("📂 Open", key=f"open_{ws_data['workspace_id']}", use_container_width=True):
+                        loaded_ws = wm.load_workspace(ws_data['workspace_id'])
+                        st.session_state.current_workspace = loaded_ws
+                        
+                        # Restore saved state
+                        saved_df = wm.load_dataset(ws_data['workspace_id'])
+                        if saved_df is not None:
+                            st.session_state.df_clean = saved_df
+                        
+                        saved_state = wm.load_session_state(ws_data['workspace_id'])
+                        if saved_state:
+                            st.session_state.stats = saved_state.get('stats')
+                            st.session_state.recommendations = saved_state.get('recommendations', [])
+                            st.session_state.preprocess_report = saved_state.get('preprocess_report')
+                        
+                        st.rerun()
+                
+                with btn_col2:
+                    if st.button("🗑️", key=f"del_{ws_data['workspace_id']}", use_container_width=True, help="Delete workspace"):
+                        wm.delete_workspace(ws_data['workspace_id'])
+                        st.toast(f"Deleted workspace: {ws_data['dataset_name']}")
+                        st.rerun()
     else:
         st.info("No workspaces yet. Create one to get started!")
     
@@ -133,36 +142,53 @@ with tab1:
         uploaded_file = st.file_uploader("Upload your dataset (CSV)", type=["csv"])
 
     if uploaded_file:
-        try:
-            df_original = pd.read_csv(uploaded_file, on_bad_lines='skip')
-            
-            with col2:
-                st.markdown("### Quick Look", unsafe_allow_html=True)
-                st.dataframe(df_original.head(5), use_container_width=True)
+        # Prevent infinite rerun loop
+        if 'last_uploaded_file' not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
+            try:
+                df_original = pd.read_csv(uploaded_file, on_bad_lines='skip')
+                
+                # Update workspace immediately
+                ws = st.session_state.current_workspace
+                if ws:
+                    ws.dataset_name = uploaded_file.name
+                    ws.dataset_shape = df_original.shape
+                    ws.add_event("dataset_uploaded", f"Uploaded {uploaded_file.name}")
+                    wm.save_workspace(ws)
+                    wm.save_dataset(ws.workspace_id, df_original)
+                
+                st.session_state.df_clean = df_original
+                st.session_state.last_uploaded_file = uploaded_file.name
+                st.toast("Dataset uploaded and saved successfully!")
+                st.rerun()
+                
+            except Exception as e:
+                st.error(f"❌ Error parsing CSV: {e}")
+
+    # Display Current Dataset (from upload or loaded workspace)
+    if st.session_state.df_clean is not None:
+        df = st.session_state.df_clean
+        
+        with col2:
+            st.markdown(f"### Current Data: {st.session_state.current_workspace.dataset_name if st.session_state.current_workspace else 'Loaded'}")
+            st.dataframe(df.head(5), use_container_width=True)
             
             st.divider()
             
-            cols_to_drop = st.multiselect("Select columns to remove:", df_original.columns)
+            cols_to_drop = st.multiselect("Select columns to remove:", df.columns)
             
             if cols_to_drop:
-                df = df_original.drop(columns=cols_to_drop)
-                st.toast(f"✅ Dropped {len(cols_to_drop)} columns.")
-            else:
-                df = df_original.copy()
-            
-            st.session_state.df_clean = df
-            
-            # Update workspace with dataset
-            if ws.dataset_name == "New Analysis" or ws.dataset_name != uploaded_file.name:
-                ws.dataset_name = uploaded_file.name
-                ws.dataset_shape = df.shape
-                ws.add_event("dataset_uploaded", f"Uploaded {uploaded_file.name} with shape {df.shape}")
-                wm.save_workspace(ws)
-                wm.save_dataset(ws.workspace_id, df)  # Persist dataset
-                st.rerun()
-                
-        except Exception as e:
-            st.error(f"❌ Error parsing CSV: {e}")
+                if st.button("Apply Column Removal"):
+                    new_df = df.drop(columns=cols_to_drop)
+                    st.session_state.df_clean = new_df
+                    
+                    if st.session_state.current_workspace:
+                         ws = st.session_state.current_workspace
+                         wm.save_dataset(ws.workspace_id, new_df)
+                         ws.dataset_shape = new_df.shape
+                         wm.save_workspace(ws)
+                    
+                    st.success(f"Removed {len(cols_to_drop)} columns.")
+                    st.rerun()
     else:
         with col2:
             st.info("👆 Upload a CSV file to get started.")

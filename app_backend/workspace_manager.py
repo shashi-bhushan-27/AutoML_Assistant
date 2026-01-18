@@ -27,13 +27,17 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 # Storage paths
-WORKSPACE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "workspaces")
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WORKSPACE_DIR = os.path.join(ROOT_DIR, "workspaces")
+DATA_DIR = os.path.join(ROOT_DIR, "data")
+UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 WORKSPACE_INDEX = os.path.join(WORKSPACE_DIR, "index.json")
 
 
 def ensure_workspace_dir():
-    """Ensure workspace directory exists."""
+    """Ensure workspace and data directories exist."""
     os.makedirs(WORKSPACE_DIR, exist_ok=True)
+    os.makedirs(UPLOADS_DIR, exist_ok=True)
     if not os.path.exists(WORKSPACE_INDEX):
         with open(WORKSPACE_INDEX, 'w') as f:
             json.dump({"workspaces": []}, f)
@@ -210,10 +214,22 @@ class WorkspaceManager:
         return workspaces
     
     def delete_workspace(self, workspace_id: str) -> bool:
-        """Delete a workspace."""
-        ws_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}.json")
-        if os.path.exists(ws_path):
-            os.remove(ws_path)
+        """Delete a workspace and all associated files."""
+        # Files to remove
+        files_to_remove = [
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}.json"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_pipeline.pkl"),
+            os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv") # Legacy check
+        ]
+        
+        for fpath in files_to_remove:
+            if os.path.exists(fpath):
+                try:
+                    os.remove(fpath)
+                except:
+                    pass
         
         self.index["workspaces"] = [
             e for e in self.index["workspaces"] 
@@ -239,14 +255,21 @@ class WorkspaceManager:
     def save_dataset(self, workspace_id: str, df: pd.DataFrame):
         """Save dataset for a workspace."""
         if df is not None:
-            data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+            data_path = os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv")
             df.to_csv(data_path, index=False)
     
     def load_dataset(self, workspace_id: str) -> Optional[pd.DataFrame]:
         """Load dataset for a workspace."""
-        data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+        # Try new uploads location first
+        data_path = os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv")
         if os.path.exists(data_path):
             return pd.read_csv(data_path)
+            
+        # Fallback to legacy location
+        legacy_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+        if os.path.exists(legacy_path):
+            return pd.read_csv(legacy_path)
+            
         return None
     
     def save_session_state(self, workspace_id: str, state_data: Dict):
@@ -254,7 +277,7 @@ class WorkspaceManager:
         state_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl")
         with open(state_path, 'wb') as f:
             pickle.dump(state_data, f)
-    
+            
     def load_session_state(self, workspace_id: str) -> Optional[Dict]:
         """Load session state for a workspace."""
         state_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl")
