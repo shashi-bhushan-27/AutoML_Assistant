@@ -31,30 +31,36 @@ class ModelTrainer:
             
         return sorted(common)
 
-    def preprocess_data(self, X):
-        # Lazy Import Sklearn Preprocessing
-        from sklearn.preprocessing import LabelEncoder, StandardScaler
-        from sklearn.impute import SimpleImputer
+    def preprocess_data(self, X, target_col=None):
+        """
+        Uses AdvancedPreprocessor for intelligent type detection and encoding.
+        """
+        from app_backend.preprocessing import AdvancedPreprocessor
         
-        X_processed = X.copy()
+        self.preprocessor = AdvancedPreprocessor()
+        X_processed = self.preprocessor.fit_transform(X, target_col=target_col)
         
-        # 1. Encode Categoricals
-        cat_cols = X_processed.select_dtypes(include=['object', 'category']).columns.tolist()
-        for col in cat_cols:
-            le = LabelEncoder()
-            X_processed[col] = le.fit_transform(X_processed[col].astype(str))
-            self.encoders[col] = le
-            
-        # 2. Impute Missing Values (Safety Net)
-        if X_processed.isnull().sum().sum() > 0:
-            imputer = SimpleImputer(strategy='mean')
-            X_processed = pd.DataFrame(imputer.fit_transform(X_processed), columns=X_processed.columns)
-
-        # 3. Scale Data (Important for SVM, KNN, Linear)
+        # Store encoders for potential inverse transform
+        self.encoders = self.preprocessor.encoders
+        
+        # Scale data (Important for SVM, KNN, Linear models)
+        from sklearn.preprocessing import StandardScaler
         self.scaler = StandardScaler()
         X_processed = pd.DataFrame(self.scaler.fit_transform(X_processed), columns=X_processed.columns)
             
         return X_processed
+    
+    def get_preprocessing_report(self):
+        """Returns the preprocessing report if available."""
+        if hasattr(self, 'preprocessor'):
+            return self.preprocessor.get_report()
+        return None
+    
+    def get_preprocessing_summary(self):
+        """Returns human-readable preprocessing summary."""
+        if hasattr(self, 'preprocessor'):
+            return self.preprocessor.get_summary_text()
+        return "No preprocessing performed yet."
 
     def split_data(self):
         # Lazy Import Sklearn Selection

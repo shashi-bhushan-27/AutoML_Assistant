@@ -132,12 +132,23 @@ with tab2:
                 
                 # Metrics Row
                 m1, m2, m3 = st.columns(3)
-                m1.metric("Rows", st.session_state.stats.get('n_rows', 0))
-                m2.metric("Features", st.session_state.stats.get('n_cols', 0))
+                m1.metric("Rows", st.session_state.stats.get('rows', 0))
+                m2.metric("Features", st.session_state.stats.get('columns', 0))
                 m3.metric("Task Type", st.session_state.stats.get('task_type', 'Unknown'))
                 
                 st.markdown("#### AI Recommendations")
                 st.success(f"**Strategy:** {', '.join(st.session_state.recommendations)}")
+                
+                # Preprocessing Report
+                if st.session_state.trainer:
+                    st.markdown("#### 🔧 Preprocessing Summary")
+                    preprocess_summary = st.session_state.trainer.get_preprocessing_summary()
+                    st.info(preprocess_summary)
+                    
+                    with st.expander("View Detailed Transformations"):
+                        report = st.session_state.trainer.get_preprocessing_report()
+                        if report:
+                            st.json(report)
                 
                 with st.expander("View Detailed Statistics JSON"):
                     st.json(st.session_state.stats)
