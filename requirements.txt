@@ -1,0 +1,13 @@
+streamlit           # For the GUI
+fastapi             # For the backend API
+uvicorn             # Server for FastAPI
+pandas              # Data manipulation
+numpy               # Math
+scikit-learn        # Standard ML models
+xgboost             # Advanced ML model
+prophet             # Time-series specific model
+statsmodels         # For Time-series analysis (ADF test)
+langchain           # To manage the LLM RAG
+langchain-community # Community tools
+python-dotenv       # To read API keys
+plotly              # Interactive graphs for the UI

@@ -1,0 +1,315 @@
+*** DOMAIN: AUTOMOTIVE & TIME SERIES MACHINE LEARNING ***
+
+
+[RULE: DATASET_TYPE_IDENTIFICATION]
+IF the dataset contains a 'timestamp', 'date', or 'time' column AND rows are sequential:
+    THEN the dataset is TIME SERIES.
+    PROBLEM TYPE: Forecasting / Sequential Prediction.
+    RECOMMENDED MODELS: ARIMA, SARIMA, Prophet, LSTM, GRU, TCN, XGBoost (with lag features), LightGBM.
+    SPLITTING STRATEGY: Temporal Split only (train on past → test on future).
+
+IF the dataset has no time component and each row is independent:
+    THEN the dataset is TABULAR (Regression or Classification).
+    RECOMMENDED MODELS: Random Forest, XGBoost, LightGBM, CatBoost, Linear Regression, SVM.
+    SPLITTING STRATEGY: Random Shuffle Split (70/30 or 80/20).
+
+
+[RULE: TIME_SERIES_STRUCTURE]
+IF data frequency is high (10 Hz, 50 Hz, 100 Hz sensor data):
+    THEN use deep models (LSTM, GRU, TCN) because they capture fast-changing automotive signals.
+
+IF data has clear periodic patterns (daily/weekly):
+    THEN Prophet or SARIMA is recommended.
+
+IF multiple signals influence each other:
+    THEN use VAR, Multivariate LSTM, or Transformers.
+
+
+[RULE: DATA_SIZE_AUTOMOTIVE]
+IF dataset_rows < 1000:
+    THEN avoid Deep Learning (LSTM/GRU/TCN).
+    RECOMMENDED MODELS: ARIMA, SARIMA, ETS, Random Forest, Ridge Regression.
+
+IF dataset_rows > 5000 AND features > 10:
+    THEN tree-based ensembles perform best.
+    MODELS: XGBoost, LightGBM, CatBoost.
+
+IF dataset_rows > 20,000:
+    THEN deep learning becomes feasible.
+    MODELS: LSTM, GRU, TCN, Seq2Seq, Transformers.
+
+
+
+[RULE: TARGET_VARIABLE_TYPE]
+IF target_variable is continuous:
+    THEN the problem is REGRESSION or FORECASTING.
+
+IF target_variable is categorical (Low, Medium, High or OK vs Fault):
+    THEN the problem is CLASSIFICATION.
+    RECOMMENDED MODELS: Random Forest, XGBoost, Logistic Regression, SVM.
+
+
+[RULE: AUTOMOTIVE_SIGNAL_CHARACTERISTICS]
+IF target_variable is 'Speed' OR 'RPM' OR 'Throttle' OR 'Acceleration':
+    CONTEXT: Highly dynamic, depends on previous values (inertia).
+    RECOMMENDED MODELS: LSTM, GRU, TCN, XGBoost with lag features.
+
+IF target_variable is 'Fuel_Consumption' OR 'MPG' OR 'Energy_Use':
+    CONTEXT: Depends on static and dynamic factors.
+    RECOMMENDED MODELS: XGBoost, LightGBM, CatBoost.
+
+IF target_variable is 'Battery_Temperature' OR 'Motor_Temperature':
+    CONTEXT: Slow-moving but nonlinear.
+    RECOMMENDED MODELS: Prophet (long-term), XGBoost, LSTM.
+
+IF target_variable is related to "Fault Codes" or "Warning Events":
+    THEN use CLASSIFICATION.
+    MODELS: Random Forest, Gradient Boosting, LightGBM.
+
+[RULE: IMBALANCED_DATA]
+IF task_type is Classification AND minority_class_ratio < 0.10:
+    PROBLEM: Severe Class Imbalance (Rare events like 'Engine Failure' are being ignored).
+    ACTION:
+        - Use Class Weights (scale_pos_weight in XGBoost).
+        - Use SMOTE (Synthetic Minority Over-sampling Technique).
+        - PRIMARY METRIC: F1-Score or ROC-AUC (Do NOT use Accuracy).
+    RECOMMENDED MODELS: XGBoost (weighted), Random Forest (class_weight='balanced'), Isolation Forest (for anomaly detection).
+
+[RULE: HIGH_CARDINALITY_FEATURES]
+IF a categorical_column has > 50 unique values:
+    PROBLEM: High Cardinality (Too many categories for One-Hot Encoding).
+    ACTION:
+        - Use Target Encoding or Frequency Encoding.
+        - Use CatBoost (handles categorical features automatically).
+        - Drop the column if it is an ID (e.g., 'Row_ID', 'User_ID').
+    RECOMMENDED MODELS: CatBoost, LightGBM (with category support).
+
+[RULE: MULTICOLLINEARITY]
+IF two numerical_features have correlation > 0.95:
+    PROBLEM: Multicollinearity (Redundant features).
+    ACTION: Drop one of the correlated features.
+    REASON: Reduces overfitting and training time without losing information.
+
+[RULE: OUTLIER_DETECTION]
+IF numerical_column has values > 3 standard deviations from mean:
+    PROBLEM: Potential Outliers / Sensor Noise.
+    ACTION:
+        - Use Robust Scaler instead of Standard Scaler.
+        - Use Tree-based models (Random Forest, XGBoost) as they are robust to outliers.
+    AVOID: Linear Regression, SVM, and Neural Networks (sensitive to outliers).
+
+[RULE: DATASET_SIZE_STRATEGY]
+IF rows < 100:
+    recommend: ["Linear Regression", "Lasso", "Ridge"]
+    reason: "Dataset is too small for complex patterns. Simple linear models prevent overfitting."
+
+IF rows > 100,000:
+    recommend: ["LightGBM", "XGBoost"]
+    reason: "Dataset is large. LightGBM is significantly faster than Random Forest for large data."
+
+
+
+[RULE: MODEL_SELECTION_BY_PATTERN]
+IF the series is linear AND has low noise:
+    USE: ARIMA, SARIMA, ETS.
+
+IF the series has seasonality (daily, weekly, yearly):
+    USE: Prophet, SARIMA, TBATS.
+
+IF the data is non-linear:
+    USE: XGBoost, LightGBM, CatBoost, Neural Networks.
+
+IF the series has long-term dependency:
+    USE: LSTM, GRU, TCN, Transformers.
+
+IF you need multistep forecasting (predict next 10 minutes):
+    USE: Seq2Seq, Transformers, LSTM encoder-decoder.
+
+
+[RULE: MULTIVARIATE_TIME_SERIES]
+IF multiple sensors affect the target:
+    AND correlations among signals exist:
+        THEN use:
+            - VAR (linear relationships)
+            - Multivariate LSTM
+            - TCN
+            - Transformers
+
+IF signals are weakly correlated:
+    THEN use tree models with engineered lag features.
+
+
+[RULE: FEATURE_ENGINEERING]
+IF the model is tree-based (XGBoost, LightGBM):
+    THEN generate:
+        - Lag features (lag_1, lag_5, lag_10)
+        - Rolling mean, rolling std
+        - Differencing (value[t] – value[t-1])
+        - Fourier seasonality features
+
+IF the model is LSTM/GRU/TCN:
+    THEN reshape data into sequences.
+    NO manual feature engineering required.
+
+
+[RULE: MISSING_VALUES]
+IF missing_values > 0 AND data is Time Series:
+    DO NOT DROP ROWS.
+    ACTIONS:
+        - Forward Fill (ffill)
+        - Backward Fill (bfill)
+        - Linear Interpolation
+        - Model-based imputation (optional)
+
+IF missing values are random and dataset is tabular:
+    ACTION: Impute using mean/median (numeric), mode (categorical), or CatBoost automatic handling.
+
+
+[RULE: OUTLIERS_AUTOMOTIVE]
+IF sudden spikes exist AND they are sensor noise:
+    THEN smooth using:
+        - Moving Average
+        - Median Filter
+        - Winsorization
+
+BUT IF spikes represent real events (e.g., sudden braking):
+    THEN DO NOT REMOVE — keep them for model accuracy.
+
+
+[RULE: NORMALIZATION]
+IF using LSTM/GRU/TCN:
+    APPLY scaling:
+        - StandardScaler OR MinMaxScaler
+
+IF using Random Forest or XGBoost:
+    NO SCALING REQUIRED.
+
+
+[RULE: TRAIN_TEST_SPLIT]
+IF dataset is Time Series:
+    SPLIT METHOD: Chronological Split (Train: oldest → Test: newest)
+    DEFAULT: 80% train, 20% test.
+
+IF dataset is Tabular:
+    USE: Random Shuffle Split.
+
+
+[RULE: MODEL_EVALUATION_METRICS]
+IF problem is Regression or Time Series Forecasting:
+    PRIMARY METRIC: RMSE (penalizes large automotive prediction errors)
+    SECONDARY: MAE, MAPE (avoid if zeros exist)
+    TERTIARY: R² Score
+
+IF problem is Classification (Fault Detection):
+    PRIMARY METRIC: F1 Score (imbalanced data)
+    SECONDARY: Precision, Recall, AUC
+
+
+[RULE: MODEL_RANKING]
+RANK MODELS BY:
+    1. Primary Metric (RMSE or F1)
+    2. Training Time
+    3. Inference Speed
+    4. Model Size
+    5. Stability across folds
+
+IF two models have similar accuracy:
+    THEN choose the faster and lighter model (important for real-time automotive systems).
+
+
+[RULE: COMPUTATIONAL_COMPLEXITY]
+IF user hardware is low-power:
+    AVOID: Transformers, Large LSTMs
+    USE: XGBoost, LightGBM, SARIMA, Prophet
+
+IF GPU is available:
+    ALLOW: Deep Learning (LSTM/GRU/TCN)
+
+
+[RULE: AUTOMATED_MODEL_SUGGESTION]
+IF dataset shows:
+    - Nonlinearity
+    - Multiple correlated signals
+    - Medium to large dataset
+THEN top recommended models:
+    1. XGBoost
+    2. LightGBM
+    3. LSTM/GRU
+    4. TCN
+
+IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN top recommended models:
+    1. Prophet
+    2. SARIMA
+    3. TBATS
+
+*** EXTENDED RESEARCH-BACKED RULES ***
+
+[RULE: BATTERY_RUL_PREDICTION]
+SOURCE: "Deep Learning for Li-ion Battery RUL Prediction" (Nature, 2024)
+IF target_variable is 'State_of_Health' (SOH) OR 'Remaining_Useful_Life' (RUL):
+    CONTEXT: Battery degradation is non-linear and depends on history.
+    RECOMMENDED MODELS: XGBoost (with lag features), Random Forest.
+    NOTE: While LSTM is standard in research, XGBoost often matches accuracy on tabular telemetry with 10x faster training.
+
+[RULE: PREDICTIVE_MAINTENANCE_FAULTS]
+SOURCE: "Machine Learning Based Predictive Maintenance" (IEEE, 2024)
+IF target_variable is 'Failure_Flag' OR 'Maintenance_Required':
+    AND dataset is Imbalanced (few failures, many normal rows):
+    THEN problem is ANOMALY DETECTION / CLASSIFICATION.
+    RECOMMENDED MODELS: Random Forest (robust to imbalance), XGBoost.
+    METRIC: F1-Score (Crucial: Accuracy is misleading here).
+
+[RULE: CAN_BUS_ANOMALY_DETECTION]
+SOURCE: "ML-based Anomaly Detection for CAN-bus" (Iowa State, 2022)
+IF input_data contains 'CAN_ID' OR 'Signal_Frequency':
+    CONTEXT: Detecting cyber-attacks or sensor glitches.
+    ACTION: High frequency data requires noise filtering.
+    RECOMMENDED MODELS: Random Forest (handles high-dimensional noise well).
+
+[RULE: FEATURE_ENGINEERING_SENSORS]
+SOURCE: "Feature Engineering for ML" (DataCamp, 2025)
+IF dataset contains 'Voltage' AND 'Current':
+    ACTION: Create Interaction Feature 'Power' (Voltage * Current) if not present.
+    REASON: Tree models (XGBoost) learn faster with explicit interaction features.
+
+[RULE: TRAFFIC_AND_DEMAND_FORECASTING]
+SOURCE: "Using Machine Learning for Time Series Forecasting" (CodeIT)
+IF target_variable is 'Vehicle_Count' OR 'Trip_Demand':
+    AND Seasonality is present (Daily/Weekly patterns):
+    THEN RECOMMENDED MODEL: Prophet (Facebook Prophet).
+    REASON: Designed specifically for human-scale seasonality (holidays, weekends).
+
+[RULE: MISSING_TELEMETRY_DATA]
+SOURCE: "Handling Missing Data in Time Series" (Hyndman)
+IF data is 'Time Series' AND has missing_values:
+    ACTION: DO NOT DROP ROWS. Use "Forward Fill" (ffill).
+    REASON: Dropping rows breaks the time frequency (Hz) required for lag features.
+
+[RULE: HIGH_FREQUENCY_NOISE]
+SOURCE: "Handling Outliers in Sensor Data" (Tencent Cloud)
+IF data_frequency > 10Hz (High Speed Sensor) AND Variance is High:
+    ACTION: Apply "Rolling Mean" smoothing before training.
+    REASON: Raw sensor noise confuses Gradient Boosting models; smoothing reveals the true trend.
+
+[RULE: DATASET_SIZE_STRATEGY]
+SOURCE: "AutoForecast: Automatic Model Selection" (Rossi, 2022)
+IF rows < 1,000:
+    RECOMMENDED: Linear Regression, Random Forest (Simple models prevent overfitting).
+IF rows > 10,000:
+    RECOMMENDED: XGBoost, LightGBM (Gradient boosting scales better than Random Forest).
+
+[RULE: MULTICOLLINEARITY_HANDLING]
+SOURCE: "Feature Engineering Guide" (Harness)
+IF features have Correlation > 0.95 (e.g., 'Speed_mph' and 'Speed_kmh'):
+    ACTION: Drop one of them.
+    REASON: Redundant features slow down training and confuse Linear models (though Trees handle them okay).
+
+[RULE: CONCEPT_DRIFT_AGING]
+SOURCE: "Predictive Maintenance Best Practices" (Neural Concept)
+IF data covers > 1 year of vehicle operation:
+    CONTEXT: Vehicle behavior changes with age (Concept Drift).
+    ACTION: Prioritize recent data for validation (Temporal Split).
+    RECOMMENDED MODEL: XGBoost (retrained frequently).
