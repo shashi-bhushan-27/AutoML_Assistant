@@ -91,12 +91,17 @@ class ModelTuner:
         
         return {} # No tuning available
 
-    def tune_model(self, model_name):
+    def tune_model(self, model_name, n_iter=10, cv_folds=3, custom_params=None):
         """
         Main routing function that picks the right tuning strategy.
+        Args:
+            model_name: Name of the model to tune.
+            n_iter: Number of random combinations to try (for RandomizedSearchCV).
+            cv_folds: Number of cross-validation folds.
+            custom_params: Optional dict to override default param grid.
         """
         start_time = time.time()
-        print(f"Tuning {model_name}...")
+        print(f"Tuning {model_name} with n_iter={n_iter}, cv_folds={cv_folds}...")
         
         # 1. Special Handling for Prophet
         if model_name == "Prophet":
@@ -112,15 +117,16 @@ class ModelTuner:
         if model is None:
             return {"Error": f"Could not find base model for {model_name}"}
 
-        param_grid = self.get_param_grid(model_name)
+        # Use custom params if provided, otherwise use defaults
+        param_grid = custom_params if custom_params else self.get_param_grid(model_name)
         if not param_grid:
             return {"Error": f"No hyperparameter grid defined for {model_name}"}
 
         # Select CV Strategy
         if self.is_time_series:
-            cv = TimeSeriesSplit(n_splits=3)
+            cv = TimeSeriesSplit(n_splits=cv_folds)
         else:
-            cv = KFold(n_splits=3, shuffle=True, random_state=42)
+            cv = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
 
         # metric selection
         scoring = 'neg_root_mean_squared_error' if self.task_type == "Regression" else 'accuracy'
@@ -129,7 +135,7 @@ class ModelTuner:
             search = RandomizedSearchCV(
                 estimator=model,
                 param_distributions=param_grid,
-                n_iter=10, # Try 10 random combinations (Balance speed/quality)
+                n_iter=n_iter,
                 scoring=scoring,
                 cv=cv,
                 n_jobs=-1,

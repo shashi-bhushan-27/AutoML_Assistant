@@ -222,44 +222,91 @@ with tab3:
 # ==========================
 with tab4:
     if st.session_state.results_df is not None:
-        st.markdown("### ⚡ Hyperparameter Tuning", unsafe_allow_html=True)
-        st.write("Automatically find the best parameters for your top model.")
+        st.markdown("### ⚡ Advanced Hyperparameter Tuning", unsafe_allow_html=True)
+        st.write("Fine-tune your model with custom settings.")
         
         results_df = st.session_state.results_df
         valid_models = results_df['Model'].tolist() if 'Model' in results_df.columns else []
         
         if valid_models:
-            col_opt_1, col_opt_2 = st.columns(2)
+            col_opt_1, col_opt_2 = st.columns([1, 1])
             
             with col_opt_1:
                 model_to_tune = st.selectbox("Select model to optimize:", valid_models)
                 
-                if st.button(f"✨ Optimize {model_to_tune}"):
-                    with st.spinner(f"Tuning {model_to_tune}..."):
-                        tuner = ModelTuner(st.session_state.trainer)
-                        tuned_res = tuner.tune_model(model_to_tune)
+                st.markdown("#### Tuning Settings")
+                n_iter = st.slider("Number of Iterations", min_value=5, max_value=50, value=15, 
+                                   help="How many random parameter combinations to try.")
+                cv_folds = st.slider("Cross-Validation Folds", min_value=2, max_value=10, value=3,
+                                     help="Number of folds for cross-validation.")
+            
+            with col_opt_2:
+                st.markdown("#### Parameter Customization")
+                with st.expander("🔧 Advanced: Edit Parameter Ranges", expanded=False):
+                    st.caption("Leave blank to use defaults. Format: comma-separated values.")
+                    
+                    custom_params = None
+                    model_lower = model_to_tune.lower()
+                    
+                    if "xgboost" in model_lower or "random forest" in model_lower or "gradient" in model_lower:
+                        max_depth_input = st.text_input("max_depth (e.g., 3,5,7,10)", "")
+                        n_est_input = st.text_input("n_estimators (e.g., 100,200,300)", "")
                         
-                        if "Error" in tuned_res:
-                            st.error(tuned_res["Error"])
-                        else:
-                            st.success("Optimization Complete!")
-                            st.json(tuned_res)
-                            
-                            # Export
-                            tuned_name = f"{model_to_tune} (Tuned)"
-                            model_obj = st.session_state.trainer.trained_models.get(tuned_name)
-                            
-                            if model_obj:
+                        if max_depth_input or n_est_input:
+                            custom_params = {}
+                            if max_depth_input:
                                 try:
-                                    pickle_out = pickle.dumps(model_obj)
-                                    st.download_button(
-                                        label="💾 Download Tuned Model",
-                                        data=pickle_out,
-                                        file_name=f"{model_to_tune.replace(' ','_')}_tuned.pkl",
-                                        mime="application/octet-stream"
-                                    )
-                                except Exception as e:
-                                    st.warning(f"Serialization failed: {e}")
+                                    custom_params['max_depth'] = [int(x.strip()) for x in max_depth_input.split(',')]
+                                except: pass
+                            if n_est_input:
+                                try:
+                                    custom_params['n_estimators'] = [int(x.strip()) for x in n_est_input.split(',')]
+                                except: pass
+                                
+                    elif "ridge" in model_lower or "lasso" in model_lower:
+                        alpha_input = st.text_input("alpha (e.g., 0.1,1.0,10.0)", "")
+                        if alpha_input:
+                            try:
+                                custom_params = {'alpha': [float(x.strip()) for x in alpha_input.split(',')]}
+                            except: pass
+                            
+                    elif "svm" in model_lower:
+                        c_input = st.text_input("C (e.g., 0.1,1,10)", "")
+                        if c_input:
+                            try:
+                                custom_params = {'C': [float(x.strip()) for x in c_input.split(',')]}
+                            except: pass
+                    else:
+                        st.info("Default parameters will be used for this model.")
+            
+            st.divider()
+            
+            if st.button(f"✨ Optimize {model_to_tune}", type="primary"):
+                with st.spinner(f"Tuning {model_to_tune} with {n_iter} iterations and {cv_folds}-fold CV..."):
+                    tuner = ModelTuner(st.session_state.trainer)
+                    tuned_res = tuner.tune_model(model_to_tune, n_iter=n_iter, cv_folds=cv_folds, custom_params=custom_params)
+                    
+                    if "Error" in tuned_res:
+                        st.error(tuned_res["Error"])
+                    else:
+                        st.success("🎉 Optimization Complete!")
+                        st.json(tuned_res)
+                        
+                        # Export
+                        tuned_name = f"{model_to_tune} (Tuned)"
+                        model_obj = st.session_state.trainer.trained_models.get(tuned_name)
+                        
+                        if model_obj:
+                            try:
+                                pickle_out = pickle.dumps(model_obj)
+                                st.download_button(
+                                    label="💾 Download Tuned Model",
+                                    data=pickle_out,
+                                    file_name=f"{model_to_tune.replace(' ','_')}_tuned.pkl",
+                                    mime="application/octet-stream"
+                                )
+                            except Exception as e:
+                                st.warning(f"Serialization failed: {e}")
         else:
             st.warning("No valid models to tune.")
     else:
