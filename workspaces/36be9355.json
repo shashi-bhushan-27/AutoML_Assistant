@@ -1,7 +1,7 @@
 {
-  "workspace_id": "06db0015",
-  "created_at": "2026-01-18T15:25:49.768301",
-  "updated_at": "2026-01-18T15:36:03.581122",
+  "workspace_id": "36be9355",
+  "created_at": "2026-01-18T15:41:43.131040",
+  "updated_at": "2026-01-18T15:46:06.852976",
   "status": "completed",
   "dataset_name": "nev_battery_charging.csv",
   "dataset_shape": [
@@ -12,66 +12,77 @@
   "task_type": "Regression",
   "timeline": [
     {
-      "timestamp": "2026-01-18T15:25:49.768301",
+      "timestamp": "2026-01-18T15:41:43.131040",
       "event": "workspace_created",
       "description": "New workspace initialized",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:26:00.587632",
+      "timestamp": "2026-01-18T15:42:01.108210",
       "event": "dataset_uploaded",
       "description": "Uploaded nev_battery_charging.csv with shape (1900, 21)",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:26:47.239751",
+      "timestamp": "2026-01-18T15:42:40.933952",
       "event": "preprocessing_complete",
-      "description": "Applied 21 preprocessing steps",
+      "description": "Applied 17 preprocessing steps",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:34:26.286898",
+      "timestamp": "2026-01-18T15:42:47.806874",
       "event": "preprocessing_complete",
-      "description": "Applied 21 preprocessing steps",
+      "description": "Applied 17 preprocessing steps",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:34:42.865188",
+      "timestamp": "2026-01-18T15:42:52.594695",
+      "event": "preprocessing_complete",
+      "description": "Applied 17 preprocessing steps",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:43:14.888728",
       "event": "analysis_complete",
       "description": "Target: charging_time, Task: Regression",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:34:59.950679",
+      "timestamp": "2026-01-18T15:43:43.025707",
       "event": "training_complete",
-      "description": "Trained 4 models. Best: None",
+      "description": "Trained 3 models. Best: None",
       "metadata": {}
     },
     {
-      "timestamp": "2026-01-18T15:36:03.581122",
+      "timestamp": "2026-01-18T15:45:41.337010",
+      "event": "preprocessing_complete",
+      "description": "Applied 15 preprocessing steps",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:45:44.704196",
+      "event": "preprocessing_complete",
+      "description": "Applied 15 preprocessing steps",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:45:54.030429",
+      "event": "analysis_complete",
+      "description": "Target: charging_time, Task: Regression",
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-01-18T15:46:06.852976",
       "event": "training_complete",
-      "description": "Trained 4 models. Best: None",
+      "description": "Trained 3 models. Best: None",
       "metadata": {}
     }
   ],
   "profile_summary": {
     "rows": 1900,
-    "columns": 20,
+    "columns": 7,
     "missing_values": 0,
     "numerical_columns": [
-      "SOC",
-      "SOH",
-      "terminal_voltage",
-      "battery_current",
-      "battery_temp",
-      "ambient_temp",
-      "internal_resistance",
-      "action_current",
-      "action_voltage",
-      "dT_dt",
-      "dV_dt",
-      "soc_delta",
-      "thermal_stress_index",
       "aging_indicator",
       "charging_efficiency",
       "charging_time",
@@ -110,15 +121,9 @@
       "status": "applied"
     },
     {
-      "step": "Correlation Analysis",
-      "action": "6 highly correlated pairs",
-      "reason": "Consider removing redundant features",
-      "status": "applied"
-    },
-    {
       "step": "Basic Stats",
-      "action": "1900 rows, 20 columns",
-      "reason": "Memory: 0.29 MB",
+      "action": "1900 rows, 7 columns",
+      "reason": "Memory: 0.1 MB",
       "status": "applied"
     },
     {
@@ -129,7 +134,7 @@
     },
     {
       "step": "Numeric Analysis",
-      "action": "3 skewed columns detected",
+      "action": "1 skewed columns detected",
       "reason": "May need transformation",
       "status": "applied"
     },
@@ -153,30 +158,6 @@
     },
     {
       "step": "Outlier Handling",
-      "action": "Capped dT_dt",
-      "reason": "42 outliers capped to [-0.49, 1.57]",
-      "status": "applied"
-    },
-    {
-      "step": "Outlier Handling",
-      "action": "Capped dV_dt",
-      "reason": "13 outliers capped to [-0.06, 0.06]",
-      "status": "applied"
-    },
-    {
-      "step": "Outlier Handling",
-      "action": "Capped soc_delta",
-      "reason": "7 outliers capped to [0.01, 0.09]",
-      "status": "applied"
-    },
-    {
-      "step": "Outlier Handling",
-      "action": "Capped thermal_stress_index",
-      "reason": "51 outliers capped to [1.00, 1.00]",
-      "status": "applied"
-    },
-    {
-      "step": "Outlier Handling",
       "action": "Capped aging_indicator",
       "reason": "24 outliers capped to [-0.13, 0.40]",
       "status": "applied"
@@ -195,20 +176,14 @@
     },
     {
       "step": "Scaling",
-      "action": "Standard scaling on 6 columns",
+      "action": "Standard scaling on 1 columns",
       "reason": "No significant outliers, using StandardScaler",
       "status": "applied"
     },
     {
       "step": "Variance Filter",
-      "action": "Dropped 10 columns",
+      "action": "Dropped 5 columns",
       "reason": "Variance < 0.01",
-      "status": "applied"
-    },
-    {
-      "step": "Correlation Filter",
-      "action": "Dropped 3 columns",
-      "reason": "Correlation > 0.95",
       "status": "applied"
     },
     {
@@ -220,40 +195,34 @@
   ],
   "recommendations": [
     "Prophet",
-    "XGBoost",
-    "Random Forest",
-    "Gradient Boosting"
+    "Gradient Boosting",
+    "ARIMA"
   ],
   "model_results": {
     "Model": {
       "0": "Prophet",
-      "1": "XGBoost",
-      "2": "Random Forest",
-      "3": "Gradient Boosting"
+      "1": "Gradient Boosting",
+      "2": "ARIMA"
     },
     "Error": {
-      "0": "Dataframe must have columns \"ds\" and \"y\" with the dates and values respectively.",
+      "0": "'ModelTrainer' object has no attribute 'df_train'",
       "1": NaN,
-      "2": NaN,
-      "3": NaN
+      "2": NaN
     },
     "Time (s)": {
       "0": NaN,
-      "1": 0.2918,
-      "2": 1.6911,
-      "3": 0.6307
+      "1": 0.1045,
+      "2": 0.3442
     },
     "RMSE": {
       "0": NaN,
-      "1": 849.7288,
-      "2": 744.5437,
-      "3": 798.3283
+      "1": 710.8303,
+      "2": 695.6813
     },
     "MAE": {
       "0": NaN,
-      "1": 695.4461,
-      "2": 631.912,
-      "3": 668.7908
+      "1": 610.3388,
+      "2": 599.6246
     }
   },
   "best_model": null,
