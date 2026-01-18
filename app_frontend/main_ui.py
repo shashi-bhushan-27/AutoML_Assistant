@@ -12,6 +12,7 @@ from app_backend.statistical_engine import analyze_dataset
 from app_backend.llm_rag_core import ModelAdvisor
 from app_backend.model_trainer import ModelTrainer
 from app_backend.model_tuner import ModelTuner
+from app_backend.preprocessing_engine.engine import AutoPreprocessor
 
 # --- SET CONFIG ---
 st.set_page_config(
@@ -47,9 +48,11 @@ if 'recommendations' not in st.session_state: st.session_state.recommendations =
 if 'trainer' not in st.session_state: st.session_state.trainer = None
 if 'results_df' not in st.session_state: st.session_state.results_df = None
 if 'df_clean' not in st.session_state: st.session_state.df_clean = None
+if 'preprocessor' not in st.session_state: st.session_state.preprocessor = None
+if 'preprocess_report' not in st.session_state: st.session_state.preprocess_report = None
 
 # --- WORKFLOW TABS ---
-tab1, tab2, tab3, tab4 = st.tabs(["📂 1. Upload & Clean", "🔍 2. Analysis", "🤖 3. Model Training", "🚀 4. Optimization"])
+tab1, tab2, tab2b, tab3, tab4 = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization"])
 
 # ==========================
 # TAB 1: UPLOAD & CLEAN
@@ -92,9 +95,99 @@ with tab1:
             st.info("👆 Upload a CSV file to get started.")
 
 # ==========================
-# TAB 2: ANALYSIS
+# TAB 2: PREPROCESSING
 # ==========================
 with tab2:
+    if st.session_state.df_clean is not None:
+        df = st.session_state.df_clean
+        
+        st.markdown("### 🔧 Advanced Preprocessing Engine", unsafe_allow_html=True)
+        st.write("Automated preprocessing with full explainability. Every step is logged with reasons.")
+        
+        col_p1, col_p2 = st.columns([1, 2])
+        
+        with col_p1:
+            st.markdown("#### Configuration")
+            target_col = st.selectbox("Select Target Variable", df.columns, key="preprocess_target")
+            
+            is_timeseries = st.checkbox("Time Series Data?", value=False)
+            date_col = None
+            if is_timeseries:
+                date_col = st.selectbox("Date Column", df.columns)
+            
+            apply_smote = st.checkbox("Apply SMOTE for imbalance?", value=False)
+            
+            if st.button("🚀 Run Preprocessing", type="primary"):
+                with st.spinner("Running preprocessing pipeline..."):
+                    preprocessor = AutoPreprocessor(
+                        target_col=target_col,
+                        task_type="auto",
+                        is_time_series=is_timeseries,
+                        date_col=date_col,
+                        apply_smote=apply_smote,
+                        verbose=True
+                    )
+                    
+                    result = preprocessor.fit_transform(df=df)
+                    st.session_state.preprocessor = preprocessor
+                    st.session_state.preprocess_report = preprocessor.get_report()
+                    
+                    # Store for training
+                    st.session_state.X_train = result["X_train"]
+                    st.session_state.X_test = result["X_test"]
+                    st.session_state.y_train = result["y_train"]
+                    st.session_state.y_test = result["y_test"]
+                    
+                    st.success("✅ Preprocessing Complete!")
+        
+        with col_p2:
+            if st.session_state.preprocess_report:
+                report = st.session_state.preprocess_report
+                
+                st.markdown("#### 📊 Results")
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Task Type", report['summary']['task_type'].title())
+                m2.metric("Features", report['summary']['features_final'])
+                m3.metric("Train Samples", report['summary']['train_samples'])
+                m4.metric("Test Samples", report['summary']['test_samples'])
+                
+                st.divider()
+                
+                col_applied, col_skipped = st.columns(2)
+                
+                with col_applied:
+                    st.markdown("#### ✅ Applied Steps")
+                    for step in report['applied_steps'][:10]:  # Limit display
+                        st.markdown(f"**{step['step']}**: {step['action']}")
+                        st.caption(f"Reason: {step['reason']}")
+                
+                with col_skipped:
+                    st.markdown("#### ⏭️ Skipped Steps")
+                    for step in report['skipped_steps'][:10]:
+                        st.markdown(f"**{step['step']}**: {step['action']}")
+                        st.caption(f"Reason: {step['reason']}")
+                
+                with st.expander("📋 Full Preprocessing Report"):
+                    st.json(report)
+                
+                # Export options
+                st.divider()
+                col_e1, col_e2 = st.columns(2)
+                with col_e1:
+                    if st.button("💾 Export Pipeline"):
+                        try:
+                            pipeline_path = "preprocessor_pipeline.pkl"
+                            st.session_state.preprocessor.save(pipeline_path)
+                            st.success(f"Saved to {pipeline_path}")
+                        except Exception as e:
+                            st.error(f"Export failed: {e}")
+    else:
+        st.info("Please upload data in Step 1 first.")
+
+# ==========================
+# TAB 3: ANALYSIS
+# ==========================
+with tab2b:
     if st.session_state.df_clean is not None:
         df = st.session_state.df_clean
         
