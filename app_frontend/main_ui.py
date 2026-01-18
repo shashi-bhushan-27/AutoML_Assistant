@@ -355,9 +355,22 @@ with tab3:
         
         all_supported_models = st.session_state.trainer.get_supported_models()
         
+        # Debug: Show what AI recommended
+        with st.expander("Debug: AI Recommendations"):
+            st.write(f"Raw recommendations: {st.session_state.recommendations}")
+            st.write(f"Supported models: {all_supported_models}")
+        
         # Default selection: Intersection of AI Recs and Supported Models
         default_selection = [m for m in st.session_state.recommendations if m in all_supported_models]
-        if not default_selection: default_selection = ["XGBoost", "Random Forest"]
+        
+        # If no match, use sensible defaults based on task type
+        if not default_selection:
+            task = st.session_state.stats.get('task_type', 'Regression')
+            if task == "Regression":
+                default_selection = ["XGBoost", "Random Forest", "Gradient Boosting"]
+            else:
+                default_selection = ["XGBoost", "Random Forest", "Logistic Regression"]
+            default_selection = [m for m in default_selection if m in all_supported_models]
         
         selected_models = st.multiselect(
             "Select models to train:",
@@ -371,6 +384,16 @@ with tab3:
             else:
                 with st.status("Training models...", expanded=True) as status:
                     trainer = st.session_state.trainer
+                    
+                    # Use preprocessed data if available (from Tab 2)
+                    if st.session_state.get('X_train') is not None:
+                        trainer.set_preprocessed_data(
+                            st.session_state.X_train,
+                            st.session_state.X_test,
+                            st.session_state.y_train,
+                            st.session_state.y_test
+                        )
+                    
                     results_df = trainer.run_selected_models(selected_models)
                     st.session_state.results_df = results_df
                     
@@ -403,11 +426,26 @@ with tab3:
             st.divider()
             st.markdown("### 🏆 Leaderboard", unsafe_allow_html=True)
             
-            if not results_df.empty and "Error" not in results_df.columns:
+            # Debug: Show raw results
+            with st.expander("Debug: Raw Results"):
+                st.dataframe(results_df)
+            
+            # Check if we have any successful results
+            if "Error" in results_df.columns:
+                # Filter out rows with errors
+                success_df = results_df[results_df["Error"].isna() | (results_df["Error"] == "")]
+                error_df = results_df[results_df["Error"].notna() & (results_df["Error"] != "")]
+                
+                if not error_df.empty:
+                    st.warning(f"⚠️ {len(error_df)} model(s) failed to train. Check Debug for details.")
+            else:
+                success_df = results_df
+            
+            if not success_df.empty:
                 sort_metric = "RMSE" if st.session_state.stats['task_type'] == "Regression" else "Accuracy"
                 ascending = True if sort_metric == "RMSE" else False
                 
-                if sort_metric in results_df.columns:
+                if sort_metric in success_df.columns:
                     results_df = results_df.sort_values(by=sort_metric, ascending=ascending)
                     
                     col_l1, col_l2 = st.columns([2, 1])

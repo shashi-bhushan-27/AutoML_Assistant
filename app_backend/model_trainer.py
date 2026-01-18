@@ -17,6 +17,21 @@ class ModelTrainer:
         self.trained_models = {}
         self.encoders = {} 
         self.scaler = None
+        
+        # Pre-processed data (set externally to skip internal preprocessing)
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+        self._data_is_set = False
+    
+    def set_preprocessed_data(self, X_train, X_test, y_train, y_test):
+        """Set pre-processed data to skip internal preprocessing."""
+        self.X_train = X_train
+        self.X_test = X_test
+        self.y_train = y_train
+        self.y_test = y_test
+        self._data_is_set = True
 
     def get_supported_models(self):
         """Returns a list of all models this trainer supports."""
@@ -166,7 +181,9 @@ class ModelTrainer:
 
     # --- MAIN CONTROLLER ---
     def run_selected_models(self, selected_model_names):
-        self.split_data()
+        # Skip preprocessing if data already set from AutoPreprocessor
+        if not self._data_is_set:
+            self.split_data()
         results = []
         
         # --- LAZY IMPORT MODELS ---
