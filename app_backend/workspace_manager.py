@@ -27,13 +27,17 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 # Storage paths
-WORKSPACE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "workspaces")
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WORKSPACE_DIR = os.path.join(ROOT_DIR, "workspaces")
+DATA_DIR = os.path.join(ROOT_DIR, "data")
+UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 WORKSPACE_INDEX = os.path.join(WORKSPACE_DIR, "index.json")
 
 
 def ensure_workspace_dir():
-    """Ensure workspace directory exists."""
+    """Ensure workspace and data directories exist."""
     os.makedirs(WORKSPACE_DIR, exist_ok=True)
+    os.makedirs(UPLOADS_DIR, exist_ok=True)
     if not os.path.exists(WORKSPACE_INDEX):
         with open(WORKSPACE_INDEX, 'w') as f:
             json.dump({"workspaces": []}, f)
@@ -210,10 +214,22 @@ class WorkspaceManager:
         return workspaces
     
     def delete_workspace(self, workspace_id: str) -> bool:
-        """Delete a workspace."""
-        ws_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}.json")
-        if os.path.exists(ws_path):
-            os.remove(ws_path)
+        """Delete a workspace and all associated files."""
+        # Files to remove
+        files_to_remove = [
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}.json"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_pipeline.pkl"),
+            os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv") # Legacy check
+        ]
+        
+        for fpath in files_to_remove:
+            if os.path.exists(fpath):
+                try:
+                    os.remove(fpath)
+                except:
+                    pass
         
         self.index["workspaces"] = [
             e for e in self.index["workspaces"] 
@@ -239,14 +255,21 @@ class WorkspaceManager:
     def save_dataset(self, workspace_id: str, df: pd.DataFrame):
         """Save dataset for a workspace."""
         if df is not None:
-            data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+            data_path = os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv")
             df.to_csv(data_path, index=False)
     
     def load_dataset(self, workspace_id: str) -> Optional[pd.DataFrame]:
         """Load dataset for a workspace."""
-        data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+        # Try new uploads location first
+        data_path = os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv")
         if os.path.exists(data_path):
             return pd.read_csv(data_path)
+            
+        # Fallback to legacy location
+        legacy_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv")
+        if os.path.exists(legacy_path):
+            return pd.read_csv(legacy_path)
+            
         return None
     
     def save_session_state(self, workspace_id: str, state_data: Dict):
@@ -254,7 +277,7 @@ class WorkspaceManager:
         state_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl")
         with open(state_path, 'wb') as f:
             pickle.dump(state_data, f)
-    
+            
     def load_session_state(self, workspace_id: str) -> Optional[Dict]:
         """Load session state for a workspace."""
         state_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl")
@@ -262,3 +285,61 @@ class WorkspaceManager:
             with open(state_path, 'rb') as f:
                 return pickle.load(f)
         return None
+
+    def find_similar_workspaces(self, current_stats: Dict) -> List[Dict]:
+        """
+        Finds past workspaces with similar characteristics.
+        Criteria:
+        1. Same Task Type
+        2. Similar Dataset Size (within +/- 50%) or Feature Count
+        3. Must be 'completed' status with a Best Model
+        """
+        if not current_stats: return []
+        
+        matches = []
+        current_rows = current_stats.get('rows', 0)
+        current_cols = current_stats.get('columns', 0)
+        current_task = current_stats.get('task_type')
+        
+        for entry in self.index.get("workspaces", []):
+            try:
+                # Skip if no best model found (incomplete experiment)
+                if not entry.get("best_model"): continue
+                
+                # Load full workspace to check details
+                # Optimization: We could store stats in index, but loading JSON is fast enough for small N
+                ws = self.load_workspace(entry["workspace_id"])
+                if not ws: continue
+                
+                # Check 1: Task Type
+                if ws.task_type != current_task: continue
+                
+                # Check 2: Size Similarity
+                # We consider it similar if row count is within range OR feature count matches close enough
+                ws_stats = ws.profile_summary
+                ws_rows = ws_stats.get('rows', 0)
+                ws_cols = ws_stats.get('columns', 0)
+                
+                # Avoid division by zero
+                if ws_rows == 0: continue
+                
+                # Heuristic: 
+                # - Feature count is usually a strong indicator of dataset structure similarity
+                # - Row count matters for algorithm selection (e.g. DL vs Trees)
+                
+                row_diff = abs(ws_rows - current_rows) / max(current_rows, 1)
+                col_diff = abs(ws_cols - current_cols) / max(current_cols, 1)
+                
+                # Match: Rows within 50% OR Cols within 30%
+                if row_diff < 0.5 or col_diff < 0.3:
+                    matches.append({
+                        "dataset": ws.dataset_name,
+                        "best_model": ws.best_model,
+                        "best_score": ws.best_score,
+                        "rows": ws_rows,
+                        "features": ws_cols
+                    })
+            except:
+                continue
+                
+        return matches
