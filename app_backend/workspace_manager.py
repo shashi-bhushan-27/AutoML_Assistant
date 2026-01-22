@@ -285,3 +285,61 @@ class WorkspaceManager:
             with open(state_path, 'rb') as f:
                 return pickle.load(f)
         return None
+
+    def find_similar_workspaces(self, current_stats: Dict) -> List[Dict]:
+        """
+        Finds past workspaces with similar characteristics.
+        Criteria:
+        1. Same Task Type
+        2. Similar Dataset Size (within +/- 50%) or Feature Count
+        3. Must be 'completed' status with a Best Model
+        """
+        if not current_stats: return []
+        
+        matches = []
+        current_rows = current_stats.get('rows', 0)
+        current_cols = current_stats.get('columns', 0)
+        current_task = current_stats.get('task_type')
+        
+        for entry in self.index.get("workspaces", []):
+            try:
+                # Skip if no best model found (incomplete experiment)
+                if not entry.get("best_model"): continue
+                
+                # Load full workspace to check details
+                # Optimization: We could store stats in index, but loading JSON is fast enough for small N
+                ws = self.load_workspace(entry["workspace_id"])
+                if not ws: continue
+                
+                # Check 1: Task Type
+                if ws.task_type != current_task: continue
+                
+                # Check 2: Size Similarity
+                # We consider it similar if row count is within range OR feature count matches close enough
+                ws_stats = ws.profile_summary
+                ws_rows = ws_stats.get('rows', 0)
+                ws_cols = ws_stats.get('columns', 0)
+                
+                # Avoid division by zero
+                if ws_rows == 0: continue
+                
+                # Heuristic: 
+                # - Feature count is usually a strong indicator of dataset structure similarity
+                # - Row count matters for algorithm selection (e.g. DL vs Trees)
+                
+                row_diff = abs(ws_rows - current_rows) / max(current_rows, 1)
+                col_diff = abs(ws_cols - current_cols) / max(current_cols, 1)
+                
+                # Match: Rows within 50% OR Cols within 30%
+                if row_diff < 0.5 or col_diff < 0.3:
+                    matches.append({
+                        "dataset": ws.dataset_name,
+                        "best_model": ws.best_model,
+                        "best_score": ws.best_score,
+                        "rows": ws_rows,
+                        "features": ws_cols
+                    })
+            except:
+                continue
+                
+        return matches

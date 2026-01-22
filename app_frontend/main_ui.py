@@ -14,7 +14,9 @@ from app_backend.model_trainer import ModelTrainer
 from app_backend.model_tuner import ModelTuner
 from app_backend.preprocessing_engine.engine import AutoPreprocessor
 from app_backend.workspace_manager import WorkspaceManager, Workspace
+from app_backend.workspace_manager import WorkspaceManager, Workspace
 from app_backend.report_generator import ReportGenerator
+from app_backend.code_generator import generate_training_code
 
 # --- SET CONFIG ---
 st.set_page_config(
@@ -67,6 +69,22 @@ if st.session_state.current_workspace is None:
     col_create, col_spacer = st.columns([1, 3])
     with col_create:
         if st.button("➕ Create New Workspace", type="primary", use_container_width=True):
+            # 1. Clear session state to prevent leakage
+            st.session_state.df_clean = None
+            st.session_state.stats = None
+            st.session_state.recommendations = []
+            st.session_state.trainer = None
+            st.session_state.results_df = None
+            st.session_state.preprocessor = None
+            st.session_state.preprocess_report = None
+            st.session_state.X_train = None
+            st.session_state.X_test = None
+            
+            # Reset file uploader tracker
+            if 'last_uploaded_file' in st.session_state:
+                del st.session_state['last_uploaded_file']
+            
+            # 2. Create and assign new workspace
             new_ws = wm.create_workspace(dataset_name="New Analysis", dataset_shape=(0, 0))
             st.session_state.current_workspace = new_ws
             st.rerun()
@@ -163,6 +181,11 @@ with tab1:
                 
             except Exception as e:
                 st.error(f"❌ Error parsing CSV: {e}")
+    
+    # Show status if using stored data
+    elif st.session_state.df_clean is not None and st.session_state.current_workspace:
+         st.success(f"✅ Using stored dataset: **{st.session_state.current_workspace.dataset_name}**")
+         st.caption("Upload a new file above to overwrite.")
 
     # Display Current Dataset (from upload or loaded workspace)
     if st.session_state.df_clean is not None:
@@ -329,8 +352,33 @@ with tab2b:
                             return ModelAdvisor()
                         
                         advisor = get_advisor()
-                        recs = advisor.get_recommendations(stats)
-                        st.session_state.recommendations = recs
+                        supported_models = temp_trainer.get_supported_models()
+                        
+                        # Meta-Learning: Find similar past workspaces
+                        wm = st.session_state.workspace_manager
+                        
+                        # Fix for Stale Object Reference (Hot-Reload)
+                        if not hasattr(wm, 'find_similar_workspaces'):
+                            st.warning("🔄 Refreshing Workspace Manager...")
+                            wm = WorkspaceManager() # Re-instantiate to get new methods
+                            st.session_state.workspace_manager = wm
+                            
+                        similar_ws = wm.find_similar_workspaces(stats)
+                        st.session_state.similar_workspaces = similar_ws # Store for UI
+                        
+                        raw_recs = advisor.get_recommendations(stats, supported_models, similar_workspaces=similar_ws)
+                        
+                        # Handle new JSON structure vs legacy list
+                        if isinstance(raw_recs, dict):
+                            st.session_state.recommendations = raw_recs.get("recommendations", [])
+                            st.session_state.reasoning = raw_recs.get("reasoning", [])
+                        else:
+                            st.session_state.recommendations = raw_recs
+                            st.session_state.reasoning = []
+                        
+                        # Reset model selector state to apply new recommendations
+                        if "model_selector" in st.session_state:
+                            del st.session_state["model_selector"]
                         
                         # 4. Update workspace with user-selected target
                         if st.session_state.current_workspace:
@@ -353,8 +401,22 @@ with tab2b:
                 m2.metric("Features", st.session_state.stats.get('columns', 0))
                 m3.metric("Task Type", st.session_state.stats.get('task_type', 'Unknown'))
                 
+                # Meta-Learning Badge
+                if st.session_state.get('similar_workspaces'):
+                    count = len(st.session_state.similar_workspaces)
+                    st.info(f"💡 **Meta-Learning Active**: Recommendations biased by {count} similar past experiment(s).")
+                m2.metric("Features", st.session_state.stats.get('columns', 0))
+                m3.metric("Task Type", st.session_state.stats.get('task_type', 'Unknown'))
+                
                 st.markdown("#### AI Recommendations")
                 st.success(f"**Strategy:** {', '.join(st.session_state.recommendations)}")
+                
+                # Upgrade 3: Explainability Layer
+                if st.session_state.get('reasoning'):
+                    with st.expander("🧠 Why This Model?", expanded=True):
+                        st.caption("The AI Advisor selected these models because:")
+                        for r in st.session_state.reasoning:
+                            st.markdown(f"- {r}")
                 
                 # Preprocessing Report
                 if st.session_state.trainer:
@@ -387,7 +449,27 @@ with tab3:
             st.write(f"Supported models: {all_supported_models}")
         
         # Default selection: Intersection of AI Recs and Supported Models
-        default_selection = [m for m in st.session_state.recommendations if m in all_supported_models]
+        # Fuzzy matching implementation
+        default_selection = []
+        normalized_supported = {m.lower().replace(" ", ""): m for m in all_supported_models}
+        
+        for rec in st.session_state.recommendations:
+            rec_clean = str(rec).lower().replace(" ", "")
+            # Direct match
+            if rec in all_supported_models:
+                default_selection.append(rec)
+            # Fuzzy match
+            elif rec_clean in normalized_supported:
+                default_selection.append(normalized_supported[rec_clean])
+            # Partial match (e.g. "Random Forest Classifier" -> "Random Forest")
+            else:
+                for clean_key, valid_name in normalized_supported.items():
+                    if clean_key in rec_clean or rec_clean in clean_key:
+                        default_selection.append(valid_name)
+                        break
+        
+        # Deduplicate
+        default_selection = list(set(default_selection))
         
         # If no match, use sensible defaults based on task type
         if not default_selection:
@@ -401,7 +483,8 @@ with tab3:
         selected_models = st.multiselect(
             "Select models to train:",
             options=all_supported_models,
-            default=default_selection
+            default=default_selection,
+            key="model_selector"
         )
         
         if st.button("🚀 Start Training", type="primary"):
@@ -522,8 +605,8 @@ with tab4:
                 model_to_tune = st.selectbox("Select model to optimize:", valid_models)
                 
                 st.markdown("#### Tuning Settings")
-                n_iter = st.slider("Number of Iterations", min_value=5, max_value=50, value=15, 
-                                   help="How many random parameter combinations to try.")
+                time_budget = st.number_input("Time Budget (seconds)", min_value=10, max_value=600, value=30, 
+                                   help="Max time to spend exploring hyperparameters.")
                 cv_folds = st.slider("Cross-Validation Folds", min_value=2, max_value=10, value=3,
                                      help="Number of folds for cross-validation.")
             
@@ -569,9 +652,9 @@ with tab4:
             st.divider()
             
             if st.button(f"✨ Optimize {model_to_tune}", type="primary"):
-                with st.spinner(f"Tuning {model_to_tune} with {n_iter} iterations and {cv_folds}-fold CV..."):
+                with st.spinner(f"Auto-tuning {model_to_tune} using Bayesian Optimization (Optuna) for {time_budget}s..."):
                     tuner = ModelTuner(st.session_state.trainer)
-                    tuned_res = tuner.tune_model(model_to_tune, n_iter=n_iter, cv_folds=cv_folds, custom_params=custom_params)
+                    tuned_res = tuner.tune_model(model_to_tune, time_budget=time_budget, cv_folds=cv_folds, custom_params=custom_params)
                     
                     if "Error" in tuned_res:
                         st.error(tuned_res["Error"])
@@ -592,6 +675,24 @@ with tab4:
                                     file_name=f"{model_to_tune.replace(' ','_')}_tuned.pkl",
                                     mime="application/octet-stream"
                                 )
+                                
+                                # Export Python Code
+                                st.divider()
+                                with st.expander("📜 View/Copy Training Code", expanded=True):
+                                    st.write("run this code in your environment (e.g. Colab) to train this model.")
+                                    
+                                    # Get params from result
+                                    best_params = tuned_res.get("Best Params", {})
+                                    
+                                    code = generate_training_code(
+                                        dataset_name=f"{ws.dataset_name}",
+                                        target_col=ws.target_col,
+                                        model_name=model_to_tune,
+                                        best_params=best_params,
+                                        task_type=ws.task_type
+                                    )
+                                    st.code(code, language='python')
+                                    
                             except Exception as e:
                                 st.warning(f"Serialization failed: {e}")
         else:

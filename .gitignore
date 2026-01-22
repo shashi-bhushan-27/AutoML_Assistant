@@ -23,6 +23,17 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Project Specific - Data & Sessions
+workspaces/
+data/uploads/
+knowledge_base/faiss_index/
+
+# Serialized Models & Pipelines
+*.pkl
+*.pickle
+*.joblib
+*.csv
+*.json
 # Virtual Environment
 venv/
 env/
@@ -39,3 +50,7 @@ venv.bak/
 
 # Streamlit
 .streamlit/
+
+# OS specific
+.DS_Store
+Thumbs.db
