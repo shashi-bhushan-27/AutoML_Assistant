@@ -7,6 +7,62 @@
       "status": "completed",
       "task_type": "Classification",
       "best_model": "Gradient Boosting"
+    },
+    {
+      "workspace_id": "88c00ee0",
+      "created_at": "2026-01-22T23:50:53.962541",
+      "dataset_name": "engine_data.csv",
+      "status": "in-progress",
+      "task_type": "Classification",
+      "best_model": null
+    },
+    {
+      "workspace_id": "a2cc6799",
+      "created_at": "2026-01-23T20:39:11.681585",
+      "dataset_name": "engine_data.csv",
+      "status": "completed",
+      "task_type": "Classification",
+      "best_model": "Gradient Boosting"
+    },
+    {
+      "workspace_id": "68b1cc9c",
+      "created_at": "2026-02-11T11:23:37.205072",
+      "dataset_name": "EV_Charging_Grid_Optimization_Categorical.csv",
+      "status": "completed",
+      "task_type": "Regression",
+      "best_model": null
+    },
+    {
+      "workspace_id": "e1f7c15b",
+      "created_at": "2026-02-11T12:05:47.595390",
+      "dataset_name": "EV_Charging_Grid_Optimization_Categorical(modified).csv",
+      "status": "in-progress",
+      "task_type": "regression",
+      "best_model": null
+    },
+    {
+      "workspace_id": "97bdca7b",
+      "created_at": "2026-02-11T12:09:15.826838",
+      "dataset_name": "EV_Charging_Grid_Optimization_Categorical(modified).csv",
+      "status": "in-progress",
+      "task_type": "regression",
+      "best_model": null
+    },
+    {
+      "workspace_id": "093d2cac",
+      "created_at": "2026-02-11T12:24:59.227996",
+      "dataset_name": "EV_Charging_Grid_Optimization_Categorical.csv",
+      "status": "completed",
+      "task_type": "Regression",
+      "best_model": null
+    },
+    {
+      "workspace_id": "990c27bf",
+      "created_at": "2026-02-11T13:18:29.145148",
+      "dataset_name": "EV_Charging_Grid_Optimization_Categorical.csv",
+      "status": "completed",
+      "task_type": "Regression",
+      "best_model": null
     }
   ]
 }

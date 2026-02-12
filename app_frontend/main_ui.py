@@ -147,7 +147,7 @@ with col_status:
 st.divider()
 
 # --- WORKFLOW TABS ---
-tab1, tab2, tab2b, tab3, tab4 = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization"])
+tab1, tab2, tab2b, tab3, tab4, tab_docs = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization", "📖 Docs & Help"])
 
 # ==========================
 # TAB 1: UPLOAD & CLEAN
@@ -699,3 +699,334 @@ with tab4:
             st.warning("No valid models to tune.")
     else:
         st.info("Train a model in Step 3 first.")
+
+# ==========================
+# TAB 6: DOCS & HELP
+# ==========================
+with tab_docs:
+    st.markdown("""
+    <div style="text-align: center; padding: 1.5rem 0;">
+        <h2 style="font-size: 2.2rem; margin-bottom: 0.3rem;">📖 Documentation & <span style="color: #ec4899">Help Center</span></h2>
+        <p style="font-size: 1rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">
+            Everything you need to know to get the most out of AutoML Assistant.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ---- SECTION 1: GETTING STARTED ----
+    st.markdown("### 🚀 Getting Started")
+    st.markdown("""
+    AutoML Assistant guides you through a **5-step workflow** to go from raw data to a trained, optimized machine learning model:
+
+    | Step | Tab | What Happens |
+    |------|-----|-------------|
+    | **1** | 📂 Upload | Import your CSV dataset and optionally remove unwanted columns |
+    | **2** | 🔧 Preprocessing | Automatically clean, encode, and scale your data |
+    | **3** | 🔍 Analysis | AI analyzes your data and recommends the best models |
+    | **4** | 🤖 Training | Train multiple ML models and compare results on a leaderboard |
+    | **5** | 🚀 Optimization | Fine-tune the best model with Bayesian hyperparameter search |
+
+    > **Tip:** Start by creating a **Workspace** — it saves your entire session so you can come back anytime.
+    """)
+
+    st.divider()
+
+    # ---- SECTION 2: STEP-BY-STEP GUIDE ----
+    st.markdown("### 📂 Step-by-Step Guide")
+
+    with st.expander("📂 Step 1 — Upload & Clean", expanded=False):
+        st.markdown("""
+        **Goal:** Import your dataset into the platform.
+
+        1. Click **"➕ Create New Workspace"** on the home screen.
+        2. In the **Upload** tab, drag-and-drop or browse for a **CSV file**.
+        3. A preview of the first 5 rows will appear on the right.
+        4. *(Optional)* Use the **"Select columns to remove"** dropdown to drop irrelevant columns (e.g., IDs, names).
+        5. Click **"Apply Column Removal"** to confirm.
+
+        **What file formats are supported?**
+        Currently, only **`.csv`** files are supported. Make sure your CSV uses commas as delimiters.
+
+        **How large can my file be?**
+        There is no hard limit, but files over **200 MB** may cause slow performance. For very large datasets, consider sampling your data before uploading.
+        """)
+
+    with st.expander("🔧 Step 2 — Preprocessing", expanded=False):
+        st.markdown("""
+        **Goal:** Automatically clean and prepare your data for ML training.
+
+        1. Select your **Target Variable** (the column you want to predict).
+        2. *(Optional)* Toggle **"Time Series Data?"** if your data is temporal and select the date column.
+        3. *(Optional)* Toggle **"Apply SMOTE"** if you have an imbalanced classification dataset.
+        4. Click **"🚀 Run Preprocessing"**.
+
+        The engine will automatically:
+        - Detect column types (numerical, categorical, datetime)
+        - Impute missing values
+        - Remove or cap outliers
+        - Encode categorical features (One-Hot or Label Encoding)
+        - Scale numerical features (Standard or MinMax Scaling)
+        - Split data into Train/Test sets (80/20 by default)
+
+        **Understanding the Report:**
+        - **✅ Applied Steps** — Transformations that were applied and why.
+        - **⏭️ Skipped Steps** — Steps that were not needed (e.g., "No missing values found").
+        - You can expand **"📋 Full Preprocessing Report"** for the complete JSON details.
+
+        **Exporting the Pipeline:**
+        Click **"💾 Export Pipeline"** to save the fitted preprocessor as a `.pkl` file for reuse.
+        """)
+
+    with st.expander("🔍 Step 3 — Analysis", expanded=False):
+        st.markdown("""
+        **Goal:** Let the AI analyze your dataset and recommend the best models.
+
+        1. Select your **Target Variable**.
+        2. Click **"🔍 Analyze Dataset"**.
+        3. The system will:
+           - Generate statistical profiles (correlation, skewness, class balance, etc.)
+           - Send the profile to the **Groq AI (Llama 3.1)** via a RAG pipeline
+           - Return **3-5 recommended models** with reasoning
+
+        **Key UI Elements:**
+        - **Data Insights** — Row count, feature count, and detected task type (Regression/Classification).
+        - **AI Recommendations** — The models the AI suggests, auto-selected for training.
+        - **"🧠 Why This Model?"** — Expandable panel explaining the AI's reasoning.
+        - **"💡 Meta-Learning Active"** badge appears when the system uses results from your past experiments to improve suggestions.
+
+        > **Note:** This step requires a valid **GROQ_API_KEY** in your `.env` file. If AI fails, the system falls back to safe defaults (XGBoost, Random Forest).
+        """)
+
+    with st.expander("🤖 Step 4 — Training", expanded=False):
+        st.markdown("""
+        **Goal:** Train one or more ML models and compare their performance.
+
+        1. The AI-recommended models are **pre-selected** in the multi-select dropdown.
+        2. You can add or remove models from the list.
+        3. Click **"🚀 Start Training"**.
+        4. A live progress indicator shows training status.
+
+        **After Training:**
+        - A **🏆 Leaderboard** ranks all models by performance:
+          - **Regression** → Sorted by RMSE (lower is better)
+          - **Classification** → Sorted by Accuracy (higher is better)
+        - An interactive **bar chart** visualizes the comparison.
+        - The **best model** is highlighted in green.
+
+        **What if a model fails?**
+        Failed models appear with a warning. Check the **"Debug: Raw Results"** expander for error details. The leaderboard still shows successful models.
+        """)
+
+    with st.expander("🚀 Step 5 — Optimization", expanded=False):
+        st.markdown("""
+        **Goal:** Squeeze extra performance from your best model via hyperparameter tuning.
+
+        1. Select the model to optimize from the dropdown.
+        2. Set a **Time Budget** (default: 30 seconds). More time = more exploration.
+        3. Set **Cross-Validation Folds** (default: 3).
+        4. *(Optional)* Expand **"🔧 Advanced: Edit Parameter Ranges"** to customize hyperparameter search spaces.
+        5. Click **"✨ Optimize [Model]"**.
+
+        The system uses **Optuna** (Bayesian optimization) to intelligently search the parameter space, pruning bad trials early.
+
+        **After Optimization:**
+        - The best parameters and score are displayed.
+        - Click **"💾 Download Tuned Model"** to export as a `.pkl` file.
+        - Expand **"📜 View/Copy Training Code"** to get a ready-to-run Python script for reproducing the result (e.g., in Google Colab).
+        """)
+
+    st.divider()
+
+    # ---- SECTION 3: COMMON ERRORS & TROUBLESHOOTING ----
+    st.markdown("### ⚠️ Common Errors & Troubleshooting")
+
+    errors_data = [
+        {
+            "error": "❌ Error parsing CSV",
+            "cause": "Your CSV file is malformed, uses a non-standard delimiter (e.g., semicolons), or has encoding issues.",
+            "fix": "Open the file in Excel or Google Sheets, then re-export as a standard UTF-8 CSV with commas."
+        },
+        {
+            "error": "'Please upload data in Step 1 first'",
+            "cause": "You jumped to Preprocessing, Analysis, or Training before uploading a dataset.",
+            "fix": "Go back to the **📂 Upload** tab and upload a CSV file first."
+        },
+        {
+            "error": "AI Analysis hangs or returns fallback models",
+            "cause": "The Groq API key is missing, invalid, or the API is temporarily unavailable.",
+            "fix": "1. Check your `.env` file has a valid `GROQ_API_KEY`.\n2. Test the key by running `python test_groq_connection.py`.\n3. The system still works with fallback models (XGBoost, Random Forest) even if the API fails."
+        },
+        {
+            "error": "Vector Store not found!",
+            "cause": "The FAISS vector store (used by the AI advisor) has not been built yet.",
+            "fix": "Run this command once: `python app_backend/llm_rag_core.py` — this builds the knowledge base index."
+        },
+        {
+            "error": "SMOTE error / Too few samples",
+            "cause": "SMOTE requires at least 2 samples per class in the minority class, and only works for classification tasks.",
+            "fix": "1. Ensure your target variable is categorical (not continuous).\n2. Ensure each class has at least 2 samples.\n3. If your dataset is very small (< 50 rows), disable SMOTE."
+        },
+        {
+            "error": "Model training fails / Convergence warning",
+            "cause": "Some models (e.g., SVM, Logistic Regression) fail to converge on certain data shapes or when features are not scaled.",
+            "fix": "1. Run **Preprocessing** (Step 2) before training — it handles scaling automatically.\n2. Try tree-based models (XGBoost, Random Forest) which are more robust.\n3. Remove highly correlated or constant columns."
+        },
+        {
+            "error": "KeyError or missing column after preprocessing",
+            "cause": "The target column was dropped or renamed during preprocessing.",
+            "fix": "Do NOT remove your target column in Step 1. Make sure the target variable name matches exactly in all steps."
+        },
+        {
+            "error": "Workspace data missing after reload",
+            "cause": "The Streamlit file uploader resets on page reload, but your data is actually saved.",
+            "fix": "Look for the green **'✅ Using stored dataset'** banner. Your data is safe — no need to re-upload."
+        },
+        {
+            "error": "Serialization / Pickle error on download",
+            "cause": "Some model objects cannot be serialized (rare edge case with custom estimators).",
+            "fix": "Try a different model. Standard scikit-learn and XGBoost models export without issues."
+        },
+        {
+            "error": "Prophet / ARIMA / SARIMAX fails",
+            "cause": "Time-series models require a valid datetime column and properly ordered data.",
+            "fix": "1. Toggle **'Time Series Data?'** in preprocessing.\n2. Ensure your date column is in a parseable format (e.g., YYYY-MM-DD).\n3. Sort your data by date before uploading."
+        },
+    ]
+
+    for item in errors_data:
+        with st.expander(f"🔴 {item['error']}"):
+            st.markdown(f"**Likely Cause:** {item['cause']}")
+            st.markdown(f"**How to Fix:** {item['fix']}")
+
+    st.divider()
+
+    # ---- SECTION 4: TIPS & BEST PRACTICES ----
+    st.markdown("### 💡 Tips & Best Practices")
+
+    col_tips1, col_tips2 = st.columns(2)
+
+    with col_tips1:
+        st.markdown("""
+        #### Data Preparation
+        - **Clean your CSV** before uploading — remove blank rows and fix typos.
+        - **Drop ID/index columns** in Step 1 — they add noise and confuse models.
+        - **Aim for 100+ rows** for meaningful results. Very small datasets (< 30 rows) will produce unreliable models.
+        - **Check class balance** for classification — if one class has 95% of the data, enable SMOTE or collect more data.
+        """)
+
+    with col_tips2:
+        st.markdown("""
+        #### Model Selection
+        - **Start with the AI recommendations** — they are tailored to your specific data profile.
+        - **XGBoost and Random Forest** are reliable general-purpose choices.
+        - **Linear/Logistic Regression** work best when features have linear relationships with the target.
+        - **SVM** can be slow on large datasets (> 10k rows) — use with caution.
+        - **Time-Series?** Use Prophet for seasonality-heavy data, ARIMA for stationary data.
+        """)
+
+    st.markdown("""
+    #### Optimization Tips
+    - **Give more time** during optimization (60-120 seconds) for complex models like XGBoost.
+    - **Increase CV folds** (5-10) for small datasets to get a more reliable score.
+    - **Customizing parameters** is optional — Optuna's defaults are already smart.
+    - After optimization, always **download the tuned model** and the **training code** for reproducibility.
+    """)
+
+    st.divider()
+
+    # ---- SECTION 5: SUPPORTED MODELS ----
+    st.markdown("### 📋 Supported Models")
+
+    col_models1, col_models2 = st.columns(2)
+
+    with col_models1:
+        st.markdown("""
+        #### Standard Models
+        | Model | Task | Best For |
+        |-------|------|----------|
+        | Linear Regression | Regression | Simple linear relationships |
+        | Ridge Regression | Regression | Regularized linear regression |
+        | Lasso Regression | Regression | Feature selection via L1 penalty |
+        | Logistic Regression | Classification | Binary/multi-class classification |
+        | Random Forest | Both | Versatile, handles mixed features |
+        | XGBoost | Both | High performance on tabular data |
+        | Gradient Boosting | Both | Strong ensemble method |
+        | SVM | Both | High-dimensional data |
+        | KNN | Both | Small datasets, similarity-based |
+        | Decision Tree | Both | Interpretable, simple models |
+        """)
+
+    with col_models2:
+        st.markdown("""
+        #### Time-Series Models
+        | Model | Best For |
+        |-------|----------|
+        | Prophet | Seasonality, holidays, trend changes |
+        | ARIMA | Stationary data, short-term forecasts |
+        | SARIMAX | Seasonal + external variables |
+
+        #### How Tasks Are Detected
+        - **Regression** — Target has continuous numerical values (e.g., price, temperature).
+        - **Classification** — Target has discrete categories (e.g., yes/no, species name).
+        - **Time-Series** — Toggled manually when your data has a date/time dimension.
+        """)
+
+    st.divider()
+
+    # ---- SECTION 6: SYSTEM REQUIREMENTS ----
+    st.markdown("### 🔗 System & Environment")
+
+    with st.expander("Python Packages (requirements.txt)", expanded=False):
+        st.markdown("""
+        | Package | Purpose |
+        |---------|---------|
+        | `streamlit` | Web UI framework |
+        | `pandas`, `numpy` | Data manipulation |
+        | `scikit-learn` | Standard ML models & utilities |
+        | `xgboost` | Gradient boosting library |
+        | `prophet` | Facebook's time-series forecaster |
+        | `statsmodels` | ARIMA / SARIMAX / statistical tests |
+        | `plotly` | Interactive charts |
+        | `optuna` | Bayesian hyperparameter optimization |
+        | `langchain`, `langchain-groq` | LLM orchestration + Groq API |
+        | `langchain-huggingface` | Embedding models |
+        | `faiss-cpu` | Vector store for RAG |
+        | `python-dotenv` | Environment variable management |
+        """)
+
+    with st.expander("Environment Setup", expanded=False):
+        st.markdown("""
+        1. **Create a virtual environment:**
+           ```bash
+           python -m venv venv
+           source venv/bin/activate  # Linux/Mac
+           .\\venv\\Scripts\\activate  # Windows
+           ```
+        2. **Install dependencies:**
+           ```bash
+           pip install -r requirements.txt
+           ```
+        3. **Set up API keys** — Create a `.env` file in the project root:
+           ```
+           GROQ_API_KEY=your_groq_api_key_here
+           HUGGINGFACEHUB_API_TOKEN=your_hf_token_here
+           ```
+        4. **Build the knowledge base** (first time only):
+           ```bash
+           python app_backend/llm_rag_core.py
+           ```
+        5. **Run the app:**
+           ```bash
+           streamlit run app_frontend/main_ui.py
+           ```
+        """)
+
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.85rem;">
+        AutoML Assistant v1.0 · Built with Streamlit, Scikit-learn, XGBoost & Groq AI<br>
+        Need help? Check the troubleshooting section above or review the project documentation.
+    </div>
+    """, unsafe_allow_html=True)

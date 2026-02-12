@@ -11,3 +11,7 @@ langchain           # To manage the LLM RAG
 langchain-community # Community tools
 python-dotenv       # To read API keys
 plotly              # Interactive graphs for the UI
+optuna              # Automated Hyperparameter Tuning
+langchain-groq      # Groq LLM integration
+langchain-huggingface # Embeddings
+faiss-cpu           # Vector Store for RAG

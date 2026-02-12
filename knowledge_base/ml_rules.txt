@@ -108,7 +108,7 @@ IF rows > 100,000:
     reason: "Dataset is large. LightGBM is significantly faster than Random Forest for large data."
 
 
-
+-
 [RULE: MODEL_SELECTION_BY_PATTERN]
 IF the series is linear AND has low noise:
     USE: ARIMA, SARIMA, ETS.
