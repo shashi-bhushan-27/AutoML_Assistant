@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import sys
 import os
 import pickle
@@ -49,86 +50,471 @@ st.markdown("""
 # --- SESSION STATE INITIALIZATION ---
 if 'stats' not in st.session_state: st.session_state.stats = None
 if 'recommendations' not in st.session_state: st.session_state.recommendations = []
+if 'reasoning' not in st.session_state: st.session_state.reasoning = []
 if 'trainer' not in st.session_state: st.session_state.trainer = None
 if 'results_df' not in st.session_state: st.session_state.results_df = None
 if 'df_clean' not in st.session_state: st.session_state.df_clean = None
 if 'preprocessor' not in st.session_state: st.session_state.preprocessor = None
 if 'preprocess_report' not in st.session_state: st.session_state.preprocess_report = None
+if 'X_train' not in st.session_state: st.session_state.X_train = None
+if 'X_test' not in st.session_state: st.session_state.X_test = None
+if 'y_train' not in st.session_state: st.session_state.y_train = None
+if 'y_test' not in st.session_state: st.session_state.y_test = None
 if 'current_workspace' not in st.session_state: st.session_state.current_workspace = None
 if 'workspace_manager' not in st.session_state: st.session_state.workspace_manager = WorkspaceManager()
 if 'view_mode' not in st.session_state: st.session_state.view_mode = "home"  # "home" or "workspace"
 
 # === WORKSPACE-FIRST UI FLOW ===
+# Hot-reload guard: re-instantiate if WorkspaceManager is stale (missing new methods)
+if not hasattr(st.session_state.workspace_manager, 'save_training_data'):
+    st.session_state.workspace_manager = WorkspaceManager()
 wm = st.session_state.workspace_manager
 workspaces = wm.list_workspaces()
 
 # Show workspace selector if no active workspace
 if st.session_state.current_workspace is None:
-    st.markdown("### 📁 Select or Create a Workspace")
+    home_tab_workspaces, home_tab_docs = st.tabs(["📁 Workspaces", "📖 Docs & Help"])
     
-    col_create, col_spacer = st.columns([1, 3])
-    with col_create:
-        if st.button("➕ Create New Workspace", type="primary", use_container_width=True):
-            # 1. Clear session state to prevent leakage
-            st.session_state.df_clean = None
-            st.session_state.stats = None
-            st.session_state.recommendations = []
-            st.session_state.trainer = None
-            st.session_state.results_df = None
-            st.session_state.preprocessor = None
-            st.session_state.preprocess_report = None
-            st.session_state.X_train = None
-            st.session_state.X_test = None
-            
-            # Reset file uploader tracker
-            if 'last_uploaded_file' in st.session_state:
-                del st.session_state['last_uploaded_file']
-            
-            # 2. Create and assign new workspace
-            new_ws = wm.create_workspace(dataset_name="New Analysis", dataset_shape=(0, 0))
-            st.session_state.current_workspace = new_ws
-            st.rerun()
+    with home_tab_workspaces:
+        st.markdown("### 📁 Select or Create a Workspace")
+        
+        col_create, col_spacer = st.columns([1, 3])
+        with col_create:
+            if st.button("➕ Create New Workspace", type="primary", use_container_width=True):
+                # 1. Clear session state to prevent leakage
+                st.session_state.df_clean = None
+                st.session_state.stats = None
+                st.session_state.recommendations = []
+                st.session_state.trainer = None
+                st.session_state.results_df = None
+                st.session_state.preprocessor = None
+                st.session_state.preprocess_report = None
+                st.session_state.X_train = None
+                st.session_state.X_test = None
+                
+                # Reset file uploader tracker
+                if 'last_uploaded_file' in st.session_state:
+                    del st.session_state['last_uploaded_file']
+                
+                # 2. Create and assign new workspace
+                new_ws = wm.create_workspace(dataset_name="New Analysis", dataset_shape=(0, 0))
+                st.session_state.current_workspace = new_ws
+                st.rerun()
+        
+        if workspaces:
+            st.markdown("#### Previous Sessions")
+            cols = st.columns(3)
+            for idx, ws_data in enumerate(workspaces):
+                with cols[idx % 3]:
+                    status_icon = "🟢" if ws_data['status'] == "completed" else "🟡"
+                    st.markdown(f"""
+                    <div style="border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 8px; background: rgba(50,50,60,0.5);">
+                        <h5 style="margin: 0;">{status_icon} {ws_data['dataset_name']}</h5>
+                        <p style="font-size: 0.8rem; color: #888;">Task: {(ws_data['task_type'] or 'Unknown').title()}</p>
+                        <p style="font-size: 0.8rem;">Best: {ws_data['best_model'] or 'N/A'}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    btn_col1, btn_col2 = st.columns(2)
+                    with btn_col1:
+                        if st.button("📂 Open", key=f"open_{ws_data['workspace_id']}", use_container_width=True):
+                            loaded_ws = wm.load_workspace(ws_data['workspace_id'])
+                            st.session_state.current_workspace = loaded_ws
+                            
+                            # --- FULL STATE RESTORATION ---
+                            # 1. Restore dataset
+                            saved_df = wm.load_dataset(ws_data['workspace_id'])
+                            if saved_df is not None:
+                                st.session_state.df_clean = saved_df
+                            
+                            # 2. Restore session state (stats, recommendations, etc.)
+                            saved_state = wm.load_session_state(ws_data['workspace_id'])
+                            if saved_state:
+                                st.session_state.stats = saved_state.get('stats')
+                                st.session_state.recommendations = saved_state.get('recommendations', [])
+                                st.session_state.preprocess_report = saved_state.get('preprocess_report')
+                                st.session_state.reasoning = saved_state.get('reasoning', [])
+                                # Restore results_df
+                                saved_results = saved_state.get('results_df')
+                                if saved_results is not None:
+                                    st.session_state.results_df = pd.DataFrame(saved_results)
+                            
+                            # 3. Restore preprocessed training data splits
+                            saved_training_data = wm.load_training_data(ws_data['workspace_id'])
+                            if saved_training_data:
+                                st.session_state.X_train = saved_training_data.get('X_train')
+                                st.session_state.X_test = saved_training_data.get('X_test')
+                                st.session_state.y_train = saved_training_data.get('y_train')
+                                st.session_state.y_test = saved_training_data.get('y_test')
+                            
+                            # 4. Restore preprocessor
+                            saved_preprocessor = wm.load_preprocessor(ws_data['workspace_id'])
+                            if saved_preprocessor is not None:
+                                st.session_state.preprocessor = saved_preprocessor
+                            
+                            # 5. Rebuild ModelTrainer if we have stats + data
+                            if saved_df is not None and st.session_state.stats is not None and loaded_ws.target_col:
+                                try:
+                                    restored_trainer = ModelTrainer(
+                                        saved_df,
+                                        loaded_ws.target_col,
+                                        st.session_state.stats.get('task_type', 'Regression'),
+                                        st.session_state.stats.get('is_time_series', False),
+                                        st.session_state.stats.get('time_column')
+                                    )
+                                    # If we have preprocessed splits, set them on the trainer
+                                    if saved_training_data:
+                                        restored_trainer.set_preprocessed_data(
+                                            saved_training_data['X_train'],
+                                            saved_training_data['X_test'],
+                                            saved_training_data['y_train'],
+                                            saved_training_data['y_test']
+                                        )
+                                    # Restore trained model objects
+                                    saved_models = wm.load_trained_models(ws_data['workspace_id'])
+                                    if saved_models:
+                                        restored_trainer.trained_models = saved_models
+                                    st.session_state.trainer = restored_trainer
+                                except Exception:
+                                    pass  # Trainer rebuild failed, user can re-analyze
+                            
+                            st.rerun()
+                    
+                    with btn_col2:
+                        if st.button("🗑️", key=f"del_{ws_data['workspace_id']}", use_container_width=True, help="Delete workspace"):
+                            wm.delete_workspace(ws_data['workspace_id'])
+                            st.toast(f"Deleted workspace: {ws_data['dataset_name']}")
+                            st.rerun()
+        else:
+            st.info("No workspaces yet. Create one to get started!")
     
-    if workspaces:
-        st.markdown("#### Previous Sessions")
-        cols = st.columns(3)
-        for idx, ws_data in enumerate(workspaces):
-            with cols[idx % 3]:
-                status_icon = "🟢" if ws_data['status'] == "completed" else "🟡"
-                st.markdown(f"""
-                <div style="border: 1px solid #444; border-radius: 10px; padding: 12px; margin-bottom: 8px; background: rgba(50,50,60,0.5);">
-                    <h5 style="margin: 0;">{status_icon} {ws_data['dataset_name']}</h5>
-                    <p style="font-size: 0.8rem; color: #888;">Task: {(ws_data['task_type'] or 'Unknown').title()}</p>
-                    <p style="font-size: 0.8rem;">Best: {ws_data['best_model'] or 'N/A'}</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                btn_col1, btn_col2 = st.columns(2)
-                with btn_col1:
-                    if st.button("📂 Open", key=f"open_{ws_data['workspace_id']}", use_container_width=True):
-                        loaded_ws = wm.load_workspace(ws_data['workspace_id'])
-                        st.session_state.current_workspace = loaded_ws
-                        
-                        # Restore saved state
-                        saved_df = wm.load_dataset(ws_data['workspace_id'])
-                        if saved_df is not None:
-                            st.session_state.df_clean = saved_df
-                        
-                        saved_state = wm.load_session_state(ws_data['workspace_id'])
-                        if saved_state:
-                            st.session_state.stats = saved_state.get('stats')
-                            st.session_state.recommendations = saved_state.get('recommendations', [])
-                            st.session_state.preprocess_report = saved_state.get('preprocess_report')
-                        
-                        st.rerun()
-                
-                with btn_col2:
-                    if st.button("🗑️", key=f"del_{ws_data['workspace_id']}", use_container_width=True, help="Delete workspace"):
-                        wm.delete_workspace(ws_data['workspace_id'])
-                        st.toast(f"Deleted workspace: {ws_data['dataset_name']}")
-                        st.rerun()
-    else:
-        st.info("No workspaces yet. Create one to get started!")
+    with home_tab_docs:
+        st.markdown("""
+        <div style="text-align: center; padding: 1.5rem 0;">
+            <h2 style="font-size: 2.2rem; margin-bottom: 0.3rem;">📖 Documentation & <span style="color: #ec4899">Help Center</span></h2>
+            <p style="font-size: 1rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">
+                Everything you need to know to get the most out of AutoML Assistant.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.divider()
+
+        # ---- SECTION 1: GETTING STARTED ----
+        st.markdown("### 🚀 Getting Started")
+        st.markdown("""
+        AutoML Assistant guides you through a **5-step workflow** to go from raw data to a trained, optimized machine learning model:
+
+        | Step | Tab | What Happens |
+        |------|-----|-------------|
+        | **1** | 📂 Upload | Import your CSV dataset and optionally remove unwanted columns |
+        | **2** | 🔧 Preprocessing | Automatically clean, encode, and scale your data |
+        | **3** | 🔍 Analysis | AI analyzes your data and recommends the best models |
+        | **4** | 🤖 Training | Train multiple ML models and compare results on a leaderboard |
+        | **5** | 🚀 Optimization | Fine-tune the best model with Bayesian hyperparameter search |
+
+        > **Tip:** Start by creating a **Workspace** — it saves your entire session so you can come back anytime.
+        """)
+
+        st.divider()
+
+        # ---- SECTION 2: STEP-BY-STEP GUIDE ----
+        st.markdown("### 📂 Step-by-Step Guide")
+
+        with st.expander("📂 Step 1 — Upload & Clean", expanded=False):
+            st.markdown("""
+            **Goal:** Import your dataset into the platform.
+
+            1. Click **"➕ Create New Workspace"** on the home screen.
+            2. In the **Upload** tab, drag-and-drop or browse for a **CSV file**.
+            3. A preview of the first 5 rows will appear on the right.
+            4. *(Optional)* Use the **"Select columns to remove"** dropdown to drop irrelevant columns (e.g., IDs, names).
+            5. Click **"Apply Column Removal"** to confirm.
+
+            **What file formats are supported?**
+            Currently, only **`.csv`** files are supported. Make sure your CSV uses commas as delimiters.
+
+            **How large can my file be?**
+            There is no hard limit, but files over **200 MB** may cause slow performance. For very large datasets, consider sampling your data before uploading.
+            """)
+
+        with st.expander("🔧 Step 2 — Preprocessing", expanded=False):
+            st.markdown("""
+            **Goal:** Automatically clean and prepare your data for ML training.
+
+            1. Select your **Target Variable** (the column you want to predict).
+            2. *(Optional)* Toggle **"Time Series Data?"** if your data is temporal and select the date column.
+            3. *(Optional)* Toggle **"Apply SMOTE"** if you have an imbalanced classification dataset.
+            4. Click **"🚀 Run Preprocessing"**.
+
+            The engine will automatically:
+            - Detect column types (numerical, categorical, datetime)
+            - Impute missing values
+            - Remove or cap outliers
+            - Encode categorical features (One-Hot or Label Encoding)
+            - Scale numerical features (Standard or MinMax Scaling)
+            - Split data into Train/Test sets (80/20 by default)
+
+            **Understanding the Report:**
+            - **✅ Applied Steps** — Transformations that were applied and why.
+            - **⏭️ Skipped Steps** — Steps that were not needed (e.g., "No missing values found").
+            - You can expand **"📋 Full Preprocessing Report"** for the complete JSON details.
+
+            **Exporting the Pipeline:**
+            Click **"💾 Export Pipeline"** to save the fitted preprocessor as a `.pkl` file for reuse.
+            """)
+
+        with st.expander("🔍 Step 3 — Analysis", expanded=False):
+            st.markdown("""
+            **Goal:** Let the AI analyze your dataset and recommend the best models.
+
+            1. Select your **Target Variable**.
+            2. Click **"🔍 Analyze Dataset"**.
+            3. The system will:
+               - Generate statistical profiles (correlation, skewness, class balance, etc.)
+               - Send the profile to the **Groq AI (Llama 3.1)** via a RAG pipeline
+               - Return **3-5 recommended models** with reasoning
+
+            **Key UI Elements:**
+            - **Data Insights** — Row count, feature count, and detected task type (Regression/Classification).
+            - **AI Recommendations** — The models the AI suggests, auto-selected for training.
+            - **"🧠 Why This Model?"** — Expandable panel explaining the AI's reasoning.
+            - **"💡 Meta-Learning Active"** badge appears when the system uses results from your past experiments to improve suggestions.
+
+            > **Note:** This step requires a valid **GROQ_API_KEY** in your `.env` file. If AI fails, the system falls back to safe defaults (XGBoost, Random Forest).
+            """)
+
+        with st.expander("🤖 Step 4 — Training", expanded=False):
+            st.markdown("""
+            **Goal:** Train one or more ML models and compare their performance.
+
+            1. The AI-recommended models are **pre-selected** in the multi-select dropdown.
+            2. You can add or remove models from the list.
+            3. Click **"🚀 Start Training"**.
+            4. A live progress indicator shows training status.
+
+            **After Training:**
+            - A **🏆 Leaderboard** ranks all models by performance:
+              - **Regression** → Sorted by RMSE (lower is better)
+              - **Classification** → Sorted by Accuracy (higher is better)
+            - An interactive **bar chart** visualizes the comparison.
+            - The **best model** is highlighted in green.
+
+            **What if a model fails?**
+            Failed models appear with a warning. Check the **"Debug: Raw Results"** expander for error details. The leaderboard still shows successful models.
+            """)
+
+        with st.expander("🚀 Step 5 — Optimization", expanded=False):
+            st.markdown("""
+            **Goal:** Squeeze extra performance from your best model via hyperparameter tuning.
+
+            1. Select the model to optimize from the dropdown.
+            2. Set a **Time Budget** (default: 30 seconds). More time = more exploration.
+            3. Set **Cross-Validation Folds** (default: 3).
+            4. *(Optional)* Expand **"🔧 Advanced: Edit Parameter Ranges"** to customize hyperparameter search spaces.
+            5. Click **"✨ Optimize [Model]"**.
+
+            The system uses **Optuna** (Bayesian optimization) to intelligently search the parameter space, pruning bad trials early.
+
+            **After Optimization:**
+            - The best parameters and score are displayed.
+            - Click **"💾 Download Tuned Model"** to export as a `.pkl` file.
+            - Expand **"📜 View/Copy Training Code"** to get a ready-to-run Python script for reproducing the result (e.g., in Google Colab).
+            """)
+
+        st.divider()
+
+        # ---- SECTION 3: COMMON ERRORS & TROUBLESHOOTING ----
+        st.markdown("### ⚠️ Common Errors & Troubleshooting")
+
+        errors_data = [
+            {
+                "error": "❌ Error parsing CSV",
+                "cause": "Your CSV file is malformed, uses a non-standard delimiter (e.g., semicolons), or has encoding issues.",
+                "fix": "Open the file in Excel or Google Sheets, then re-export as a standard UTF-8 CSV with commas."
+            },
+            {
+                "error": "'Please upload data in Step 1 first'",
+                "cause": "You jumped to Preprocessing, Analysis, or Training before uploading a dataset.",
+                "fix": "Go back to the **📂 Upload** tab and upload a CSV file first."
+            },
+            {
+                "error": "AI Analysis hangs or returns fallback models",
+                "cause": "The Groq API key is missing, invalid, or the API is temporarily unavailable.",
+                "fix": "1. Check your `.env` file has a valid `GROQ_API_KEY`.\n2. Test the key by running `python test_groq_connection.py`.\n3. The system still works with fallback models (XGBoost, Random Forest) even if the API fails."
+            },
+            {
+                "error": "Vector Store not found!",
+                "cause": "The FAISS vector store (used by the AI advisor) has not been built yet.",
+                "fix": "Run this command once: `python app_backend/llm_rag_core.py` — this builds the knowledge base index."
+            },
+            {
+                "error": "SMOTE error / Too few samples",
+                "cause": "SMOTE requires at least 2 samples per class in the minority class, and only works for classification tasks.",
+                "fix": "1. Ensure your target variable is categorical (not continuous).\n2. Ensure each class has at least 2 samples.\n3. If your dataset is very small (< 50 rows), disable SMOTE."
+            },
+            {
+                "error": "Model training fails / Convergence warning",
+                "cause": "Some models (e.g., SVM, Logistic Regression) fail to converge on certain data shapes or when features are not scaled.",
+                "fix": "1. Run **Preprocessing** (Step 2) before training — it handles scaling automatically.\n2. Try tree-based models (XGBoost, Random Forest) which are more robust.\n3. Remove highly correlated or constant columns."
+            },
+            {
+                "error": "KeyError or missing column after preprocessing",
+                "cause": "The target column was dropped or renamed during preprocessing.",
+                "fix": "Do NOT remove your target column in Step 1. Make sure the target variable name matches exactly in all steps."
+            },
+            {
+                "error": "Workspace data missing after reload",
+                "cause": "The Streamlit file uploader resets on page reload, but your data is actually saved.",
+                "fix": "Look for the green **'✅ Using stored dataset'** banner. Your data is safe — no need to re-upload."
+            },
+            {
+                "error": "Serialization / Pickle error on download",
+                "cause": "Some model objects cannot be serialized (rare edge case with custom estimators).",
+                "fix": "Try a different model. Standard scikit-learn and XGBoost models export without issues."
+            },
+            {
+                "error": "Prophet / ARIMA / SARIMAX fails",
+                "cause": "Time-series models require a valid datetime column and properly ordered data.",
+                "fix": "1. Toggle **'Time Series Data?'** in preprocessing.\n2. Ensure your date column is in a parseable format (e.g., YYYY-MM-DD).\n3. Sort your data by date before uploading."
+            },
+        ]
+
+        for item in errors_data:
+            with st.expander(f"🔴 {item['error']}"):
+                st.markdown(f"**Likely Cause:** {item['cause']}")
+                st.markdown(f"**How to Fix:** {item['fix']}")
+
+        st.divider()
+
+        # ---- SECTION 4: TIPS & BEST PRACTICES ----
+        st.markdown("### 💡 Tips & Best Practices")
+
+        col_tips1, col_tips2 = st.columns(2)
+
+        with col_tips1:
+            st.markdown("""
+            #### Data Preparation
+            - **Clean your CSV** before uploading — remove blank rows and fix typos.
+            - **Drop ID/index columns** in Step 1 — they add noise and confuse models.
+            - **Aim for 100+ rows** for meaningful results. Very small datasets (< 30 rows) will produce unreliable models.
+            - **Check class balance** for classification — if one class has 95% of the data, enable SMOTE or collect more data.
+            """)
+
+        with col_tips2:
+            st.markdown("""
+            #### Model Selection
+            - **Start with the AI recommendations** — they are tailored to your specific data profile.
+            - **XGBoost and Random Forest** are reliable general-purpose choices.
+            - **Linear/Logistic Regression** work best when features have linear relationships with the target.
+            - **SVM** can be slow on large datasets (> 10k rows) — use with caution.
+            - **Time-Series?** Use Prophet for seasonality-heavy data, ARIMA for stationary data.
+            """)
+
+        st.markdown("""
+        #### Optimization Tips
+        - **Give more time** during optimization (60-120 seconds) for complex models like XGBoost.
+        - **Increase CV folds** (5-10) for small datasets to get a more reliable score.
+        - **Customizing parameters** is optional — Optuna's defaults are already smart.
+        - After optimization, always **download the tuned model** and the **training code** for reproducibility.
+        """)
+
+        st.divider()
+
+        # ---- SECTION 5: SUPPORTED MODELS ----
+        st.markdown("### 📋 Supported Models")
+
+        col_models1, col_models2 = st.columns(2)
+
+        with col_models1:
+            st.markdown("""
+            #### Standard Models
+            | Model | Task | Best For |
+            |-------|------|----------|
+            | Linear Regression | Regression | Simple linear relationships |
+            | Ridge Regression | Regression | Regularized linear regression |
+            | Lasso Regression | Regression | Feature selection via L1 penalty |
+            | Logistic Regression | Classification | Binary/multi-class classification |
+            | Random Forest | Both | Versatile, handles mixed features |
+            | XGBoost | Both | High performance on tabular data |
+            | Gradient Boosting | Both | Strong ensemble method |
+            | SVM | Both | High-dimensional data |
+            | KNN | Both | Small datasets, similarity-based |
+            | Decision Tree | Both | Interpretable, simple models |
+            """)
+
+        with col_models2:
+            st.markdown("""
+            #### Time-Series Models
+            | Model | Best For |
+            |-------|----------|
+            | Prophet | Seasonality, holidays, trend changes |
+            | ARIMA | Stationary data, short-term forecasts |
+            | SARIMAX | Seasonal + external variables |
+
+            #### How Tasks Are Detected
+            - **Regression** — Target has continuous numerical values (e.g., price, temperature).
+            - **Classification** — Target has discrete categories (e.g., yes/no, species name).
+            - **Time-Series** — Toggled manually when your data has a date/time dimension.
+            """)
+
+        st.divider()
+
+        # ---- SECTION 6: SYSTEM REQUIREMENTS ----
+        st.markdown("### 🔗 System & Environment")
+
+        with st.expander("Python Packages (requirements.txt)", expanded=False):
+            st.markdown("""
+            | Package | Purpose |
+            |---------|---------|
+            | `streamlit` | Web UI framework |
+            | `pandas`, `numpy` | Data manipulation |
+            | `scikit-learn` | Standard ML models & utilities |
+            | `xgboost` | Gradient boosting library |
+            | `prophet` | Facebook's time-series forecaster |
+            | `statsmodels` | ARIMA / SARIMAX / statistical tests |
+            | `plotly` | Interactive charts |
+            | `optuna` | Bayesian hyperparameter optimization |
+            | `langchain`, `langchain-groq` | LLM orchestration + Groq API |
+            | `langchain-huggingface` | Embedding models |
+            | `faiss-cpu` | Vector store for RAG |
+            | `python-dotenv` | Environment variable management |
+            """)
+
+        with st.expander("Environment Setup", expanded=False):
+            st.markdown("""
+            1. **Create a virtual environment:**
+               ```bash
+               python -m venv venv
+               source venv/bin/activate  # Linux/Mac
+               .\\venv\\Scripts\\activate  # Windows
+               ```
+            2. **Install dependencies:**
+               ```bash
+               pip install -r requirements.txt
+               ```
+            3. **Set up API keys** — Create a `.env` file in the project root:
+               ```
+               GROQ_API_KEY=your_groq_api_key_here
+               HUGGINGFACEHUB_API_TOKEN=your_hf_token_here
+               ```
+            4. **Build the knowledge base** (first time only):
+               ```bash
+               python app_backend/llm_rag_core.py
+               ```
+            5. **Run the app:**
+               ```bash
+               streamlit run app_frontend/main_ui.py
+               ```
+            """)
+
+        st.markdown("---")
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.85rem;">
+            AutoML Assistant v1.0 · Built with Streamlit, Scikit-learn, XGBoost & Groq AI<br>
+            Need help? Check the troubleshooting section above or review the project documentation.
+        </div>
+        """, unsafe_allow_html=True)
     
     st.stop()  # Don't show tabs unless workspace is selected
 
@@ -147,7 +533,7 @@ with col_status:
 st.divider()
 
 # --- WORKFLOW TABS ---
-tab1, tab2, tab2b, tab3, tab4, tab_docs = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization", "📖 Docs & Help"])
+tab1, tab2, tab2b, tab3, tab4 = st.tabs(["📂 1. Upload", "🔧 2. Preprocessing", "🔍 3. Analysis", "🤖 4. Training", "🚀 5. Optimization"])
 
 # ==========================
 # TAB 1: UPLOAD & CLEAN
@@ -269,11 +655,23 @@ with tab2:
                         ws.add_event("preprocessing_complete", f"Applied {len(preprocessor.full_log)} preprocessing steps")
                         st.session_state.workspace_manager.save_workspace(ws)
                         
+                        # Save preprocessor pipeline
+                        st.session_state.workspace_manager.save_preprocessor(ws.workspace_id, preprocessor)
+                        
+                        # Save training data splits
+                        st.session_state.workspace_manager.save_training_data(
+                            ws.workspace_id,
+                            result["X_train"], result["X_test"],
+                            result["y_train"], result["y_test"]
+                        )
+                        
                         # Save session state for restoration
                         st.session_state.workspace_manager.save_session_state(ws.workspace_id, {
                             'stats': st.session_state.stats,
                             'recommendations': st.session_state.recommendations,
-                            'preprocess_report': st.session_state.preprocess_report
+                            'reasoning': st.session_state.get('reasoning', []),
+                            'preprocess_report': st.session_state.preprocess_report,
+                            'results_df': st.session_state.results_df.to_dict() if st.session_state.results_df is not None else None
                         })
                     
                     st.success("✅ Preprocessing Complete!")
@@ -319,6 +717,87 @@ with tab2:
                             st.success(f"Saved to {pipeline_path}")
                         except Exception as e:
                             st.error(f"Export failed: {e}")
+                
+                # ==============================
+                # PREPROCESSING VISUALIZATIONS
+                # ==============================
+                st.divider()
+                st.markdown("### 📊 Data Visualizations")
+                
+                df_viz = st.session_state.df_clean
+                
+                # --- A2: Feature Distribution Grid ---
+                with st.expander("📈 Feature Distributions", expanded=True):
+                    num_cols = df_viz.select_dtypes(include=['int16','int32','int64','float16','float32','float64']).columns.tolist()
+                    # Remove target col from viz if present
+                    ws_target = st.session_state.current_workspace.target_col if st.session_state.current_workspace else None
+                    viz_cols = [c for c in num_cols if c != ws_target][:12]  # Max 12 columns
+                    
+                    if viz_cols:
+                        # Create grid of histograms - 3 per row
+                        for i in range(0, len(viz_cols), 3):
+                            row_cols = st.columns(3)
+                            for j, col_name in enumerate(viz_cols[i:i+3]):
+                                with row_cols[j]:
+                                    fig = px.histogram(
+                                        df_viz, x=col_name, 
+                                        nbins=30,
+                                        title=col_name,
+                                        template="plotly_dark",
+                                        color_discrete_sequence=["#8b5cf6"]
+                                    )
+                                    fig.update_layout(
+                                        height=250, 
+                                        margin=dict(l=10, r=10, t=35, b=10),
+                                        showlegend=False,
+                                        title_font_size=13
+                                    )
+                                    st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("No numerical columns to display.")
+                
+                # --- A3: Correlation Heatmap ---
+                with st.expander("🔥 Correlation Heatmap", expanded=False):
+                    num_cols_corr = df_viz.select_dtypes(include=['int16','int32','int64','float16','float32','float64']).columns.tolist()
+                    if len(num_cols_corr) >= 2:
+                        corr_matrix = df_viz[num_cols_corr].corr()
+                        fig_corr = px.imshow(
+                            corr_matrix,
+                            text_auto=".2f",
+                            color_continuous_scale="RdBu_r",
+                            zmin=-1, zmax=1,
+                            title="Feature Correlation Matrix",
+                            template="plotly_dark"
+                        )
+                        fig_corr.update_layout(
+                            height=500,
+                            margin=dict(l=10, r=10, t=40, b=10)
+                        )
+                        st.plotly_chart(fig_corr, use_container_width=True)
+                    else:
+                        st.info("Need at least 2 numerical columns for correlation heatmap.")
+                
+                # --- A5: Class Balance Chart ---
+                if ws_target and ws_target in df_viz.columns:
+                    target_series = df_viz[ws_target]
+                    if target_series.dtype == 'object' or target_series.nunique() < 15:
+                        with st.expander("⚖️ Target Class Balance", expanded=False):
+                            class_counts = target_series.value_counts().reset_index()
+                            class_counts.columns = ['Class', 'Count']
+                            fig_balance = px.pie(
+                                class_counts, 
+                                values='Count', 
+                                names='Class',
+                                title=f"Distribution of '{ws_target}'",
+                                template="plotly_dark",
+                                hole=0.4,
+                                color_discrete_sequence=px.colors.qualitative.Set2
+                            )
+                            fig_balance.update_layout(
+                                height=400,
+                                margin=dict(l=10, r=10, t=40, b=10)
+                            )
+                            st.plotly_chart(fig_balance, use_container_width=True)
     else:
         st.info("Please upload data in Step 1 first.")
 
@@ -329,67 +808,87 @@ with tab2b:
     if st.session_state.df_clean is not None:
         df = st.session_state.df_clean
         
+        # Auto-use target from preprocessing (stored in workspace)
+        ws = st.session_state.current_workspace
+        saved_target = ws.target_col if ws and ws.target_col else None
+        
+        if saved_target and saved_target in df.columns:
+            target_col = saved_target
+        else:
+            target_col = None
+        
         col_c1, col_c2 = st.columns([1, 3])
         
         with col_c1:
             st.markdown("### Configuration", unsafe_allow_html=True)
             if not df.empty:
-                target_col = st.selectbox("Select Target Variable", df.columns)
-                
-                if st.button("🔍 Analyze Dataset", type="primary"):
-                    with st.spinner("Consulting AI Brain..."):
-                        # 1. Statistical Analysis
-                        stats = analyze_dataset(df, target_col=target_col)
-                        st.session_state.stats = stats
-                        
-                        # 2. Initialize Trainer
-                        temp_trainer = ModelTrainer(df, target_col, stats['task_type'], stats['is_time_series'], stats.get('time_column'))
-                        st.session_state.trainer = temp_trainer 
-                        
-                        # 3. Get AI Recommendations
-                        @st.cache_resource
-                        def get_advisor():
-                            return ModelAdvisor()
-                        
-                        advisor = get_advisor()
-                        supported_models = temp_trainer.get_supported_models()
-                        
-                        # Meta-Learning: Find similar past workspaces
-                        wm = st.session_state.workspace_manager
-                        
-                        # Fix for Stale Object Reference (Hot-Reload)
-                        if not hasattr(wm, 'find_similar_workspaces'):
-                            st.warning("🔄 Refreshing Workspace Manager...")
-                            wm = WorkspaceManager() # Re-instantiate to get new methods
-                            st.session_state.workspace_manager = wm
+                if target_col:
+                    st.success(f"🎯 Target Variable: **{target_col}**")
+                    st.caption("Set in Preprocessing step.")
+                    
+                    if st.button("🔍 Analyze Dataset", type="primary"):
+                        with st.spinner("Consulting AI Brain..."):
+                            # 1. Statistical Analysis
+                            stats = analyze_dataset(df, target_col=target_col)
+                            st.session_state.stats = stats
                             
-                        similar_ws = wm.find_similar_workspaces(stats)
-                        st.session_state.similar_workspaces = similar_ws # Store for UI
-                        
-                        raw_recs = advisor.get_recommendations(stats, supported_models, similar_workspaces=similar_ws)
-                        
-                        # Handle new JSON structure vs legacy list
-                        if isinstance(raw_recs, dict):
-                            st.session_state.recommendations = raw_recs.get("recommendations", [])
-                            st.session_state.reasoning = raw_recs.get("reasoning", [])
-                        else:
-                            st.session_state.recommendations = raw_recs
-                            st.session_state.reasoning = []
-                        
-                        # Reset model selector state to apply new recommendations
-                        if "model_selector" in st.session_state:
-                            del st.session_state["model_selector"]
-                        
-                        # 4. Update workspace with user-selected target
-                        if st.session_state.current_workspace:
-                            ws = st.session_state.current_workspace
-                            ws.target_col = target_col
-                            ws.task_type = stats['task_type']
-                            ws.profile_summary = stats
-                            ws.add_event("analysis_complete", f"Target: {target_col}, Task: {stats['task_type']}")
-                            st.session_state.workspace_manager.save_workspace(ws)
-            else:
-                st.error("Dataset is empty.")
+                            # 2. Initialize Trainer
+                            temp_trainer = ModelTrainer(df, target_col, stats['task_type'], stats['is_time_series'], stats.get('time_column'))
+                            st.session_state.trainer = temp_trainer 
+                            
+                            # 3. Get AI Recommendations
+                            @st.cache_resource
+                            def get_advisor():
+                                return ModelAdvisor()
+                            
+                            advisor = get_advisor()
+                            supported_models = temp_trainer.get_supported_models()
+                            
+                            # Meta-Learning: Find similar past workspaces
+                            wm = st.session_state.workspace_manager
+                            
+                            # Fix for Stale Object Reference (Hot-Reload)
+                            if not hasattr(wm, 'find_similar_workspaces'):
+                                st.warning("🔄 Refreshing Workspace Manager...")
+                                wm = WorkspaceManager() # Re-instantiate to get new methods
+                                st.session_state.workspace_manager = wm
+                                
+                            similar_ws = wm.find_similar_workspaces(stats)
+                            st.session_state.similar_workspaces = similar_ws # Store for UI
+                            
+                            raw_recs = advisor.get_recommendations(stats, supported_models, similar_workspaces=similar_ws)
+                            
+                            # Handle new JSON structure vs legacy list
+                            if isinstance(raw_recs, dict):
+                                st.session_state.recommendations = raw_recs.get("recommendations", [])
+                                st.session_state.reasoning = raw_recs.get("reasoning", [])
+                            else:
+                                st.session_state.recommendations = raw_recs
+                                st.session_state.reasoning = []
+                            
+                            # Reset model selector state to apply new recommendations
+                            if "model_selector" in st.session_state:
+                                del st.session_state["model_selector"]
+                            
+                            # 4. Update workspace with user-selected target
+                            if st.session_state.current_workspace:
+                                ws = st.session_state.current_workspace
+                                ws.target_col = target_col
+                                ws.task_type = stats['task_type']
+                                ws.profile_summary = stats
+                                ws.add_event("analysis_complete", f"Target: {target_col}, Task: {stats['task_type']}")
+                                st.session_state.workspace_manager.save_workspace(ws)
+                                
+                                # Save session state after analysis
+                                st.session_state.workspace_manager.save_session_state(ws.workspace_id, {
+                                    'stats': st.session_state.stats,
+                                    'recommendations': st.session_state.recommendations,
+                                    'reasoning': st.session_state.get('reasoning', []),
+                                    'preprocess_report': st.session_state.preprocess_report,
+                                    'results_df': st.session_state.results_df.to_dict() if st.session_state.results_df is not None else None
+                                })
+                else:
+                    st.warning("⚠️ Please complete **Step 2 (Preprocessing)** first to set the target variable.")
         
         with col_c2:
             if st.session_state.stats:
@@ -480,10 +979,12 @@ with tab3:
                 default_selection = ["XGBoost", "Random Forest", "Logistic Regression"]
             default_selection = [m for m in default_selection if m in all_supported_models]
         
+        select_all = st.checkbox("✅ Select All Models", value=False)
+        
         selected_models = st.multiselect(
             "Select models to train:",
             options=all_supported_models,
-            default=default_selection,
+            default=all_supported_models if select_all else default_selection,
             key="model_selector"
         )
         
@@ -525,6 +1026,20 @@ with tab3:
                         ws.status = "completed"
                         ws.add_event("training_complete", f"Trained {len(selected_models)} models. Best: {ws.best_model}")
                         st.session_state.workspace_manager.save_workspace(ws)
+                        
+                        # Save trained model objects
+                        st.session_state.workspace_manager.save_trained_models(
+                            ws.workspace_id, trainer.trained_models
+                        )
+                        
+                        # Save full session state including results
+                        st.session_state.workspace_manager.save_session_state(ws.workspace_id, {
+                            'stats': st.session_state.stats,
+                            'recommendations': st.session_state.recommendations,
+                            'reasoning': st.session_state.get('reasoning', []),
+                            'preprocess_report': st.session_state.preprocess_report,
+                            'results_df': results_df.to_dict()
+                        })
                     
                     status.update(label="✅ Training Complete!", state="complete", expanded=False)
         
@@ -584,6 +1099,235 @@ with tab3:
                     st.dataframe(results_df)
             else:
                 st.warning("No successful results found.")
+            
+            # ==============================
+            # DETAILED EVALUATION CHARTS
+            # ==============================
+            st.divider()
+            st.markdown("### 📊 Detailed Evaluation")
+            
+            trainer = st.session_state.trainer
+            task_type = st.session_state.stats.get('task_type', 'Regression') if st.session_state.stats else 'Regression'
+            
+            # --- B6: Training Time Comparison ---
+            if "Time (s)" in results_df.columns:
+                with st.expander("⏱️ Training Time Comparison", expanded=False):
+                    time_df = results_df.sort_values("Time (s)", ascending=True)
+                    fig_time = px.bar(
+                        time_df, x="Time (s)", y="Model",
+                        orientation='h',
+                        title="Training Duration per Model",
+                        template="plotly_dark",
+                        color="Time (s)",
+                        color_continuous_scale="Viridis"
+                    )
+                    fig_time.update_layout(
+                        height=350,
+                        margin=dict(l=10, r=10, t=40, b=10),
+                        yaxis=dict(categoryorder='total ascending')
+                    )
+                    st.plotly_chart(fig_time, use_container_width=True)
+            
+            if trainer and hasattr(trainer, 'predictions') and trainer.predictions:
+                
+                if task_type == "Classification":
+                    # --- B1: Confusion Matrix ---
+                    with st.expander("🎯 Confusion Matrix", expanded=True):
+                        from sklearn.metrics import confusion_matrix
+                        model_names = list(trainer.predictions.keys())
+                        selected_cm_model = st.selectbox("Select model:", model_names, key="cm_model_select")
+                        
+                        if selected_cm_model in trainer.predictions:
+                            y_true = trainer.y_test
+                            y_pred = trainer.predictions[selected_cm_model]
+                            
+                            labels = sorted(list(set(y_true) | set(y_pred)))
+                            cm = confusion_matrix(y_true, y_pred, labels=labels)
+                            
+                            fig_cm = px.imshow(
+                                cm,
+                                text_auto=True,
+                                x=[str(l) for l in labels],
+                                y=[str(l) for l in labels],
+                                labels=dict(x="Predicted", y="Actual", color="Count"),
+                                title=f"Confusion Matrix — {selected_cm_model}",
+                                template="plotly_dark",
+                                color_continuous_scale="Blues"
+                            )
+                            fig_cm.update_layout(
+                                height=450,
+                                margin=dict(l=10, r=10, t=40, b=10)
+                            )
+                            st.plotly_chart(fig_cm, use_container_width=True)
+                    
+                    # --- B2: ROC Curves ---
+                    if trainer.prediction_probas:
+                        with st.expander("📉 ROC Curves", expanded=False):
+                            from sklearn.metrics import roc_curve, auc
+                            from sklearn.preprocessing import label_binarize
+                            
+                            y_true = trainer.y_test
+                            classes = sorted(list(set(y_true)))
+                            
+                            fig_roc = go.Figure()
+                            
+                            for model_name, probas in trainer.prediction_probas.items():
+                                try:
+                                    if len(classes) == 2:
+                                        # Binary classification
+                                        fpr, tpr, _ = roc_curve(y_true, probas[:, 1])
+                                        roc_auc = auc(fpr, tpr)
+                                        fig_roc.add_trace(go.Scatter(
+                                            x=fpr, y=tpr, mode='lines',
+                                            name=f"{model_name} (AUC={roc_auc:.3f})"
+                                        ))
+                                    else:
+                                        # Multi-class: use micro-average
+                                        y_bin = label_binarize(y_true, classes=classes)
+                                        fpr, tpr, _ = roc_curve(y_bin.ravel(), probas.ravel())
+                                        roc_auc = auc(fpr, tpr)
+                                        fig_roc.add_trace(go.Scatter(
+                                            x=fpr, y=tpr, mode='lines',
+                                            name=f"{model_name} (micro-AUC={roc_auc:.3f})"
+                                        ))
+                                except Exception:
+                                    pass
+                            
+                            # Diagonal line
+                            fig_roc.add_trace(go.Scatter(
+                                x=[0, 1], y=[0, 1], mode='lines',
+                                line=dict(dash='dash', color='gray'),
+                                name='Random', showlegend=False
+                            ))
+                            fig_roc.update_layout(
+                                title="ROC Curves — All Models",
+                                xaxis_title="False Positive Rate",
+                                yaxis_title="True Positive Rate",
+                                template="plotly_dark",
+                                height=450,
+                                margin=dict(l=10, r=10, t=40, b=10)
+                            )
+                            st.plotly_chart(fig_roc, use_container_width=True)
+                    
+                    # --- B3: Radar Chart for multi-metric comparison ---
+                    if all(m in results_df.columns for m in ['Accuracy', 'F1 Score', 'Precision', 'Recall']):
+                        with st.expander("🕸️ Multi-Metric Radar", expanded=False):
+                            fig_radar = go.Figure()
+                            metrics_list = ['Accuracy', 'F1 Score', 'Precision', 'Recall']
+                            
+                            for _, row in results_df.iterrows():
+                                if pd.notna(row.get('Accuracy')):
+                                    values = [row[m] for m in metrics_list] + [row[metrics_list[0]]]
+                                    fig_radar.add_trace(go.Scatterpolar(
+                                        r=values,
+                                        theta=metrics_list + [metrics_list[0]],
+                                        fill='toself',
+                                        name=row['Model'],
+                                        opacity=0.6
+                                    ))
+                            
+                            fig_radar.update_layout(
+                                polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+                                title="Model Comparison — All Metrics",
+                                template="plotly_dark",
+                                height=500,
+                                margin=dict(l=40, r=40, t=60, b=40)
+                            )
+                            st.plotly_chart(fig_radar, use_container_width=True)
+                
+                else:
+                    # --- B4: Residual / Predicted vs Actual Plot (Regression) ---
+                    with st.expander("📈 Predicted vs Actual", expanded=True):
+                        model_names = list(trainer.predictions.keys())
+                        selected_res_model = st.selectbox("Select model:", model_names, key="residual_model_select")
+                        
+                        if selected_res_model in trainer.predictions:
+                            y_true = trainer.y_test
+                            y_pred = trainer.predictions[selected_res_model]
+                            
+                            res_col1, res_col2 = st.columns(2)
+                            with res_col1:
+                                # Predicted vs Actual scatter
+                                fig_pva = px.scatter(
+                                    x=y_true, y=y_pred,
+                                    labels={'x': 'Actual', 'y': 'Predicted'},
+                                    title=f"Predicted vs Actual — {selected_res_model}",
+                                    template="plotly_dark",
+                                    color_discrete_sequence=["#06b6d4"]
+                                )
+                                # 45-degree reference line
+                                min_val = min(min(y_true), min(y_pred))
+                                max_val = max(max(y_true), max(y_pred))
+                                fig_pva.add_trace(go.Scatter(
+                                    x=[min_val, max_val], y=[min_val, max_val],
+                                    mode='lines', line=dict(dash='dash', color='#ef4444'),
+                                    name='Perfect', showlegend=False
+                                ))
+                                fig_pva.update_layout(
+                                    height=400,
+                                    margin=dict(l=10, r=10, t=40, b=10)
+                                )
+                                st.plotly_chart(fig_pva, use_container_width=True)
+                            
+                            with res_col2:
+                                # Residual distribution
+                                residuals = y_true - y_pred
+                                fig_res = px.histogram(
+                                    x=residuals, nbins=30,
+                                    labels={'x': 'Residual (Actual - Predicted)'},
+                                    title="Residual Distribution",
+                                    template="plotly_dark",
+                                    color_discrete_sequence=["#f59e0b"]
+                                )
+                                fig_res.update_layout(
+                                    height=400,
+                                    margin=dict(l=10, r=10, t=40, b=10)
+                                )
+                                st.plotly_chart(fig_res, use_container_width=True)
+                
+                # --- B5: Feature Importance (works for both Classification & Regression) ---
+                with st.expander("🏅 Feature Importance", expanded=False):
+                    # Find best tree-based model
+                    tree_models = {}
+                    for name, model in trainer.trained_models.items():
+                        if hasattr(model, 'feature_importances_'):
+                            tree_models[name] = model
+                    
+                    if tree_models:
+                        fi_model_name = st.selectbox("Select model:", list(tree_models.keys()), key="fi_model_select")
+                        model = tree_models[fi_model_name]
+                        
+                        # Get feature names
+                        if hasattr(trainer, 'X_train') and trainer.X_train is not None:
+                            if hasattr(trainer.X_train, 'columns'):
+                                feature_names = trainer.X_train.columns.tolist()
+                            else:
+                                feature_names = [f"Feature {i}" for i in range(trainer.X_train.shape[1])]
+                        else:
+                            feature_names = [f"Feature {i}" for i in range(len(model.feature_importances_))]
+                        
+                        importances = model.feature_importances_
+                        fi_df = pd.DataFrame({
+                            'Feature': feature_names,
+                            'Importance': importances
+                        }).sort_values('Importance', ascending=True).tail(15)  # Top 15
+                        
+                        fig_fi = px.bar(
+                            fi_df, x='Importance', y='Feature',
+                            orientation='h',
+                            title=f"Top 15 Features — {fi_model_name}",
+                            template="plotly_dark",
+                            color='Importance',
+                            color_continuous_scale="Plasma"
+                        )
+                        fig_fi.update_layout(
+                            height=450,
+                            margin=dict(l=10, r=10, t=40, b=10),
+                            yaxis=dict(categoryorder='total ascending')
+                        )
+                        st.plotly_chart(fig_fi, use_container_width=True)
+                    else:
+                        st.info("Feature importance is available for tree-based models (Random Forest, XGBoost, etc.)")
     else:
         st.info("Complete analysis in Step 2 first.")
 
@@ -700,333 +1444,3 @@ with tab4:
     else:
         st.info("Train a model in Step 3 first.")
 
-# ==========================
-# TAB 6: DOCS & HELP
-# ==========================
-with tab_docs:
-    st.markdown("""
-    <div style="text-align: center; padding: 1.5rem 0;">
-        <h2 style="font-size: 2.2rem; margin-bottom: 0.3rem;">📖 Documentation & <span style="color: #ec4899">Help Center</span></h2>
-        <p style="font-size: 1rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">
-            Everything you need to know to get the most out of AutoML Assistant.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ---- SECTION 1: GETTING STARTED ----
-    st.markdown("### 🚀 Getting Started")
-    st.markdown("""
-    AutoML Assistant guides you through a **5-step workflow** to go from raw data to a trained, optimized machine learning model:
-
-    | Step | Tab | What Happens |
-    |------|-----|-------------|
-    | **1** | 📂 Upload | Import your CSV dataset and optionally remove unwanted columns |
-    | **2** | 🔧 Preprocessing | Automatically clean, encode, and scale your data |
-    | **3** | 🔍 Analysis | AI analyzes your data and recommends the best models |
-    | **4** | 🤖 Training | Train multiple ML models and compare results on a leaderboard |
-    | **5** | 🚀 Optimization | Fine-tune the best model with Bayesian hyperparameter search |
-
-    > **Tip:** Start by creating a **Workspace** — it saves your entire session so you can come back anytime.
-    """)
-
-    st.divider()
-
-    # ---- SECTION 2: STEP-BY-STEP GUIDE ----
-    st.markdown("### 📂 Step-by-Step Guide")
-
-    with st.expander("📂 Step 1 — Upload & Clean", expanded=False):
-        st.markdown("""
-        **Goal:** Import your dataset into the platform.
-
-        1. Click **"➕ Create New Workspace"** on the home screen.
-        2. In the **Upload** tab, drag-and-drop or browse for a **CSV file**.
-        3. A preview of the first 5 rows will appear on the right.
-        4. *(Optional)* Use the **"Select columns to remove"** dropdown to drop irrelevant columns (e.g., IDs, names).
-        5. Click **"Apply Column Removal"** to confirm.
-
-        **What file formats are supported?**
-        Currently, only **`.csv`** files are supported. Make sure your CSV uses commas as delimiters.
-
-        **How large can my file be?**
-        There is no hard limit, but files over **200 MB** may cause slow performance. For very large datasets, consider sampling your data before uploading.
-        """)
-
-    with st.expander("🔧 Step 2 — Preprocessing", expanded=False):
-        st.markdown("""
-        **Goal:** Automatically clean and prepare your data for ML training.
-
-        1. Select your **Target Variable** (the column you want to predict).
-        2. *(Optional)* Toggle **"Time Series Data?"** if your data is temporal and select the date column.
-        3. *(Optional)* Toggle **"Apply SMOTE"** if you have an imbalanced classification dataset.
-        4. Click **"🚀 Run Preprocessing"**.
-
-        The engine will automatically:
-        - Detect column types (numerical, categorical, datetime)
-        - Impute missing values
-        - Remove or cap outliers
-        - Encode categorical features (One-Hot or Label Encoding)
-        - Scale numerical features (Standard or MinMax Scaling)
-        - Split data into Train/Test sets (80/20 by default)
-
-        **Understanding the Report:**
-        - **✅ Applied Steps** — Transformations that were applied and why.
-        - **⏭️ Skipped Steps** — Steps that were not needed (e.g., "No missing values found").
-        - You can expand **"📋 Full Preprocessing Report"** for the complete JSON details.
-
-        **Exporting the Pipeline:**
-        Click **"💾 Export Pipeline"** to save the fitted preprocessor as a `.pkl` file for reuse.
-        """)
-
-    with st.expander("🔍 Step 3 — Analysis", expanded=False):
-        st.markdown("""
-        **Goal:** Let the AI analyze your dataset and recommend the best models.
-
-        1. Select your **Target Variable**.
-        2. Click **"🔍 Analyze Dataset"**.
-        3. The system will:
-           - Generate statistical profiles (correlation, skewness, class balance, etc.)
-           - Send the profile to the **Groq AI (Llama 3.1)** via a RAG pipeline
-           - Return **3-5 recommended models** with reasoning
-
-        **Key UI Elements:**
-        - **Data Insights** — Row count, feature count, and detected task type (Regression/Classification).
-        - **AI Recommendations** — The models the AI suggests, auto-selected for training.
-        - **"🧠 Why This Model?"** — Expandable panel explaining the AI's reasoning.
-        - **"💡 Meta-Learning Active"** badge appears when the system uses results from your past experiments to improve suggestions.
-
-        > **Note:** This step requires a valid **GROQ_API_KEY** in your `.env` file. If AI fails, the system falls back to safe defaults (XGBoost, Random Forest).
-        """)
-
-    with st.expander("🤖 Step 4 — Training", expanded=False):
-        st.markdown("""
-        **Goal:** Train one or more ML models and compare their performance.
-
-        1. The AI-recommended models are **pre-selected** in the multi-select dropdown.
-        2. You can add or remove models from the list.
-        3. Click **"🚀 Start Training"**.
-        4. A live progress indicator shows training status.
-
-        **After Training:**
-        - A **🏆 Leaderboard** ranks all models by performance:
-          - **Regression** → Sorted by RMSE (lower is better)
-          - **Classification** → Sorted by Accuracy (higher is better)
-        - An interactive **bar chart** visualizes the comparison.
-        - The **best model** is highlighted in green.
-
-        **What if a model fails?**
-        Failed models appear with a warning. Check the **"Debug: Raw Results"** expander for error details. The leaderboard still shows successful models.
-        """)
-
-    with st.expander("🚀 Step 5 — Optimization", expanded=False):
-        st.markdown("""
-        **Goal:** Squeeze extra performance from your best model via hyperparameter tuning.
-
-        1. Select the model to optimize from the dropdown.
-        2. Set a **Time Budget** (default: 30 seconds). More time = more exploration.
-        3. Set **Cross-Validation Folds** (default: 3).
-        4. *(Optional)* Expand **"🔧 Advanced: Edit Parameter Ranges"** to customize hyperparameter search spaces.
-        5. Click **"✨ Optimize [Model]"**.
-
-        The system uses **Optuna** (Bayesian optimization) to intelligently search the parameter space, pruning bad trials early.
-
-        **After Optimization:**
-        - The best parameters and score are displayed.
-        - Click **"💾 Download Tuned Model"** to export as a `.pkl` file.
-        - Expand **"📜 View/Copy Training Code"** to get a ready-to-run Python script for reproducing the result (e.g., in Google Colab).
-        """)
-
-    st.divider()
-
-    # ---- SECTION 3: COMMON ERRORS & TROUBLESHOOTING ----
-    st.markdown("### ⚠️ Common Errors & Troubleshooting")
-
-    errors_data = [
-        {
-            "error": "❌ Error parsing CSV",
-            "cause": "Your CSV file is malformed, uses a non-standard delimiter (e.g., semicolons), or has encoding issues.",
-            "fix": "Open the file in Excel or Google Sheets, then re-export as a standard UTF-8 CSV with commas."
-        },
-        {
-            "error": "'Please upload data in Step 1 first'",
-            "cause": "You jumped to Preprocessing, Analysis, or Training before uploading a dataset.",
-            "fix": "Go back to the **📂 Upload** tab and upload a CSV file first."
-        },
-        {
-            "error": "AI Analysis hangs or returns fallback models",
-            "cause": "The Groq API key is missing, invalid, or the API is temporarily unavailable.",
-            "fix": "1. Check your `.env` file has a valid `GROQ_API_KEY`.\n2. Test the key by running `python test_groq_connection.py`.\n3. The system still works with fallback models (XGBoost, Random Forest) even if the API fails."
-        },
-        {
-            "error": "Vector Store not found!",
-            "cause": "The FAISS vector store (used by the AI advisor) has not been built yet.",
-            "fix": "Run this command once: `python app_backend/llm_rag_core.py` — this builds the knowledge base index."
-        },
-        {
-            "error": "SMOTE error / Too few samples",
-            "cause": "SMOTE requires at least 2 samples per class in the minority class, and only works for classification tasks.",
-            "fix": "1. Ensure your target variable is categorical (not continuous).\n2. Ensure each class has at least 2 samples.\n3. If your dataset is very small (< 50 rows), disable SMOTE."
-        },
-        {
-            "error": "Model training fails / Convergence warning",
-            "cause": "Some models (e.g., SVM, Logistic Regression) fail to converge on certain data shapes or when features are not scaled.",
-            "fix": "1. Run **Preprocessing** (Step 2) before training — it handles scaling automatically.\n2. Try tree-based models (XGBoost, Random Forest) which are more robust.\n3. Remove highly correlated or constant columns."
-        },
-        {
-            "error": "KeyError or missing column after preprocessing",
-            "cause": "The target column was dropped or renamed during preprocessing.",
-            "fix": "Do NOT remove your target column in Step 1. Make sure the target variable name matches exactly in all steps."
-        },
-        {
-            "error": "Workspace data missing after reload",
-            "cause": "The Streamlit file uploader resets on page reload, but your data is actually saved.",
-            "fix": "Look for the green **'✅ Using stored dataset'** banner. Your data is safe — no need to re-upload."
-        },
-        {
-            "error": "Serialization / Pickle error on download",
-            "cause": "Some model objects cannot be serialized (rare edge case with custom estimators).",
-            "fix": "Try a different model. Standard scikit-learn and XGBoost models export without issues."
-        },
-        {
-            "error": "Prophet / ARIMA / SARIMAX fails",
-            "cause": "Time-series models require a valid datetime column and properly ordered data.",
-            "fix": "1. Toggle **'Time Series Data?'** in preprocessing.\n2. Ensure your date column is in a parseable format (e.g., YYYY-MM-DD).\n3. Sort your data by date before uploading."
-        },
-    ]
-
-    for item in errors_data:
-        with st.expander(f"🔴 {item['error']}"):
-            st.markdown(f"**Likely Cause:** {item['cause']}")
-            st.markdown(f"**How to Fix:** {item['fix']}")
-
-    st.divider()
-
-    # ---- SECTION 4: TIPS & BEST PRACTICES ----
-    st.markdown("### 💡 Tips & Best Practices")
-
-    col_tips1, col_tips2 = st.columns(2)
-
-    with col_tips1:
-        st.markdown("""
-        #### Data Preparation
-        - **Clean your CSV** before uploading — remove blank rows and fix typos.
-        - **Drop ID/index columns** in Step 1 — they add noise and confuse models.
-        - **Aim for 100+ rows** for meaningful results. Very small datasets (< 30 rows) will produce unreliable models.
-        - **Check class balance** for classification — if one class has 95% of the data, enable SMOTE or collect more data.
-        """)
-
-    with col_tips2:
-        st.markdown("""
-        #### Model Selection
-        - **Start with the AI recommendations** — they are tailored to your specific data profile.
-        - **XGBoost and Random Forest** are reliable general-purpose choices.
-        - **Linear/Logistic Regression** work best when features have linear relationships with the target.
-        - **SVM** can be slow on large datasets (> 10k rows) — use with caution.
-        - **Time-Series?** Use Prophet for seasonality-heavy data, ARIMA for stationary data.
-        """)
-
-    st.markdown("""
-    #### Optimization Tips
-    - **Give more time** during optimization (60-120 seconds) for complex models like XGBoost.
-    - **Increase CV folds** (5-10) for small datasets to get a more reliable score.
-    - **Customizing parameters** is optional — Optuna's defaults are already smart.
-    - After optimization, always **download the tuned model** and the **training code** for reproducibility.
-    """)
-
-    st.divider()
-
-    # ---- SECTION 5: SUPPORTED MODELS ----
-    st.markdown("### 📋 Supported Models")
-
-    col_models1, col_models2 = st.columns(2)
-
-    with col_models1:
-        st.markdown("""
-        #### Standard Models
-        | Model | Task | Best For |
-        |-------|------|----------|
-        | Linear Regression | Regression | Simple linear relationships |
-        | Ridge Regression | Regression | Regularized linear regression |
-        | Lasso Regression | Regression | Feature selection via L1 penalty |
-        | Logistic Regression | Classification | Binary/multi-class classification |
-        | Random Forest | Both | Versatile, handles mixed features |
-        | XGBoost | Both | High performance on tabular data |
-        | Gradient Boosting | Both | Strong ensemble method |
-        | SVM | Both | High-dimensional data |
-        | KNN | Both | Small datasets, similarity-based |
-        | Decision Tree | Both | Interpretable, simple models |
-        """)
-
-    with col_models2:
-        st.markdown("""
-        #### Time-Series Models
-        | Model | Best For |
-        |-------|----------|
-        | Prophet | Seasonality, holidays, trend changes |
-        | ARIMA | Stationary data, short-term forecasts |
-        | SARIMAX | Seasonal + external variables |
-
-        #### How Tasks Are Detected
-        - **Regression** — Target has continuous numerical values (e.g., price, temperature).
-        - **Classification** — Target has discrete categories (e.g., yes/no, species name).
-        - **Time-Series** — Toggled manually when your data has a date/time dimension.
-        """)
-
-    st.divider()
-
-    # ---- SECTION 6: SYSTEM REQUIREMENTS ----
-    st.markdown("### 🔗 System & Environment")
-
-    with st.expander("Python Packages (requirements.txt)", expanded=False):
-        st.markdown("""
-        | Package | Purpose |
-        |---------|---------|
-        | `streamlit` | Web UI framework |
-        | `pandas`, `numpy` | Data manipulation |
-        | `scikit-learn` | Standard ML models & utilities |
-        | `xgboost` | Gradient boosting library |
-        | `prophet` | Facebook's time-series forecaster |
-        | `statsmodels` | ARIMA / SARIMAX / statistical tests |
-        | `plotly` | Interactive charts |
-        | `optuna` | Bayesian hyperparameter optimization |
-        | `langchain`, `langchain-groq` | LLM orchestration + Groq API |
-        | `langchain-huggingface` | Embedding models |
-        | `faiss-cpu` | Vector store for RAG |
-        | `python-dotenv` | Environment variable management |
-        """)
-
-    with st.expander("Environment Setup", expanded=False):
-        st.markdown("""
-        1. **Create a virtual environment:**
-           ```bash
-           python -m venv venv
-           source venv/bin/activate  # Linux/Mac
-           .\\venv\\Scripts\\activate  # Windows
-           ```
-        2. **Install dependencies:**
-           ```bash
-           pip install -r requirements.txt
-           ```
-        3. **Set up API keys** — Create a `.env` file in the project root:
-           ```
-           GROQ_API_KEY=your_groq_api_key_here
-           HUGGINGFACEHUB_API_TOKEN=your_hf_token_here
-           ```
-        4. **Build the knowledge base** (first time only):
-           ```bash
-           python app_backend/llm_rag_core.py
-           ```
-        5. **Run the app:**
-           ```bash
-           streamlit run app_frontend/main_ui.py
-           ```
-        """)
-
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.85rem;">
-        AutoML Assistant v1.0 · Built with Streamlit, Scikit-learn, XGBoost & Groq AI<br>
-        Need help? Check the troubleshooting section above or review the project documentation.
-    </div>
-    """, unsafe_allow_html=True)

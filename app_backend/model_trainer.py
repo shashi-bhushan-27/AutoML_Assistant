@@ -15,6 +15,8 @@ class ModelTrainer:
         self.date_col = date_col
         self.results = []
         self.trained_models = {}
+        self.predictions = {}
+        self.prediction_probas = {}
         self.encoders = {} 
         self.scaler = None
         
@@ -105,7 +107,8 @@ class ModelTrainer:
 
     def evaluate(self, y_true, y_pred, model_name, training_time):
         # Lazy Import Metrics
-        from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score, f1_score
+        from sklearn.metrics import (mean_squared_error, mean_absolute_error, r2_score,
+                                     accuracy_score, f1_score, precision_score, recall_score)
         
         metrics = {"Model": model_name, "Time (s)": round(training_time, 4)}
         try:
@@ -113,9 +116,12 @@ class ModelTrainer:
                 rmse = np.sqrt(mean_squared_error(y_true, y_pred))
                 metrics["RMSE"] = round(rmse, 4)
                 metrics["MAE"] = round(mean_absolute_error(y_true, y_pred), 4)
+                metrics["R²"] = round(r2_score(y_true, y_pred), 4)
             else:
                 metrics["Accuracy"] = round(accuracy_score(y_true, y_pred), 4)
                 metrics["F1 Score"] = round(f1_score(y_true, y_pred, average='weighted'), 4)
+                metrics["Precision"] = round(precision_score(y_true, y_pred, average='weighted'), 4)
+                metrics["Recall"] = round(recall_score(y_true, y_pred, average='weighted'), 4)
         except Exception as e:
             metrics["Error"] = f"Eval Failed: {str(e)}"
         return metrics
@@ -127,6 +133,18 @@ class ModelTrainer:
             model = model_class(**kwargs)
             model.fit(self.X_train, self.y_train)
             preds = model.predict(self.X_test)
+            
+            # Store model + predictions for visualizations
+            self.trained_models[name] = model
+            self.predictions[name] = preds
+            
+            # Store predict_proba for ROC curves (classification only)
+            if hasattr(model, 'predict_proba'):
+                try:
+                    self.prediction_probas[name] = model.predict_proba(self.X_test)
+                except Exception:
+                    pass
+            
             return self.evaluate(self.y_test, preds, name, time.time() - start)
         except Exception as e:
             return {"Model": name, "Error": str(e)}

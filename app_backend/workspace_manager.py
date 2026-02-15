@@ -220,6 +220,8 @@ class WorkspaceManager:
             os.path.join(WORKSPACE_DIR, f"{workspace_id}.json"),
             os.path.join(WORKSPACE_DIR, f"{workspace_id}_state.pkl"),
             os.path.join(WORKSPACE_DIR, f"{workspace_id}_pipeline.pkl"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_training_data.pkl"),
+            os.path.join(WORKSPACE_DIR, f"{workspace_id}_trained_models.pkl"),
             os.path.join(UPLOADS_DIR, f"{workspace_id}_data.csv"),
             os.path.join(WORKSPACE_DIR, f"{workspace_id}_data.csv") # Legacy check
         ]
@@ -284,6 +286,45 @@ class WorkspaceManager:
         if os.path.exists(state_path):
             with open(state_path, 'rb') as f:
                 return pickle.load(f)
+        return None
+
+    def save_training_data(self, workspace_id: str, X_train, X_test, y_train, y_test):
+        """Save preprocessed train/test splits for a workspace."""
+        data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_training_data.pkl")
+        with open(data_path, 'wb') as f:
+            pickle.dump({
+                'X_train': X_train,
+                'X_test': X_test,
+                'y_train': y_train,
+                'y_test': y_test
+            }, f)
+
+    def load_training_data(self, workspace_id: str) -> Optional[Dict]:
+        """Load preprocessed train/test splits for a workspace."""
+        data_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_training_data.pkl")
+        if os.path.exists(data_path):
+            with open(data_path, 'rb') as f:
+                return pickle.load(f)
+        return None
+
+    def save_trained_models(self, workspace_id: str, trained_models: Dict):
+        """Save trained model objects for a workspace."""
+        models_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_trained_models.pkl")
+        try:
+            with open(models_path, 'wb') as f:
+                pickle.dump(trained_models, f)
+        except Exception:
+            pass  # Some models may not be serializable
+    
+    def load_trained_models(self, workspace_id: str) -> Optional[Dict]:
+        """Load trained model objects for a workspace."""
+        models_path = os.path.join(WORKSPACE_DIR, f"{workspace_id}_trained_models.pkl")
+        if os.path.exists(models_path):
+            try:
+                with open(models_path, 'rb') as f:
+                    return pickle.load(f)
+            except Exception:
+                return None
         return None
 
     def find_similar_workspaces(self, current_stats: Dict) -> List[Dict]:
