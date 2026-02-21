@@ -4,7 +4,7 @@ import time
 import warnings
 import importlib
 
-warnings.filterwarnings('ignore') # Silence warnings for cleaner UI
+warnings.filterwarnings('ignore')  # Silence warnings for cleaner UI
 
 class ModelTrainer:
     def __init__(self, df, target_col, task_type='Regression', is_time_series=False, date_col=None):
@@ -42,10 +42,16 @@ class ModelTrainer:
             common += ["Linear Regression", "Ridge", "Lasso", "ElasticNet"]
         else:
             common += ["Logistic Regression"]
-            
+
         if self.is_time_series:
             common += ["Prophet", "ARIMA", "SARIMAX"]
-            
+            # LSTM available only if tensorflow is installed
+            try:
+                import tensorflow  # noqa: F401
+                common.append("LSTM")
+            except ImportError:
+                pass
+
         return sorted(common)
 
     def preprocess_data(self, X, target_col=None):
@@ -105,25 +111,85 @@ class ModelTrainer:
         else:
             self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    def evaluate(self, y_true, y_pred, model_name, training_time):
-        # Lazy Import Metrics
-        from sklearn.metrics import (mean_squared_error, mean_absolute_error, r2_score,
-                                     accuracy_score, f1_score, precision_score, recall_score)
-        
+    def evaluate(self, y_true, y_pred, model_name, training_time, model_obj=None):
+        """
+        Evaluate model predictions and return a rich metrics dictionary.
+        Handles both binary and multi-class classification with full metric suite.
+        """
+        from sklearn.metrics import (
+            mean_squared_error, mean_absolute_error, r2_score,
+            accuracy_score, f1_score, precision_score, recall_score,
+            matthews_corrcoef, cohen_kappa_score,
+            roc_auc_score, classification_report
+        )
+        from sklearn.preprocessing import label_binarize
+
         metrics = {"Model": model_name, "Time (s)": round(training_time, 4)}
+
         try:
             if self.task_type == "Regression":
                 rmse = np.sqrt(mean_squared_error(y_true, y_pred))
                 metrics["RMSE"] = round(rmse, 4)
-                metrics["MAE"] = round(mean_absolute_error(y_true, y_pred), 4)
-                metrics["R²"] = round(r2_score(y_true, y_pred), 4)
-            else:
-                metrics["Accuracy"] = round(accuracy_score(y_true, y_pred), 4)
-                metrics["F1 Score"] = round(f1_score(y_true, y_pred, average='weighted'), 4)
-                metrics["Precision"] = round(precision_score(y_true, y_pred, average='weighted'), 4)
-                metrics["Recall"] = round(recall_score(y_true, y_pred, average='weighted'), 4)
+                metrics["MAE"]  = round(mean_absolute_error(y_true, y_pred), 4)
+                metrics["R²"]   = round(r2_score(y_true, y_pred), 4)
+                # MAPE (avoid div-by-zero)
+                non_zero = np.abs(y_true) > 1e-8
+                if non_zero.any():
+                    mape = np.mean(np.abs((np.array(y_true)[non_zero] - np.array(y_pred)[non_zero]) /
+                                          np.abs(np.array(y_true)[non_zero]))) * 100
+                    metrics["MAPE (%)"] = round(float(mape), 4)
+
+            else:  # Classification
+                y_true_arr = np.array(y_true)
+                y_pred_arr = np.array(y_pred)
+                classes = np.unique(y_true_arr)
+                is_binary = len(classes) == 2
+                avg = 'binary' if is_binary else 'weighted'
+
+                metrics["Accuracy"]  = round(accuracy_score(y_true_arr, y_pred_arr), 4)
+                metrics["F1 Score"]  = round(f1_score(y_true_arr, y_pred_arr, average=avg, zero_division=0), 4)
+                metrics["Precision"] = round(precision_score(y_true_arr, y_pred_arr, average=avg, zero_division=0), 4)
+                metrics["Recall"]    = round(recall_score(y_true_arr, y_pred_arr, average=avg, zero_division=0), 4)
+
+                # ── Enhanced Multi-Class Metrics ──────────────────────────
+                try:
+                    metrics["MCC"] = round(float(matthews_corrcoef(y_true_arr, y_pred_arr)), 4)
+                except Exception:
+                    pass
+
+                try:
+                    metrics["Cohen Kappa"] = round(float(cohen_kappa_score(y_true_arr, y_pred_arr)), 4)
+                except Exception:
+                    pass
+
+                # AUC-ROC: binary uses proba[:, 1], multi-class uses OvR
+                if model_obj is not None and hasattr(model_obj, 'predict_proba'):
+                    try:
+                        probas = model_obj.predict_proba(self.X_test)
+                        if is_binary:
+                            auc = roc_auc_score(y_true_arr, probas[:, 1])
+                        else:
+                            y_bin = label_binarize(y_true_arr, classes=classes)
+                            auc = roc_auc_score(y_bin, probas, multi_class='ovr', average='weighted')
+                        metrics["AUC-ROC"] = round(float(auc), 4)
+                    except Exception:
+                        pass
+
+                # Per-class F1 report stored as JSON string for UI display
+                try:
+                    report_dict = classification_report(
+                        y_true_arr, y_pred_arr, output_dict=True, zero_division=0
+                    )
+                    # Keep only per-class rows (exclude avg rows)
+                    per_class = {k: v for k, v in report_dict.items()
+                                 if k not in ('accuracy', 'macro avg', 'weighted avg')}
+                    metrics["Per-Class Report"] = per_class
+                except Exception:
+                    pass
+
         except Exception as e:
             metrics["Error"] = f"Eval Failed: {str(e)}"
+
         return metrics
 
     # --- GENERIC TRAINER FUNCTION ---
@@ -133,19 +199,19 @@ class ModelTrainer:
             model = model_class(**kwargs)
             model.fit(self.X_train, self.y_train)
             preds = model.predict(self.X_test)
-            
+
             # Store model + predictions for visualizations
             self.trained_models[name] = model
             self.predictions[name] = preds
-            
+
             # Store predict_proba for ROC curves (classification only)
             if hasattr(model, 'predict_proba'):
                 try:
                     self.prediction_probas[name] = model.predict_proba(self.X_test)
                 except Exception:
                     pass
-            
-            return self.evaluate(self.y_test, preds, name, time.time() - start)
+
+            return self.evaluate(self.y_test, preds, name, time.time() - start, model_obj=model)
         except Exception as e:
             return {"Model": name, "Error": str(e)}
 
@@ -196,6 +262,82 @@ class ModelTrainer:
             return self.evaluate(self.y_test, preds, "SARIMAX", time.time() - start)
         except Exception as e:
             return {"Model": "SARIMAX", "Error": str(e)}
+
+    # --- LSTM (Deep Learning) ---
+    def train_lstm(self):
+        """
+        Train a Keras LSTM network for univariate time-series forecasting.
+        Requires tensorflow to be installed.
+        """
+        try:
+            import tensorflow as tf
+            from tensorflow.keras.models import Sequential
+            from tensorflow.keras.layers import LSTM, Dense, Dropout
+            from tensorflow.keras.callbacks import EarlyStopping
+        except ImportError:
+            return {"Model": "LSTM", "Error": "TensorFlow not installed. Run: pip install tensorflow"}
+
+        if not self.is_time_series:
+            return {"Model": "LSTM", "Error": "LSTM is only available for Time Series tasks."}
+
+        start = time.time()
+        try:
+            LOOKBACK = 10  # Use last 10 timesteps to predict next value
+
+            y_train_arr = np.array(self.y_train, dtype=np.float32)
+            y_test_arr  = np.array(self.y_test,  dtype=np.float32)
+
+            # Normalise
+            y_min, y_max = y_train_arr.min(), y_train_arr.max()
+            y_range = y_max - y_min + 1e-8
+            y_train_norm = (y_train_arr - y_min) / y_range
+            y_test_norm  = (y_test_arr  - y_min) / y_range
+
+            # Build supervised sequences from y_train only
+            def make_sequences(series, lookback):
+                X_s, y_s = [], []
+                for i in range(lookback, len(series)):
+                    X_s.append(series[i - lookback: i])
+                    y_s.append(series[i])
+                return np.array(X_s)[..., np.newaxis], np.array(y_s)
+
+            X_seq, y_seq = make_sequences(y_train_norm, LOOKBACK)
+            if len(X_seq) < 5:
+                return {"Model": "LSTM", "Error": "Not enough training samples for LSTM (need > LOOKBACK + 5)."}
+
+            # Build model
+            model = Sequential([
+                LSTM(64, return_sequences=True, input_shape=(LOOKBACK, 1)),
+                Dropout(0.2),
+                LSTM(32),
+                Dropout(0.2),
+                Dense(1)
+            ])
+            model.compile(optimizer='adam', loss='mse')
+
+            es = EarlyStopping(monitor='loss', patience=5, restore_best_weights=True)
+            model.fit(X_seq, y_seq, epochs=50, batch_size=16,
+                      callbacks=[es], verbose=0)
+
+            # Walk-forward forecast on test set
+            history = list(y_train_norm[-LOOKBACK:])
+            preds_norm = []
+            for _ in range(len(y_test_norm)):
+                inp = np.array(history[-LOOKBACK:], dtype=np.float32)[np.newaxis, :, np.newaxis]
+                out = float(model.predict(inp, verbose=0)[0, 0])
+                preds_norm.append(out)
+                history.append(out)
+
+            preds = np.array(preds_norm) * y_range + y_min
+
+            # Store a lightweight wrapper (keras model is not pickle-able by default)
+            self.trained_models["LSTM"] = model
+            self.predictions["LSTM"]    = preds
+
+            return self.evaluate(y_test_arr, preds, "LSTM", time.time() - start)
+
+        except Exception as e:
+            return {"Model": "LSTM", "Error": str(e)}
 
     # --- MAIN CONTROLLER ---
     def run_selected_models(self, selected_model_names):
@@ -253,6 +395,8 @@ class ModelTrainer:
                 results.append(self.train_arima())
             elif name == "SARIMAX":
                 results.append(self.train_sarimax())
+            elif name == "LSTM":
+                results.append(self.train_lstm())
                 
             # 2. Handle Standard Sklearn Models
             elif name in models_map:

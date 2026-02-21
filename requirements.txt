@@ -1,6 +1,7 @@
 streamlit           # For the GUI
 fastapi             # For the backend API
 uvicorn             # Server for FastAPI
+pydantic            # Schema validation for FastAPI
 pandas              # Data manipulation
 numpy               # Math
 scikit-learn        # Standard ML models
@@ -15,3 +16,9 @@ optuna              # Automated Hyperparameter Tuning
 langchain-groq      # Groq LLM integration
 langchain-huggingface # Embeddings
 faiss-cpu           # Vector Store for RAG
+chardet             # CSV encoding detection
+sentence-transformers # Required by langchain-huggingface for embeddings
+scipy               # Statistical functions (used in preprocessing)
+langchain-classic    # LangChain classic chains (RetrievalQA)
+shap                # SHAP model explainability (High Priority Feature)
+# tensorflow        # Optional: LSTM support — uncomment & run: pip install tensorflow

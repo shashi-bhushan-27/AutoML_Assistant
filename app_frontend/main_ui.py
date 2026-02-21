@@ -18,6 +18,7 @@ from app_backend.workspace_manager import WorkspaceManager, Workspace
 from app_backend.workspace_manager import WorkspaceManager, Workspace
 from app_backend.report_generator import ReportGenerator
 from app_backend.code_generator import generate_training_code
+from app_backend.shap_explainer import SHAPExplainer
 
 # --- SET CONFIG ---
 st.set_page_config(
@@ -1097,9 +1098,30 @@ with tab3:
                         st.dataframe(styled_df, use_container_width=True)
                 else:
                     st.dataframe(results_df)
+
+                # --- Per-Model Download Buttons ---
+                st.markdown("#### 💾 Download Trained Models")
+                trainer = st.session_state.trainer
+                if trainer and trainer.trained_models:
+                    dl_cols = st.columns(min(4, len(trainer.trained_models)))
+                    for idx, (mname, mobj) in enumerate(trainer.trained_models.items()):
+                        with dl_cols[idx % 4]:
+                            try:
+                                import pickle as _pickle
+                                pkl_bytes = _pickle.dumps(mobj)
+                                st.download_button(
+                                    label=f"⬇️ {mname}",
+                                    data=pkl_bytes,
+                                    file_name=f"{mname.replace(' ', '_')}_model.pkl",
+                                    mime="application/octet-stream",
+                                    key=f"dl_{mname}",
+                                    use_container_width=True,
+                                )
+                            except Exception:
+                                st.caption(f"⚠️ {mname} not serializable")
             else:
                 st.warning("No successful results found.")
-            
+
             # ==============================
             # DETAILED EVALUATION CHARTS
             # ==============================
@@ -1328,6 +1350,211 @@ with tab3:
                         st.plotly_chart(fig_fi, use_container_width=True)
                     else:
                         st.info("Feature importance is available for tree-based models (Random Forest, XGBoost, etc.)")
+
+            # ==============================
+            # SHAP EXPLAINABILITY SECTION
+            # ==============================
+            st.divider()
+            st.markdown("### 🔍 SHAP Model Explainability")
+
+            if not SHAPExplainer.is_available():
+                st.warning("""
+                **SHAP library not installed.** Run the following to enable explainability:
+                ```bash
+                pip install shap
+                ```
+                Then restart the app.
+                """)
+            elif trainer and trainer.trained_models and trainer.X_train is not None:
+                shap_model_options = [
+                    n for n in trainer.trained_models
+                    if n not in ("LSTM", "Prophet", "ARIMA", "SARIMAX")  # SHAP not applicable for these
+                ]
+
+                if shap_model_options:
+                    shap_col1, shap_col2 = st.columns([1, 3])
+                    with shap_col1:
+                        sel_shap_model = st.selectbox(
+                            "Model to Explain:",
+                            shap_model_options,
+                            key="shap_model_select"
+                        )
+                        if st.button("🔮 Generate SHAP Explanations", type="primary", key="shap_run_btn"):
+                            with st.spinner("Computing SHAP values (this may take 10-30s)..."):
+                                _model_obj   = trainer.trained_models[sel_shap_model]
+                                _X_train     = trainer.X_train
+                                _X_test      = trainer.X_test
+                                _feat_names  = list(_X_train.columns) if hasattr(_X_train, 'columns') else None
+                                _task_type   = task_type
+
+                                _explainer = SHAPExplainer(
+                                    _model_obj, _X_train, _X_test,
+                                    task_type=_task_type, feature_names=_feat_names
+                                )
+                                ok = _explainer.build_explainer()
+                                if ok:
+                                    st.session_state['shap_explainer'] = _explainer
+                                    st.session_state['shap_model_name'] = sel_shap_model
+                                    st.success("✅ SHAP values computed!")
+                                else:
+                                    st.error("SHAP explainer could not be built for this model.")
+
+                    with shap_col2:
+                        shap_exp = st.session_state.get('shap_explainer')
+                        if shap_exp and st.session_state.get('shap_model_name') == sel_shap_model:
+
+                            # --- SHAP Plot 1: Mean Absolute Feature Importance Bar ---
+                            with st.expander("📊 SHAP Feature Importance (Mean |SHAP|)", expanded=True):
+                                shap_fi_df = shap_exp.get_feature_importance_df(top_n=15)
+                                if shap_fi_df is not None:
+                                    import plotly.express as px
+                                    fig_shap_fi = px.bar(
+                                        shap_fi_df,
+                                        x="SHAP Importance",
+                                        y="Feature",
+                                        orientation='h',
+                                        title=f"SHAP Feature Importance — {sel_shap_model}",
+                                        template="plotly_dark",
+                                        color="SHAP Importance",
+                                        color_continuous_scale="Plasma"
+                                    )
+                                    fig_shap_fi.update_layout(
+                                        height=450,
+                                        margin=dict(l=10, r=10, t=40, b=10),
+                                        yaxis=dict(categoryorder='total ascending')
+                                    )
+                                    st.plotly_chart(fig_shap_fi, use_container_width=True)
+                                    st.caption("Mean absolute SHAP value per feature. Higher = more impact on predictions.")
+                                else:
+                                    st.info("Could not compute SHAP feature importance.")
+
+                            # --- SHAP Plot 2: Beeswarm (Impact Direction) ---
+                            with st.expander("🐝 SHAP Beeswarm — Impact & Direction", expanded=False):
+                                bee_df = shap_exp.get_beeswarm_data(top_n=12)
+                                if bee_df is not None:
+                                    import plotly.express as px
+                                    fig_bee = px.strip(
+                                        bee_df,
+                                        x="SHAP Value",
+                                        y="Feature",
+                                        color="Feature Value (norm)",
+                                        color_continuous_scale="RdBu",
+                                        title=f"SHAP Value Distribution — {sel_shap_model}",
+                                        template="plotly_dark",
+                                    )
+                                    fig_bee.update_layout(
+                                        height=480,
+                                        margin=dict(l=10, r=10, t=40, b=10),
+                                        coloraxis_colorbar=dict(title="Feature\nValue\n(norm)")
+                                    )
+                                    fig_bee.add_vline(x=0, line_dash="dash", line_color="gray")
+                                    st.plotly_chart(fig_bee, use_container_width=True)
+                                    st.caption("Each dot = one test sample. Red = high feature value, Blue = low. Right of 0 = positive impact.")
+
+                            # --- SHAP Plot 3: Waterfall (Single Prediction) ---
+                            with st.expander("💧 SHAP Waterfall — Single Prediction Explanation", expanded=False):
+                                n_test_samples = len(shap_exp.X_test)
+                                row_idx = st.slider("Select test sample:", 0, max(0, n_test_samples - 1), 0, key="shap_waterfall_row")
+                                wf_data = shap_exp.get_waterfall_data(row_index=row_idx)
+                                if wf_data:
+                                    import plotly.graph_objects as go
+                                    contributions = wf_data["shap_contributions"]
+                                    features      = wf_data["features"]
+                                    base_val      = wf_data["base_value"]
+                                    final_pred    = wf_data["prediction"]
+
+                                    # Build waterfall data
+                                    colors = ["#ef4444" if v > 0 else "#3b82f6" for v in contributions]
+                                    fig_wf = go.Figure(go.Waterfall(
+                                        name="SHAP",
+                                        orientation="h",
+                                        measure=["relative"] * len(contributions) + ["total"],
+                                        y=features + ["f(x)"],
+                                        x=contributions + [None],
+                                        connector={"line": {"color": "#64748b"}},
+                                        increasing={"marker": {"color": "#ef4444"}},
+                                        decreasing={"marker": {"color": "#3b82f6"}},
+                                        totals={"marker": {"color": "#10b981"}},
+                                        base=base_val,
+                                    ))
+                                    fig_wf.update_layout(
+                                        title=f"Prediction Breakdown — Sample #{row_idx}<br>Base: {base_val:.3f} → Prediction: {final_pred:.3f}",
+                                        template="plotly_dark",
+                                        height=480,
+                                        margin=dict(l=10, r=10, t=70, b=10)
+                                    )
+                                    st.plotly_chart(fig_wf, use_container_width=True)
+                                    st.caption("Red bars push prediction higher. Blue bars push prediction lower.")
+
+                            # --- SHAP Plot 4: Dependence Plot ---
+                            with st.expander("📉 SHAP Dependence Plot", expanded=False):
+                                dep_feature = st.selectbox(
+                                    "Select feature:",
+                                    shap_exp.feature_names,
+                                    key="shap_dep_feature"
+                                )
+                                dep_df = shap_exp.get_dependence_data(dep_feature)
+                                if dep_df is not None:
+                                    import plotly.express as px
+                                    fig_dep = px.scatter(
+                                        dep_df,
+                                        x="Feature Value",
+                                        y="SHAP Value",
+                                        title=f"SHAP Dependence — {dep_feature}",
+                                        template="plotly_dark",
+                                        color="SHAP Value",
+                                        color_continuous_scale="RdBu",
+                                        trendline="lowess"
+                                    )
+                                    fig_dep.update_layout(
+                                        height=400,
+                                        margin=dict(l=10, r=10, t=40, b=10)
+                                    )
+                                    st.plotly_chart(fig_dep, use_container_width=True)
+                                    st.caption(f"How increasing '{dep_feature}' shifts model predictions.")
+                        else:
+                            st.info("👆 Click **'Generate SHAP Explanations'** to reveal how this model thinks.")
+                else:
+                    st.info("SHAP explanations are available after training models (not applicable to time-series models ARIMA/Prophet).")
+            else:
+                st.info("Train models first to get SHAP explanations.")
+
+            # --- Per-Class Classification Report ---
+            if task_type == "Classification" and st.session_state.results_df is not None:
+                has_per_class = any(
+                    "Per-Class Report" in row
+                    for row in st.session_state.results_df.to_dict('records')
+                    if isinstance(row.get("Per-Class Report"), dict)
+                )
+                if has_per_class:
+                    st.divider()
+                    st.markdown("### 📋 Per-Class Metrics Report")
+                    for _, row in st.session_state.results_df.iterrows():
+                        per_class = row.get("Per-Class Report")
+                        if isinstance(per_class, dict):
+                            with st.expander(f"📊 {row['Model']} — Per-Class Breakdown"):
+                                report_rows = []
+                                for class_name, class_metrics in per_class.items():
+                                    if isinstance(class_metrics, dict):
+                                        report_rows.append({
+                                            "Class": str(class_name),
+                                            "Precision": round(class_metrics.get("precision", 0), 4),
+                                            "Recall":    round(class_metrics.get("recall",    0), 4),
+                                            "F1-Score":  round(class_metrics.get("f1-score",  0), 4),
+                                            "Support":   int(class_metrics.get("support",   0)),
+                                        })
+                                if report_rows:
+                                    import plotly.express as px
+                                    df_report = pd.DataFrame(report_rows)
+                                    st.dataframe(df_report, use_container_width=True)
+                                    fig_pcf1 = px.bar(
+                                        df_report, x="Class", y="F1-Score",
+                                        color="Class", template="plotly_dark",
+                                        title=f"Per-Class F1 — {row['Model']}",
+                                        color_discrete_sequence=px.colors.qualitative.Set2
+                                    )
+                                    fig_pcf1.update_layout(height=350, showlegend=False)
+                                    st.plotly_chart(fig_pcf1, use_container_width=True)
     else:
         st.info("Complete analysis in Step 2 first.")
 
