@@ -333,7 +333,7 @@ if st.session_state.current_workspace is None:
 
             | Chart | What It Shows |
             |-------|---------------|
-            | 📊 Feature Importance | Mean \|SHAP\| per feature — global impact ranking |
+            | 📊 Feature Importance | Mean |SHAP| per feature — global impact ranking |
             | 🐝 Beeswarm | Per-sample SHAP values — direction & magnitude of each feature |
             | 💧 Waterfall | Single-prediction breakdown — why *this* specific prediction was made |
             | 📉 Dependence Plot | How one feature's value shifts the model output (with LOWESS trendline) |
