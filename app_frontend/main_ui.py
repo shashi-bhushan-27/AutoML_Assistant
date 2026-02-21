@@ -1799,19 +1799,28 @@ with tab3:
                                     best_model_name = best_row["Model"] if "Model" in best_row else "N/A"
                                     best_score_val = best_row[sort_col] if sort_col in best_row else "N/A"
 
+                            # Source preprocessing steps — 3-tier fallback:
+                            # 1st: ws.preprocessing_steps = full_log saved during Run Preprocessing
+                            # 2nd: st.session_state.preprocess_report (correct key, was wrong before)
+                            # 3rd: empty list (preprocessing not yet run)
                             prep_steps = []
-                            if st.session_state.get("preprocessing_report"):
-                                prep_steps = st.session_state.preprocessing_report.get("applied_steps", [])
+                            if ws.preprocessing_steps:
+                                # full_log has all entries; filter to only 'applied' ones for the report
+                                prep_steps = [s for s in ws.preprocessing_steps
+                                              if s.get("status") == "applied"]
+                            elif st.session_state.get("preprocess_report"):
+                                prep_steps = st.session_state.preprocess_report.get("applied_steps", [])
 
                             workspace_data = {
-                                "dataset_name":       ws.dataset_name or "Unknown",
-                                "dataset_shape":      str(ws.dataset_shape) if ws.dataset_shape else "Unknown",
-                                "task_type":          task_type or "Unknown",
-                                "target_col":         ws.target_col or "Unknown",
-                                "best_model":         best_model_name,
-                                "best_score":         str(best_score_val),
+                                "dataset_name":        ws.dataset_name or "Unknown",
+                                "dataset_shape":       str(ws.dataset_shape) if ws.dataset_shape else "Unknown",
+                                "task_type":           task_type or ws.task_type or "Unknown",
+                                "target_col":          ws.target_col or "Unknown",
+                                "best_model":          best_model_name,
+                                "best_score":          str(best_score_val),
                                 "preprocessing_steps": prep_steps,
-                                "recommendations":    st.session_state.get("ai_recommendations", []),
+                                "recommendations":     st.session_state.get("ai_recommendations",
+                                                       ws.recommendations or []),
                             }
 
                             report_gen = ReportGenerator()
