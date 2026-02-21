@@ -208,9 +208,16 @@ class SHAPExplainer:
             row_index = 0
 
         contributions = shap_vals[row_index]
-        expected_value = float(self._explainer.expected_value) \
-            if not isinstance(self._explainer.expected_value, (list, np.ndarray)) \
-            else float(self._explainer.expected_value[1])
+
+        # Safely extract a scalar expected value regardless of explainer type:
+        #   - Regression / LinearExplainer  → scalar float
+        #   - Binary TreeExplainer          → list/array of 2  → take [-1] (positive class)
+        #   - Single-value array (size 1)   → index [1] would crash → use [-1] instead
+        _ev = self._explainer.expected_value
+        if isinstance(_ev, (list, np.ndarray)):
+            expected_value = float(np.asarray(_ev).flat[-1])
+        else:
+            expected_value = float(_ev)
 
         X_row = self.X_test.iloc[row_index]
 
