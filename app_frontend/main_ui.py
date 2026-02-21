@@ -1796,8 +1796,8 @@ with tab3:
                                 if sort_col in results_df.columns:
                                     sorted_df = results_df.sort_values(sort_col, ascending=asc)
                                     best_row = sorted_df.iloc[0]
-                                    best_model_name = best_row.get("Model", "N/A")
-                                    best_score_val = best_row.get(sort_col, "N/A")
+                                    best_model_name = best_row["Model"] if "Model" in best_row else "N/A"
+                                    best_score_val = best_row[sort_col] if sort_col in best_row else "N/A"
 
                             prep_steps = []
                             if st.session_state.get("preprocessing_report"):
@@ -1805,7 +1805,7 @@ with tab3:
 
                             workspace_data = {
                                 "dataset_name":       ws.dataset_name or "Unknown",
-                                "dataset_shape":      str(ws.processed_data.shape) if ws.processed_data is not None else "Unknown",
+                                "dataset_shape":      str(ws.dataset_shape) if ws.dataset_shape else "Unknown",
                                 "task_type":          task_type or "Unknown",
                                 "target_col":         ws.target_col or "Unknown",
                                 "best_model":         best_model_name,
