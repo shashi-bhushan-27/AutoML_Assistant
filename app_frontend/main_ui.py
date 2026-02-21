@@ -1628,19 +1628,39 @@ with tab3:
                                 bee_df = shap_exp.get_beeswarm_data(top_n=12)
                                 if bee_df is not None:
                                     import plotly.express as px
-                                    fig_bee = px.strip(
+                                    # Add random jitter on y-axis to reproduce beeswarm spread
+                                    # (px.strip doesn't support color_continuous_scale; px.scatter does)
+                                    rng = np.random.default_rng(seed=42)
+                                    bee_df = bee_df.copy()
+                                    feature_order = bee_df["Feature"].unique().tolist()
+                                    bee_df["_y_jitter"] = bee_df["Feature"].map(
+                                        {f: i for i, f in enumerate(feature_order)}
+                                    ) + rng.uniform(-0.35, 0.35, size=len(bee_df))
+
+                                    fig_bee = px.scatter(
                                         bee_df,
                                         x="SHAP Value",
-                                        y="Feature",
+                                        y="_y_jitter",
                                         color="Feature Value (norm)",
                                         color_continuous_scale="RdBu",
-                                        title=f"SHAP Value Distribution — {sel_shap_model}",
+                                        hover_data={"Feature": True, "SHAP Value": ":.4f",
+                                                    "Feature Value": ":.4f", "_y_jitter": False},
+                                        title=f"SHAP Beeswarm — {sel_shap_model}",
                                         template="plotly_dark",
+                                        opacity=0.75,
                                     )
+                                    fig_bee.update_traces(marker=dict(size=5))
                                     fig_bee.update_layout(
                                         height=480,
                                         margin=dict(l=10, r=10, t=40, b=10),
-                                        coloraxis_colorbar=dict(title="Feature\nValue\n(norm)")
+                                        coloraxis_colorbar=dict(title="Feature<br>Value<br>(norm)"),
+                                        yaxis=dict(
+                                            tickmode="array",
+                                            tickvals=list(range(len(feature_order))),
+                                            ticktext=feature_order,
+                                            title="Feature",
+                                        ),
+                                        xaxis_title="SHAP Value",
                                     )
                                     fig_bee.add_vline(x=0, line_dash="dash", line_color="gray")
                                     st.plotly_chart(fig_bee, use_container_width=True)
