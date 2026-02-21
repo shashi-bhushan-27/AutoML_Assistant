@@ -1628,6 +1628,7 @@ with tab3:
                                 bee_df = shap_exp.get_beeswarm_data(top_n=12)
                                 if bee_df is not None:
                                     import plotly.express as px
+                                    import numpy as np
                                     # Add random jitter on y-axis to reproduce beeswarm spread
                                     # (px.strip doesn't support color_continuous_scale; px.scatter does)
                                     rng = np.random.default_rng(seed=42)
