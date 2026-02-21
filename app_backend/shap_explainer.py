@@ -46,13 +46,18 @@ class SHAPExplainer:
 
     @staticmethod
     def _ensure_dataframe(X, feature_names=None) -> pd.DataFrame:
+        """Convert input to DataFrame and cast all columns to float32.
+        This prevents NumPy 2.x boolean-subtract errors on one-hot encoded columns.
+        """
         if isinstance(X, pd.DataFrame):
-            return X.reset_index(drop=True)
+            df = X.reset_index(drop=True)
         elif isinstance(X, np.ndarray):
             cols = feature_names if feature_names else [f"f{i}" for i in range(X.shape[1])]
-            return pd.DataFrame(X, columns=cols)
+            df = pd.DataFrame(X, columns=cols)
         else:
-            return pd.DataFrame(X)
+            df = pd.DataFrame(X)
+        # Cast every column to float32 — safe for SHAP and avoids bool arithmetic errors
+        return df.astype(np.float32, errors='ignore')
 
     def _get_model_type(self) -> str:
         model_class = type(self.model).__name__.lower()
@@ -171,7 +176,10 @@ class SHAPExplainer:
         for idx in top_idx:
             feat = self.feature_names[idx] if idx < len(self.feature_names) else f"f{idx}"
             shap_col = shap_vals[:, idx]
-            feat_col = X_sample.iloc[:, idx].values if idx < X_sample.shape[1] else np.zeros(len(shap_col))
+            raw_col = X_sample.iloc[:, idx].values if idx < X_sample.shape[1] else np.zeros(len(shap_col))
+
+            # Cast to float64 explicitly — prevents NumPy 2.x bool subtract error
+            feat_col = raw_col.astype(np.float64)
 
             # Normalise feature values 0-1 for colour encoding
             mn, mx = feat_col.min(), feat_col.max()
@@ -234,9 +242,12 @@ class SHAPExplainer:
         feat_idx = self.feature_names.index(feature_name)
         X_sample = self.X_test.head(shap_vals.shape[0])
 
+        # Cast to float64 to avoid NumPy 2.x bool arithmetic errors
+        feat_values = X_sample.iloc[:, feat_idx].values.astype(np.float64)
+
         return pd.DataFrame({
-            "Feature Value": X_sample.iloc[:, feat_idx].values,
-            "SHAP Value": shap_vals[:, feat_idx],
+            "Feature Value": feat_values,
+            "SHAP Value": shap_vals[:, feat_idx].astype(np.float64),
         })
 
     @staticmethod
