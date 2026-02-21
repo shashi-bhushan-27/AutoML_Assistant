@@ -1771,8 +1771,106 @@ with tab3:
                                     )
                                     fig_pcf1.update_layout(height=350, showlegend=False)
                                     st.plotly_chart(fig_pcf1, use_container_width=True)
+            # ============================================================
+            # AI EXPERIMENT REPORT SECTION
+            # ============================================================
+            st.divider()
+            st.markdown("### 📄 AI Experiment Report")
+            st.caption("Generate a professional summary of this experiment powered by Groq LLaMA 3.1.")
+
+            rep_col1, rep_col2 = st.columns([1, 2])
+
+            with rep_col1:
+                if st.button("🤖 Generate AI Report", type="primary", key="gen_report_btn"):
+                    with st.spinner("Generating report via Groq AI..."):
+                        try:
+                            # Assemble workspace context for the report
+                            results_df = st.session_state.results_df
+                            best_row = None
+                            best_model_name = "N/A"
+                            best_score_val = "N/A"
+
+                            if results_df is not None and not results_df.empty:
+                                sort_col = "RMSE" if task_type == "Regression" else "Accuracy"
+                                asc = task_type == "Regression"
+                                if sort_col in results_df.columns:
+                                    sorted_df = results_df.sort_values(sort_col, ascending=asc)
+                                    best_row = sorted_df.iloc[0]
+                                    best_model_name = best_row.get("Model", "N/A")
+                                    best_score_val = best_row.get(sort_col, "N/A")
+
+                            prep_steps = []
+                            if st.session_state.get("preprocessing_report"):
+                                prep_steps = st.session_state.preprocessing_report.get("applied_steps", [])
+
+                            workspace_data = {
+                                "dataset_name":       ws.dataset_name or "Unknown",
+                                "dataset_shape":      str(ws.processed_data.shape) if ws.processed_data is not None else "Unknown",
+                                "task_type":          task_type or "Unknown",
+                                "target_col":         ws.target_col or "Unknown",
+                                "best_model":         best_model_name,
+                                "best_score":         str(best_score_val),
+                                "preprocessing_steps": prep_steps,
+                                "recommendations":    st.session_state.get("ai_recommendations", []),
+                            }
+
+                            report_gen = ReportGenerator()
+                            report_text = report_gen.generate_summary_report(workspace_data)
+                            st.session_state["ai_report_text"] = report_text
+                            st.session_state["ai_report_ws"] = workspace_data
+                            st.success("✅ Report generated!")
+                        except Exception as e:
+                            st.error(f"Report generation failed: {e}")
+
+                # Code export button (always available after training)
+                if st.session_state.results_df is not None:
+                    st.markdown("---")
+                    st.markdown("**📜 Export Training Code**")
+                    st.caption("Get a Colab/Kaggle-ready Python script for the best model.")
+                    if st.button("⬇️ Generate Code Script", key="gen_code_btn"):
+                        try:
+                            export_ws_data = {
+                                "dataset_name": ws.dataset_name or "dataset.csv",
+                                "target_col":   ws.target_col or "target",
+                                "task_type":    (task_type or "Classification").lower(),
+                                "best_model":   st.session_state.results_df.iloc[0].get("Model", "XGBoost"),
+                            }
+                            report_gen = ReportGenerator()
+                            code_script = report_gen.generate_code_export(export_ws_data)
+                            st.session_state["ai_code_script"] = code_script
+                        except Exception as e:
+                            st.error(f"Code export failed: {e}")
+
+            with rep_col2:
+                # --- Show generated report ---
+                report_text = st.session_state.get("ai_report_text")
+                if report_text:
+                    with st.expander("📋 View Full Report", expanded=True):
+                        st.markdown(report_text)
+                    st.download_button(
+                        label="💾 Download Report (.md)",
+                        data=report_text,
+                        file_name=f"{ws.dataset_name or 'experiment'}_report.md",
+                        mime="text/markdown",
+                        key="dl_report_btn"
+                    )
+
+                # --- Show generated code ---
+                code_script = st.session_state.get("ai_code_script")
+                if code_script:
+                    with st.expander("📜 View Training Code", expanded=True):
+                        st.code(code_script, language="python")
+                    st.download_button(
+                        label="💾 Download Code (.py)",
+                        data=code_script,
+                        file_name=f"{ws.dataset_name or 'experiment'}_train.py",
+                        mime="text/x-python",
+                        key="dl_code_btn"
+                    )
+
     else:
         st.info("Complete analysis in Step 2 first.")
+
 
 # ==========================
 # TAB 4: OPTIMIZATION
