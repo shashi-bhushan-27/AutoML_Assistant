@@ -27,7 +27,7 @@ class AutoPreprocessor:
     """
     
     def __init__(self, 
-                 target_col: str = None,
+                 target_col=None,
                  task_type: str = "auto",
                  is_time_series: bool = False,
                  date_col: str = None,
@@ -36,7 +36,8 @@ class AutoPreprocessor:
                  verbose: bool = True):
         """
         Args:
-            target_col: Target variable column name
+            target_col: Target variable column name (str) OR list of column names
+                        for multi-output prediction.
             task_type: 'classification', 'regression', or 'auto'
             is_time_series: Whether data is time-series
             date_col: Date column for time-series
@@ -44,7 +45,16 @@ class AutoPreprocessor:
             apply_smote: Whether to apply SMOTE for imbalanced data
             verbose: Print progress logs
         """
-        self.target_col = target_col
+        # Normalise: always store as list internally
+        if isinstance(target_col, str):
+            self.target_cols = [target_col]
+        elif isinstance(target_col, (list, tuple)) and len(target_col) > 0:
+            self.target_cols = list(target_col)
+        else:
+            self.target_cols = []
+        # Keep legacy attribute for backward-compat
+        self.target_col = self.target_cols[0] if self.target_cols else None
+        self.is_multi_output = len(self.target_cols) > 1
         self.task_type = task_type
         self.is_time_series = is_time_series
         self.date_col = date_col
@@ -106,6 +116,7 @@ class AutoPreprocessor:
         
         # ========== 2. PROFILING ==========
         self._print("Step 2: Dataset Profiling")
+        # Profile using first target col as reference
         self.profile = self.profiler.generate_profile(df, target_col=self.target_col)
         
         # Auto-detect task type
@@ -113,9 +124,15 @@ class AutoPreprocessor:
             self.task_type = self.profile.get("task_type", "regression")
         
         # ========== 3. SEPARATE X AND Y ==========
-        if self.target_col and self.target_col in df.columns:
-            y = df[self.target_col].copy()
-            X = df.drop(columns=[self.target_col])
+        valid_targets = [c for c in self.target_cols if c in df.columns]
+        if valid_targets:
+            if len(valid_targets) == 1:
+                # Single output → Series (fully backward-compatible)
+                y = df[valid_targets[0]].copy()
+            else:
+                # Multi-output → DataFrame
+                y = df[valid_targets].copy()
+            X = df.drop(columns=valid_targets)
         else:
             y = None
             X = df.copy()

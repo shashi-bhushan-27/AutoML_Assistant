@@ -33,33 +33,48 @@ class ReportGenerator:
         """Generate a summary report using LLM."""
         if not self.llm:
             return self._generate_fallback_report(workspace_data)
-        
+
+        is_multi = workspace_data.get('is_multi_output', False)
+        target_display = workspace_data.get('target_col', 'Unknown')
+        target_cols    = workspace_data.get('target_cols', [])
+
+        multi_section = ""
+        if is_multi:
+            multi_section = f"""
+        Prediction Mode: MULTI-OUTPUT (predicting {len(target_cols)} targets simultaneously)
+        Target Columns: {', '.join(target_cols)}
+        Note: Models were wrapped with MultiOutputRegressor / MultiOutputClassifier.
+        Reported metrics (RMSE, R², Accuracy, F1) are macro-averaged across all targets.
+        """
+        else:
+            multi_section = f"Target Variable: {target_display}"
+
         prompt = f"""
-        Generate a professional AutoML analysis report based on the following workspace data:
-        
+        Generate a professional AutoML analysis report based on the following experiment:
+
         Dataset: {workspace_data.get('dataset_name', 'Unknown')}
         Shape: {workspace_data.get('dataset_shape', 'Unknown')}
         Task Type: {workspace_data.get('task_type', 'Unknown')}
-        Target Variable: {workspace_data.get('target_col', 'Unknown')}
+        {multi_section}
         Best Model: {workspace_data.get('best_model', 'N/A')}
         Best Score: {workspace_data.get('best_score', 'N/A')}
-        
+
         Preprocessing Steps Applied:
         {workspace_data.get('preprocessing_steps', [])}
-        
+
         Model Recommendations:
         {workspace_data.get('recommendations', [])}
-        
+
         Generate a concise, professional report with:
         1. Executive Summary
         2. Data Overview
         3. Preprocessing Applied
-        4. Model Performance
+        4. Model Performance{' (include a Multi-Output Prediction section explaining averaged metrics)' if is_multi else ''}
         5. Recommendations
-        
+
         Format in Markdown.
         """
-        
+
         try:
             response = self.llm.invoke(prompt)
             return response.content
@@ -69,6 +84,18 @@ class ReportGenerator:
     
     def _generate_fallback_report(self, workspace_data: Dict) -> str:
         """Generate report without LLM."""
+        is_multi    = workspace_data.get('is_multi_output', False)
+        target_cols = workspace_data.get('target_cols', [])
+        target_disp = workspace_data.get('target_col', 'Unknown')
+
+        if is_multi:
+            target_section = (
+                f"- **Prediction Mode:** Multi-Output ({len(target_cols)} targets simultaneously)\n"
+                + "\n".join(f"  - `{t}`" for t in target_cols)
+            )
+        else:
+            target_section = f"- **Target Variable:** {target_disp}"
+
         return f"""
 # AutoML Analysis Report
 
@@ -78,11 +105,12 @@ class ReportGenerator:
 - **Name:** {workspace_data.get('dataset_name', 'Unknown')}
 - **Shape:** {workspace_data.get('dataset_shape', 'Unknown')}
 - **Task Type:** {workspace_data.get('task_type', 'Unknown')}
-- **Target:** {workspace_data.get('target_col', 'Unknown')}
+{target_section}
 
 ## Best Model
 - **Algorithm:** {workspace_data.get('best_model', 'N/A')}
 - **Score:** {workspace_data.get('best_score', 'N/A')}
+{'> ⚠️ Metrics are **macro-averaged** across all target columns.' if is_multi else ''}
 
 ## Preprocessing Steps
 {self._format_preprocessing_steps(workspace_data.get('preprocessing_steps', []))}

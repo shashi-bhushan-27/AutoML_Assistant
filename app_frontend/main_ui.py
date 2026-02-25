@@ -38,6 +38,18 @@ css_path = os.path.join(os.path.dirname(__file__), 'assets/style.css')
 if os.path.exists(css_path):
     local_css(css_path)
 
+# ── Helper: normalise target_col to a display string ──────────────────────────
+def _target_display(target_col) -> str:
+    """Return a human-readable string for single or multi-output target_col."""
+    if isinstance(target_col, (list, tuple)):
+        cols = [str(c) for c in target_col if c]
+        if len(cols) == 0:
+            return "Unknown"
+        if len(cols) == 1:
+            return cols[0]
+        return f"{', '.join(cols)} (multi-output, {len(cols)} targets)"
+    return str(target_col) if target_col else "Unknown"
+
 # --- HERO SECTION ---
 st.markdown("""
     <div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem;">
@@ -156,9 +168,12 @@ if st.session_state.current_workspace is None:
                             # 5. Rebuild ModelTrainer if we have stats + data
                             if saved_df is not None and st.session_state.stats is not None and loaded_ws.target_col:
                                 try:
+                                    # Normalise target_col (may be stored as list for multi-output)
+                                    _tc = loaded_ws.target_col
+                                    _tc = _tc if isinstance(_tc, list) else [_tc] if _tc else []
                                     restored_trainer = ModelTrainer(
                                         saved_df,
-                                        loaded_ws.target_col,
+                                        _tc,
                                         st.session_state.stats.get('task_type', 'Regression'),
                                         st.session_state.stats.get('is_time_series', False),
                                         st.session_state.stats.get('time_column')
@@ -337,6 +352,37 @@ if st.session_state.current_workspace is None:
             | 🐝 Beeswarm | Per-sample SHAP values — direction & magnitude of each feature |
             | 💧 Waterfall | Single-prediction breakdown — why *this* specific prediction was made |
             | 📉 Dependence Plot | How one feature's value shifts the model output (with LOWESS trendline) |
+
+            #### 🧠 How to Interpret SHAP Plots
+            SHAP (SHapley Additive exPlanations) uses a game-theoretic approach to explain how much each feature contributed to the model's final prediction.
+
+            1. **📊 Feature Importance (Global)**
+               - **What it shows:** The average impact of each feature across the *entire* dataset.
+               - **How to read:** Features are ranked from top to bottom. A longer bar means that feature "moved the needle" more than others on average.
+               - **Best for:** Identifying which variables are the primary drivers for your model overall.
+
+            2. **🐝 Beeswarm Plot (Global + Directional)**
+               - **What it shows:** A dense view of how feature values (high/low) influence predictions (positive/negative).
+               - **How to read:**
+                 - **Vertical axis:** Features ranked by importance.
+                 - **Horizontal axis:** SHAP value. Positive (right) means the feature pushed the prediction **higher**; Negative (left) means it pushed it **lower**.
+                 - **Color:** Red dots = high feature values; Blue dots = low feature values.
+               - **Example:** If you see a cluster of **Red** dots on the **Right**, it means *high* values of that feature increase the output.
+
+            3. **💧 Waterfall Plot (Local/Individual)**
+               - **What it shows:** A step-by-step breakdown of a **single** specific prediction.
+               - **How to read:**
+                 - **Base Value (E[f(x)]):** The average prediction of the model across the training set.
+                 - **Arrows:** Each feature adds (Red) or subtracts (Blue) from the base value.
+                 - **Final Value (f(x)):** The model's actual prediction for this specific row.
+               - **Best for:** Debugging individual cases. *"Why was this specific applicant rejected?"*
+
+            4. **📉 Dependence Plot (Relationships)**
+               - **What it shows:** How the model's output changes as a single feature's value varies.
+               - **How to read:**
+                 - **X-axis:** The raw value of the feature (e.g., 'Age').
+                 - **Y-axis:** The SHAP value (impact on prediction).
+                 - **Trend:** Revealed patterns (linear or non-linear) show how the model treats that specific factor.
 
             > SHAP auto-selects the fastest explainer: `TreeExplainer` → `LinearExplainer` → `KernelExplainer`.
             """)
@@ -812,65 +858,88 @@ with tab2:
         
         with col_p1:
             st.markdown("#### Configuration")
-            target_col = st.selectbox("Select Target Variable", df.columns, key="preprocess_target")
-            
-            is_timeseries = st.checkbox("Time Series Data?", value=False)
+
+            # ── Target Variable(s) ────────────────────────────────────────
+            target_cols = st.multiselect(
+                "🎯 Select Target Variable(s)",
+                options=list(df.columns),
+                default=[str(df.columns[-1])],
+                key="preprocess_target",
+                help="Select ONE column for standard prediction, or MULTIPLE columns for multi-output prediction."
+            )
+
+            if not target_cols:
+                st.warning("⚠️ Please select at least one target variable.")
+
+            is_multi_output_ui = len(target_cols) > 1
+            if is_multi_output_ui:
+                st.info(f"🔀 **Multi-Output Mode** — predicting {len(target_cols)} targets simultaneously.")
+
+            # ── Other config ──────────────────────────────────────────────
+            is_timeseries = st.checkbox("Time Series Data?", value=False, disabled=is_multi_output_ui)
             date_col = None
             if is_timeseries:
                 date_col = st.selectbox("Date Column", df.columns)
-            
-            apply_smote = st.checkbox("Apply SMOTE for imbalance?", value=False)
-            
-            if st.button("🚀 Run Preprocessing", type="primary"):
+
+            apply_smote = st.checkbox("Apply SMOTE for imbalance?", value=False, disabled=is_multi_output_ui)
+
+            if st.button("🚀 Run Preprocessing", type="primary", disabled=not target_cols):
                 with st.spinner("Running preprocessing pipeline..."):
                     preprocessor = AutoPreprocessor(
-                        target_col=target_col,
+                        target_col=target_cols,          # pass list or single string
                         task_type="auto",
                         is_time_series=is_timeseries,
                         date_col=date_col,
                         apply_smote=apply_smote,
                         verbose=True
                     )
-                    
+
                     result = preprocessor.fit_transform(df=df)
                     st.session_state.preprocessor = preprocessor
                     st.session_state.preprocess_report = preprocessor.get_report()
-                    
+
                     # Store for training
                     st.session_state.X_train = result["X_train"]
-                    st.session_state.X_test = result["X_test"]
+                    st.session_state.X_test  = result["X_test"]
                     st.session_state.y_train = result["y_train"]
-                    st.session_state.y_test = result["y_test"]
-                    
+                    st.session_state.y_test  = result["y_test"]
+
+                    # Store target list in session for downstream use
+                    st.session_state.target_cols = target_cols
+
                     # Update workspace
                     if st.session_state.current_workspace:
                         ws = st.session_state.current_workspace
-                        ws.target_col = target_col
-                        ws.task_type = preprocessor.task_type
+                        # Store as list (JSON-safe); backward-compat single col stored as string
+                        ws.target_col  = target_cols[0] if len(target_cols) == 1 else target_cols
+                        ws.task_type   = preprocessor.task_type
                         ws.preprocessing_steps = preprocessor.full_log
                         ws.add_event("preprocessing_complete", f"Applied {len(preprocessor.full_log)} preprocessing steps")
                         st.session_state.workspace_manager.save_workspace(ws)
-                        
+
                         # Save preprocessor pipeline
                         st.session_state.workspace_manager.save_preprocessor(ws.workspace_id, preprocessor)
-                        
+
                         # Save training data splits
                         st.session_state.workspace_manager.save_training_data(
                             ws.workspace_id,
                             result["X_train"], result["X_test"],
                             result["y_train"], result["y_test"]
                         )
-                        
+
                         # Save session state for restoration
                         st.session_state.workspace_manager.save_session_state(ws.workspace_id, {
                             'stats': st.session_state.stats,
                             'recommendations': st.session_state.recommendations,
                             'reasoning': st.session_state.get('reasoning', []),
                             'preprocess_report': st.session_state.preprocess_report,
+                            'target_cols': target_cols,
                             'results_df': st.session_state.results_df.to_dict() if st.session_state.results_df is not None else None
                         })
-                    
-                    st.success("✅ Preprocessing Complete!")
+
+                    label = f"✅ Preprocessing Complete! ({'Multi-Output: ' + str(len(target_cols)) + ' targets' if is_multi_output_ui else 'Single target'})"
+                    st.success(label)
+
         
         with col_p2:
             if st.session_state.preprocess_report:
@@ -926,7 +995,12 @@ with tab2:
                 with st.expander("📈 Feature Distributions", expanded=True):
                     num_cols = df_viz.select_dtypes(include=['int16','int32','int64','float16','float32','float64']).columns.tolist()
                     # Remove target col from viz if present
-                    ws_target = st.session_state.current_workspace.target_col if st.session_state.current_workspace else None
+                    ws_target_raw = st.session_state.current_workspace.target_col if st.session_state.current_workspace else None
+                    # Normalise: stored value may be list (multi-output) → use first element for viz
+                    if isinstance(ws_target_raw, list):
+                        ws_target = ws_target_raw[0] if ws_target_raw else None
+                    else:
+                        ws_target = ws_target_raw
                     viz_cols = [c for c in num_cols if c != ws_target][:12]  # Max 12 columns
                     
                     if viz_cols:
@@ -1004,33 +1078,52 @@ with tab2b:
     if st.session_state.df_clean is not None:
         df = st.session_state.df_clean
         
-        # Auto-use target from preprocessing (stored in workspace)
+        # Auto-use targets from preprocessing (stored in workspace / session)
         ws = st.session_state.current_workspace
-        saved_target = ws.target_col if ws and ws.target_col else None
-        
-        if saved_target and saved_target in df.columns:
-            target_col = saved_target
-        else:
-            target_col = None
+
+        # Prefer session state (set just now in preprocessing), fallback to workspace
+        saved_targets = st.session_state.get('target_cols') or (ws.target_col if ws else None)
+
+        # Normalise to list
+        if isinstance(saved_targets, str):
+            saved_targets = [saved_targets]
+        elif not isinstance(saved_targets, list):
+            saved_targets = []
+
+        # Filter to columns that exist
+        target_cols_analysis = [c for c in (saved_targets or []) if c in df.columns]
+        target_col = target_cols_analysis[0] if target_cols_analysis else None  # primary (for analyze_dataset)
         
         col_c1, col_c2 = st.columns([1, 3])
         
         with col_c1:
             st.markdown("### Configuration", unsafe_allow_html=True)
             if not df.empty:
-                if target_col:
-                    st.success(f"🎯 Target Variable: **{target_col}**")
+                if target_cols_analysis:
+                    if len(target_cols_analysis) == 1:
+                        st.success(f"🎯 Target Variable: **{target_cols_analysis[0]}**")
+                    else:
+                        st.success(f"🔀 Multi-Output: **{len(target_cols_analysis)} targets**")
+                        with st.expander("View targets"):
+                            for t in target_cols_analysis:
+                                st.write(f"• {t}")
                     st.caption("Set in Preprocessing step.")
                     
                     if st.button("🔍 Analyze Dataset", type="primary"):
                         with st.spinner("Consulting AI Brain..."):
-                            # 1. Statistical Analysis
+                            # 1. Statistical Analysis (uses primary target for profile)
                             stats = analyze_dataset(df, target_col=target_col)
                             st.session_state.stats = stats
-                            
-                            # 2. Initialize Trainer
-                            temp_trainer = ModelTrainer(df, target_col, stats['task_type'], stats['is_time_series'], stats.get('time_column'))
-                            st.session_state.trainer = temp_trainer 
+
+                            # 2. Initialize Trainer with full target list
+                            temp_trainer = ModelTrainer(
+                                df,
+                                target_cols_analysis,   # list — single or multi
+                                stats['task_type'],
+                                stats['is_time_series'],
+                                stats.get('time_column')
+                            )
+                            st.session_state.trainer = temp_trainer
                             
                             # 3. Get AI Recommendations
                             @st.cache_resource
@@ -1084,7 +1177,7 @@ with tab2b:
                                     'results_df': st.session_state.results_df.to_dict() if st.session_state.results_df is not None else None
                                 })
                 else:
-                    st.warning("⚠️ Please complete **Step 2 (Preprocessing)** first to set the target variable.")
+                    st.warning("⚠️ Please complete **Step 2 (Preprocessing)** first to set the target variable(s).")
         
         with col_c2:
             if st.session_state.stats:
@@ -1277,20 +1370,35 @@ with tab3:
                             x="Model", 
                             y=sort_metric, 
                             color="Model", 
-                            title=f"Model Performance ({sort_metric})", 
+                            title=f"Model Performance ({sort_metric}{'  [avg across targets]' if 'Per-Target Metrics' in results_df.columns else ''})", 
                             text_auto=True,
                             template="plotly_dark"
                         )
                         st.plotly_chart(fig, use_container_width=True)
                         
                     with col_l2:
-                         # Table
+                         # Table — hide complex dict columns for clean display
+                        display_cols = [c for c in results_df.columns
+                                        if c not in ('Per-Target Metrics', 'Per-Class Report')]
+                        simple_df = results_df[display_cols]
                         if sort_metric == "RMSE":
-                            styled_df = results_df.style.highlight_min(axis=0, color='#10b981', subset=[sort_metric]) # Green for low error
+                            styled_df = simple_df.style.highlight_min(axis=0, color='#10b981', subset=[sort_metric])
                         else:
-                            styled_df = results_df.style.highlight_max(axis=0, color='#10b981', subset=[sort_metric]) # Green for high acc
+                            styled_df = simple_df.style.highlight_max(axis=0, color='#10b981', subset=[sort_metric])
                         
                         st.dataframe(styled_df, use_container_width=True)
+
+                    # ── Per-Target Breakdown (multi-output only) ────────────
+                    if "Per-Target Metrics" in results_df.columns:
+                        st.divider()
+                        st.markdown("#### 🎯 Per-Target Metrics Breakdown")
+                        for _, row in results_df.iterrows():
+                            per_t = row.get("Per-Target Metrics")
+                            if isinstance(per_t, dict) and per_t:
+                                with st.expander(f"📌 {row['Model']} — per-target detail"):
+                                    breakdown_df = pd.DataFrame(per_t).T
+                                    st.dataframe(breakdown_df, use_container_width=True)
+
                 else:
                     st.dataframe(results_df)
 
@@ -1316,6 +1424,7 @@ with tab3:
                                 st.caption(f"⚠️ {mname} not serializable")
             else:
                 st.warning("No successful results found.")
+
 
             # ==============================
             # DETAILED EVALUATION CHARTS
@@ -1457,11 +1566,40 @@ with tab3:
                     with st.expander("📈 Predicted vs Actual", expanded=True):
                         model_names = list(trainer.predictions.keys())
                         selected_res_model = st.selectbox("Select model:", model_names, key="residual_model_select")
-                        
+
                         if selected_res_model in trainer.predictions:
-                            y_true = trainer.y_test
-                            y_pred = trainer.predictions[selected_res_model]
-                            
+                            y_true_raw = trainer.y_test
+                            y_pred_raw = trainer.predictions[selected_res_model]
+
+                            import numpy as np
+
+                            # ── Multi-output: let user pick one target to visualise ──
+                            is_2d = (hasattr(y_true_raw, 'ndim') and y_true_raw.ndim > 1 and y_true_raw.shape[1] > 1) \
+                                     or (hasattr(y_true_raw, 'columns') and len(y_true_raw.columns) > 1)
+
+                            if is_2d:
+                                import pandas as _pd
+                                if hasattr(y_true_raw, 'columns'):
+                                    target_options = list(y_true_raw.columns)
+                                else:
+                                    target_options = [f"Target {i}" for i in range(y_true_raw.shape[1])]
+
+                                chosen_target = st.selectbox(
+                                    "📌 Select target to visualise:",
+                                    target_options,
+                                    key="pva_target_select"
+                                )
+                                idx = target_options.index(chosen_target)
+                                if hasattr(y_true_raw, 'columns'):
+                                    y_true = np.array(y_true_raw[chosen_target])
+                                else:
+                                    y_true = np.array(y_true_raw)[:, idx]
+                                y_pred = np.array(y_pred_raw)[:, idx] if np.array(y_pred_raw).ndim > 1 else np.array(y_pred_raw)
+                                st.caption(f"Showing diagnostics for target: **{chosen_target}**")
+                            else:
+                                y_true = np.array(y_true_raw).ravel()
+                                y_pred = np.array(y_pred_raw).ravel()
+
                             res_col1, res_col2 = st.columns(2)
                             with res_col1:
                                 # Predicted vs Actual scatter
@@ -1473,8 +1611,8 @@ with tab3:
                                     color_discrete_sequence=["#06b6d4"]
                                 )
                                 # 45-degree reference line
-                                min_val = min(min(y_true), min(y_pred))
-                                max_val = max(max(y_true), max(y_pred))
+                                min_val = float(min(y_true.min(), y_pred.min()))
+                                max_val = float(max(y_true.max(), y_pred.max()))
                                 fig_pva.add_trace(go.Scatter(
                                     x=[min_val, max_val], y=[min_val, max_val],
                                     mode='lines', line=dict(dash='dash', color='#ef4444'),
@@ -1485,7 +1623,7 @@ with tab3:
                                     margin=dict(l=10, r=10, t=40, b=10)
                                 )
                                 st.plotly_chart(fig_pva, use_container_width=True)
-                            
+
                             with res_col2:
                                 # Residual distribution
                                 residuals = y_true - y_pred
@@ -1501,19 +1639,26 @@ with tab3:
                                     margin=dict(l=10, r=10, t=40, b=10)
                                 )
                                 st.plotly_chart(fig_res, use_container_width=True)
-                
+
+
                 # --- B5: Feature Importance (works for both Classification & Regression) ---
                 with st.expander("🏅 Feature Importance", expanded=False):
-                    # Find best tree-based model
+                    # Build dict of models that expose feature importances
+                    # MultiOutput wrappers expose them via .estimators_
                     tree_models = {}
                     for name, model in trainer.trained_models.items():
                         if hasattr(model, 'feature_importances_'):
                             tree_models[name] = model
-                    
+                        elif hasattr(model, 'estimators_'):
+                            # MultiOutputRegressor / MultiOutputClassifier
+                            sub = model.estimators_[0] if model.estimators_ else None
+                            if sub is not None and hasattr(sub, 'feature_importances_'):
+                                tree_models[name] = model   # keep wrapper, handle below
+
                     if tree_models:
                         fi_model_name = st.selectbox("Select model:", list(tree_models.keys()), key="fi_model_select")
                         model = tree_models[fi_model_name]
-                        
+
                         # Get feature names
                         if hasattr(trainer, 'X_train') and trainer.X_train is not None:
                             if hasattr(trainer.X_train, 'columns'):
@@ -1521,30 +1666,50 @@ with tab3:
                             else:
                                 feature_names = [f"Feature {i}" for i in range(trainer.X_train.shape[1])]
                         else:
-                            feature_names = [f"Feature {i}" for i in range(len(model.feature_importances_))]
-                        
-                        importances = model.feature_importances_
-                        fi_df = pd.DataFrame({
-                            'Feature': feature_names,
-                            'Importance': importances
-                        }).sort_values('Importance', ascending=True).tail(15)  # Top 15
-                        
-                        fig_fi = px.bar(
-                            fi_df, x='Importance', y='Feature',
-                            orientation='h',
-                            title=f"Top 15 Features — {fi_model_name}",
-                            template="plotly_dark",
-                            color='Importance',
-                            color_continuous_scale="Plasma"
-                        )
-                        fig_fi.update_layout(
-                            height=450,
-                            margin=dict(l=10, r=10, t=40, b=10),
-                            yaxis=dict(categoryorder='total ascending')
-                        )
-                        st.plotly_chart(fig_fi, use_container_width=True)
+                            feature_names = None
+
+                        # Extract importances (handle MultiOutput wrappers)
+                        import numpy as np
+                        if hasattr(model, 'feature_importances_'):
+                            importances = model.feature_importances_
+                        elif hasattr(model, 'estimators_') and model.estimators_:
+                            # Average across sub-estimators
+                            all_imp = np.array([
+                                e.feature_importances_
+                                for e in model.estimators_
+                                if hasattr(e, 'feature_importances_')
+                            ])
+                            importances = all_imp.mean(axis=0) if len(all_imp) > 0 else None
+                        else:
+                            importances = None
+
+                        if importances is not None:
+                            if feature_names is None:
+                                feature_names = [f"Feature {i}" for i in range(len(importances))]
+                            fi_df = pd.DataFrame({
+                                'Feature': feature_names[:len(importances)],
+                                'Importance': importances
+                            }).sort_values('Importance', ascending=True).tail(15)  # Top 15
+
+                            fig_fi = px.bar(
+                                fi_df, x='Importance', y='Feature',
+                                orientation='h',
+                                title=f"Top 15 Features — {fi_model_name}",
+                                template="plotly_dark",
+                                color='Importance',
+                                color_continuous_scale="Plasma"
+                            )
+                            fig_fi.update_layout(
+                                height=450,
+                                margin=dict(l=10, r=10, t=40, b=10),
+                                yaxis=dict(categoryorder='total ascending')
+                            )
+                            st.plotly_chart(fig_fi, use_container_width=True)
+                        else:
+                            st.info("Feature importance is not available for this model.")
                     else:
                         st.info("Feature importance is available for tree-based models (Random Forest, XGBoost, etc.)")
+
 
             # ==============================
             # SHAP EXPLAINABILITY SECTION
@@ -1811,11 +1976,28 @@ with tab3:
                             elif st.session_state.get("preprocess_report"):
                                 prep_steps = st.session_state.preprocess_report.get("applied_steps", [])
 
+                            # ── Resolve the full target list from best available source ──
+                            # Priority: session_state.target_cols (set on preprocessing run)
+                            # Fallback: ws.target_col (loaded from JSON, may be str or list)
+                            _ss_targets = st.session_state.get("target_cols", None)
+                            if _ss_targets and isinstance(_ss_targets, list) and len(_ss_targets) > 0:
+                                _report_target_cols = _ss_targets
+                            elif isinstance(ws.target_col, list) and len(ws.target_col) > 0:
+                                _report_target_cols = ws.target_col
+                            elif ws.target_col:
+                                _report_target_cols = [ws.target_col]
+                            else:
+                                _report_target_cols = []
+
                             workspace_data = {
                                 "dataset_name":        ws.dataset_name or "Unknown",
                                 "dataset_shape":       str(ws.dataset_shape) if ws.dataset_shape else "Unknown",
                                 "task_type":           task_type or ws.task_type or "Unknown",
-                                "target_col":          ws.target_col or "Unknown",
+                                # ── Multi-output aware target info ──────────────
+                                "target_col":          _target_display(_report_target_cols),
+                                "target_cols":         _report_target_cols,
+                                "is_multi_output":     len(_report_target_cols) > 1,
+                                # ────────────────────────────────────────────────
                                 "best_model":          best_model_name,
                                 "best_score":          str(best_score_val),
                                 "preprocessing_steps": prep_steps,
@@ -1978,12 +2160,19 @@ with tab4:
                                     # Get params from result
                                     best_params = tuned_res.get("Best Params", {})
                                     
+                                    # Resolve full target list for code generation
+                                    _cg_targets = (
+                                        st.session_state.get("target_cols")
+                                        or ws.target_col
+                                        or []
+                                    )
                                     code = generate_training_code(
                                         dataset_name=f"{ws.dataset_name}",
-                                        target_col=ws.target_col,
+                                        target_col=_cg_targets,   # str OR list[str]
                                         model_name=model_to_tune,
                                         best_params=best_params,
-                                        task_type=ws.task_type
+                                        task_type=ws.task_type,
+                                        preprocessor=st.session_state.get("preprocessor")
                                     )
                                     st.code(code, language='python')
                                     

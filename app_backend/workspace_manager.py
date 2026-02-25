@@ -112,6 +112,7 @@ class Workspace:
         ws.status = data.get("status", "in-progress")
         ws.dataset_name = data.get("dataset_name")
         ws.dataset_shape = tuple(data.get("dataset_shape", []))
+        # target_col may be a plain string (single) or a list (multi-output) — keep as-is
         ws.target_col = data.get("target_col")
         ws.task_type = data.get("task_type")
         ws.timeline = data.get("timeline", [])

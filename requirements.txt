@@ -1,6 +1,7 @@
 streamlit           # For the GUI
 fastapi             # For the backend API
 uvicorn             # Server for FastAPI
+python-multipart    # Required by FastAPI for CSV file upload (/predict/csv)
 pydantic            # Schema validation for FastAPI
 pandas              # Data manipulation
 numpy               # Math

@@ -100,9 +100,12 @@ class DatasetProfiler:
         
         return corr
     
-    def detect_target_type(self, df: pd.DataFrame, target_col: str) -> str:
+    def detect_target_type(self, df: pd.DataFrame, target_col) -> str:
         """Detect if target is classification or regression."""
-        if target_col not in df.columns:
+        # Guard: accept list → use first element
+        if isinstance(target_col, (list, tuple)):
+            target_col = target_col[0] if target_col else None
+        if not target_col or target_col not in df.columns:
             return "unknown"
         
         y = df[target_col]
@@ -117,9 +120,12 @@ class DatasetProfiler:
         self._log("Target Detection", f"Task type: {task}", f"Target has {y.nunique()} unique values")
         return task
     
-    def detect_class_imbalance(self, df: pd.DataFrame, target_col: str) -> Dict[str, Any]:
+    def detect_class_imbalance(self, df: pd.DataFrame, target_col) -> Dict[str, Any]:
         """Detect class imbalance in classification targets."""
-        if target_col not in df.columns:
+        # Guard: accept list → use first element
+        if isinstance(target_col, (list, tuple)):
+            target_col = target_col[0] if target_col else None
+        if not target_col or target_col not in df.columns:
             return {}
         
         y = df[target_col]
@@ -136,8 +142,12 @@ class DatasetProfiler:
         
         return {"imbalanced": is_imbalanced, "min_ratio": round(min_ratio, 4), "distribution": value_counts.to_dict()}
     
-    def generate_profile(self, df: pd.DataFrame, target_col: str = None) -> Dict[str, Any]:
+    def generate_profile(self, df: pd.DataFrame, target_col=None) -> Dict[str, Any]:
         """Generate complete dataset profile."""
+        # Guard: if a list was passed, use only the first element
+        if isinstance(target_col, (list, tuple)):
+            target_col = target_col[0] if target_col else None
+
         corr_result = self.compute_correlation(df)
         
         self._profile_data = {

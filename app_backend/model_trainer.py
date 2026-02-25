@@ -9,7 +9,13 @@ warnings.filterwarnings('ignore')  # Silence warnings for cleaner UI
 class ModelTrainer:
     def __init__(self, df, target_col, task_type='Regression', is_time_series=False, date_col=None):
         self.df = df
-        self.target_col = target_col
+        # Normalise target_col: always store as list internally
+        if isinstance(target_col, (list, tuple)):
+            self.target_cols = list(target_col)
+        else:
+            self.target_cols = [target_col] if target_col else []
+        self.target_col  = self.target_cols[0] if self.target_cols else None
+        self.is_multi_output = len(self.target_cols) > 1
         self.task_type = task_type
         self.is_time_series = is_time_series
         self.date_col = date_col
@@ -90,15 +96,15 @@ class ModelTrainer:
         from sklearn.model_selection import train_test_split
         from sklearn.preprocessing import LabelEncoder
 
-        X = self.df.drop(columns=[self.target_col])
-        y = self.df[self.target_col]
+        X = self.df.drop(columns=self.target_cols)
+        y = self.df[self.target_cols] if self.is_multi_output else self.df[self.target_col]
         
         if self.date_col and self.date_col in X.columns:
             X = X.drop(columns=[self.date_col])
 
         X = self.preprocess_data(X)
 
-        if self.task_type == "Classification" and y.dtype == 'object':
+        if self.task_type == "Classification" and not self.is_multi_output and y.dtype == 'object':
             self.target_encoder = LabelEncoder()
             y = self.target_encoder.fit_transform(y.astype(str))
 
@@ -114,6 +120,7 @@ class ModelTrainer:
     def evaluate(self, y_true, y_pred, model_name, training_time, model_obj=None):
         """
         Evaluate model predictions and return a rich metrics dictionary.
+        For multi-output, metrics are computed per target and macro-averaged.
         Handles both binary and multi-class classification with full metric suite.
         """
         from sklearn.metrics import (
@@ -126,22 +133,59 @@ class ModelTrainer:
 
         metrics = {"Model": model_name, "Time (s)": round(training_time, 4)}
 
+        # Convert to numpy arrays
+        y_true_arr = np.array(y_true)
+        y_pred_arr = np.array(y_pred)
+
+        # ── Multi-output: evaluate per target then average ─────────────────
+        if self.is_multi_output:
+            n_targets = y_true_arr.shape[1] if y_true_arr.ndim > 1 else 1
+            per_target = {}
+
+            agg = {}
+            for i, tname in enumerate(self.target_cols):
+                yt = y_true_arr[:, i] if y_true_arr.ndim > 1 else y_true_arr
+                yp = y_pred_arr[:, i] if y_pred_arr.ndim > 1 else y_pred_arr
+                try:
+                    if self.task_type == "Regression":
+                        r = {
+                            "RMSE": round(float(np.sqrt(mean_squared_error(yt, yp))), 4),
+                            "MAE":  round(float(mean_absolute_error(yt, yp)), 4),
+                            "R²":   round(float(r2_score(yt, yp)), 4),
+                        }
+                    else:
+                        r = {
+                            "Accuracy": round(float(accuracy_score(yt, yp)), 4),
+                            "F1 Score": round(float(f1_score(yt, yp, average='weighted', zero_division=0)), 4),
+                        }
+                    per_target[tname] = r
+                    for k, v in r.items():
+                        agg.setdefault(k, []).append(v)
+                except Exception:
+                    pass
+
+            # Average across targets
+            for k, vals in agg.items():
+                metrics[k] = round(float(np.mean(vals)), 4)
+
+            metrics["Targets"] = len(self.target_cols)
+            metrics["Per-Target Metrics"] = per_target
+            return metrics
+
+        # ── Single output (original logic) ────────────────────────────────
         try:
             if self.task_type == "Regression":
-                rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+                rmse = np.sqrt(mean_squared_error(y_true_arr, y_pred_arr))
                 metrics["RMSE"] = round(rmse, 4)
-                metrics["MAE"]  = round(mean_absolute_error(y_true, y_pred), 4)
-                metrics["R²"]   = round(r2_score(y_true, y_pred), 4)
-                # MAPE (avoid div-by-zero)
-                non_zero = np.abs(y_true) > 1e-8
+                metrics["MAE"]  = round(mean_absolute_error(y_true_arr, y_pred_arr), 4)
+                metrics["R²"]   = round(r2_score(y_true_arr, y_pred_arr), 4)
+                non_zero = np.abs(y_true_arr) > 1e-8
                 if non_zero.any():
-                    mape = np.mean(np.abs((np.array(y_true)[non_zero] - np.array(y_pred)[non_zero]) /
-                                          np.abs(np.array(y_true)[non_zero]))) * 100
+                    mape = np.mean(np.abs((y_true_arr[non_zero] - y_pred_arr[non_zero]) /
+                                          np.abs(y_true_arr[non_zero]))) * 100
                     metrics["MAPE (%)"] = round(float(mape), 4)
 
             else:  # Classification
-                y_true_arr = np.array(y_true)
-                y_pred_arr = np.array(y_pred)
                 classes = np.unique(y_true_arr)
                 is_binary = len(classes) == 2
                 avg = 'binary' if is_binary else 'weighted'
@@ -151,7 +195,6 @@ class ModelTrainer:
                 metrics["Precision"] = round(precision_score(y_true_arr, y_pred_arr, average=avg, zero_division=0), 4)
                 metrics["Recall"]    = round(recall_score(y_true_arr, y_pred_arr, average=avg, zero_division=0), 4)
 
-                # ── Enhanced Multi-Class Metrics ──────────────────────────
                 try:
                     metrics["MCC"] = round(float(matthews_corrcoef(y_true_arr, y_pred_arr)), 4)
                 except Exception:
@@ -162,7 +205,6 @@ class ModelTrainer:
                 except Exception:
                     pass
 
-                # AUC-ROC: binary uses proba[:, 1], multi-class uses OvR
                 if model_obj is not None and hasattr(model_obj, 'predict_proba'):
                     try:
                         probas = model_obj.predict_proba(self.X_test)
@@ -175,12 +217,10 @@ class ModelTrainer:
                     except Exception:
                         pass
 
-                # Per-class F1 report stored as JSON string for UI display
                 try:
                     report_dict = classification_report(
                         y_true_arr, y_pred_arr, output_dict=True, zero_division=0
                     )
-                    # Keep only per-class rows (exclude avg rows)
                     per_class = {k: v for k, v in report_dict.items()
                                  if k not in ('accuracy', 'macro avg', 'weighted avg')}
                     metrics["Per-Class Report"] = per_class
@@ -194,9 +234,19 @@ class ModelTrainer:
 
     # --- GENERIC TRAINER FUNCTION ---
     def train_sklearn_model(self, name, model_class, **kwargs):
+        from sklearn.multioutput import MultiOutputRegressor, MultiOutputClassifier
         start = time.time()
         try:
-            model = model_class(**kwargs)
+            base_model = model_class(**kwargs)
+
+            if self.is_multi_output:
+                if self.task_type == "Regression":
+                    model = MultiOutputRegressor(base_model)
+                else:
+                    model = MultiOutputClassifier(base_model)
+            else:
+                model = base_model
+
             model.fit(self.X_train, self.y_train)
             preds = model.predict(self.X_test)
 
@@ -204,8 +254,8 @@ class ModelTrainer:
             self.trained_models[name] = model
             self.predictions[name] = preds
 
-            # Store predict_proba for ROC curves (classification only)
-            if hasattr(model, 'predict_proba'):
+            # Store predict_proba for ROC curves (single-output classification only)
+            if not self.is_multi_output and hasattr(model, 'predict_proba'):
                 try:
                     self.prediction_probas[name] = model.predict_proba(self.X_test)
                 except Exception:
