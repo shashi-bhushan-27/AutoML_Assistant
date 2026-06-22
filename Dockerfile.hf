@@ -1,0 +1,22 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install torchvision
+
+# Copy all files
+COPY . .
+
+# Copy and grant execution permissions to the startup script
+COPY start_hf.sh .
+RUN chmod +x start_hf.sh
+
+# Hugging Face Spaces automatically routes traffic to port 7860
+EXPOSE 7860
+EXPOSE 8000
+
+# Start both FastAPI and Streamlit
+CMD ["./start_hf.sh"]

@@ -1,0 +1,34 @@
+services:
+  # The Streamlit UI
+  frontend:
+    build: .
+    command: streamlit run app_frontend/main_ui.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - app_data:/app/workspaces
+      - app_data:/app/data/uploads
+      - hf_cache:/root/.cache/huggingface
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+  # The FastAPI Inference Server
+  backend:
+    build: .
+    command: uvicorn app_backend.main_api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - app_data:/app/workspaces
+      - app_data:/app/data/uploads
+      - hf_cache:/root/.cache/huggingface
+
+    env_file:
+      - .env
+
+# Shared persistent volume for both services to access saved models/data
+volumes:
+  app_data:
+  hf_cache:

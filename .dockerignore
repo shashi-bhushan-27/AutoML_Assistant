@@ -1,0 +1,9 @@
+venv
+__pycache__
+*.pyc
+.git
+tests
+data
+workspaces
+preprocessor_pipeline.pkl
+PROJECT_DOCUMENTATION.md

@@ -2138,6 +2138,54 @@ with tab4:
                         st.success("🎉 Optimization Complete!")
                         st.json(tuned_res)
                         
+                        # --- Performance Comparison Visualization ---
+                        orig_row = results_df[results_df['Model'] == model_to_tune]
+                        if not orig_row.empty:
+                            st.markdown("#### 📊 Performance Comparison: Pre vs Post Optimization")
+                            orig_metrics = orig_row.iloc[0].to_dict()
+                            
+                            task_type = st.session_state.stats.get('task_type', 'Regression') if st.session_state.stats else 'Regression'
+                            
+                            if task_type == 'Regression':
+                                metrics_to_compare = ['RMSE', 'MAE', 'R2 Score']
+                            else:
+                                metrics_to_compare = ['Accuracy', 'F1 Score', 'Precision', 'Recall']
+                            
+                            comp_data = []
+                            for m in metrics_to_compare:
+                                if m in orig_metrics and m in tuned_res:
+                                    comp_data.append({
+                                        'Metric': m,
+                                        'Pre-Optimization': orig_metrics[m],
+                                        'Post-Optimization': tuned_res[m]
+                                    })
+                            
+                            if comp_data:
+                                import pandas as pd
+                                comp_df = pd.DataFrame(comp_data)
+                                import plotly.graph_objects as go
+                                fig_comp = go.Figure()
+                                fig_comp.add_trace(go.Bar(
+                                    x=comp_df['Metric'],
+                                    y=comp_df['Pre-Optimization'],
+                                    name='Pre-Optimization',
+                                    marker_color='#3b82f6'
+                                ))
+                                fig_comp.add_trace(go.Bar(
+                                    x=comp_df['Metric'],
+                                    y=comp_df['Post-Optimization'],
+                                    name='Post-Optimization',
+                                    marker_color='#10b981'
+                                ))
+                                fig_comp.update_layout(
+                                    barmode='group',
+                                    template="plotly_dark",
+                                    height=350,
+                                    margin=dict(l=10, r=10, t=20, b=10),
+                                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                                )
+                                st.plotly_chart(fig_comp, use_container_width=True)
+                        
                         # Export
                         tuned_name = f"{model_to_tune} (Tuned)"
                         model_obj = st.session_state.trainer.trained_models.get(tuned_name)

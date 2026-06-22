@@ -56,7 +56,7 @@ class ModelAdvisor:
         # Ensure GROQ_API_KEY is in your .env or environment variables
         self.llm = ChatGroq(
             temperature=0.3, 
-            model_name="llama-3.1-8b-instant"
+            model_name="llama-3.3-70b-versatile"
         )
         
         # --- RELAXED PROMPT FOR GROQ (JSON FORMAT) ---
