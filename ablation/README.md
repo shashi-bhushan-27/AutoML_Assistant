@@ -35,6 +35,23 @@ python ablation/run_ablation.py figures
 Each unit runs single-threaded (`OMP_NUM_THREADS=1`), so timings are comparable
 across models. `llm_calls.jsonl` is append-only and resumable.
 
+Maintenance commands (both refit only the models they need, with the same seeds,
+and assert that the refit reproduces the brute-force metrics):
+
+```bash
+python ablation/run_ablation.py preproc-only --dataset credit --seeds 0 1   # redo ablation B for existing units
+python ablation/run_ablation.py shap-rerun --workers 1                     # redo SHAP jobs killed by SIGKILL
+python ablation/section_numbers.py                                         # numbers + ablation_section.tex
+python ablation/merge_paper.py --original draft.tex --out merged.tex       # merge into the paper draft
+```
+
+KernelExplainer on KNN needs about 2 GB per job; with four units in parallel on a
+16 GB machine the container's OOM killer can terminate a SHAP worker
+(`status=crashed_process`, `exitcode=-9`). Such jobs are environment failures,
+not application behaviour: `shap-rerun` repeats them and marks the record with
+`rerun: true` and the reason. In the reported run this affected five jobs
+(KNN on Adult seeds 2–3, Random Forest/forced Tree on California seed 4).
+
 ## Protocol notes
 
 * Datasets: Adult (OpenML 1590, label `>50K`→1), Credit Card Fraud (OpenML 1597,
@@ -57,5 +74,8 @@ across models. `llm_calls.jsonl` is append-only and resumable.
 * `results/raw/` – one JSON per (dataset, seed) unit and `llm_calls.jsonl`
 * `results/*.csv`, `results/summary.json`, `results/code_checks.json`
 * `results/table_ablation.tex` – auto-generated table (source of the paper table)
+* `results/paper_numbers.json` – every number quoted in the subsection
 * `figures/*.pdf|png` – 300 dpi, colour-blind-safe palette
-* `ablation_section.tex` – the LaTeX subsection; `paper_with_ablation.tex` – merged paper
+* `ablation_section.tex` – the LaTeX subsection (rendered from `ablation_section_template.tex`);
+  `future_work_paragraph.tex` – replacement for the Future Work "Ablation Studies" paragraph.
+  The merged paper (`paper_with_ablation.tex`) is produced locally and not committed.

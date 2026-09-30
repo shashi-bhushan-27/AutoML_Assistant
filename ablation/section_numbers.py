@@ -172,7 +172,7 @@ def compute():
     # stateful + alignment, tree models, batches >= 256 (diagnostic)
     tree_al = ps[(ps.preprocessing == "stateful") & (ps["mode"] == "aligned") &
                  ps.batch_size.astype(str).isin(["256", "full"]) & ps.model.isin(["XGBoost", "Random Forest"])]
-    N["tree_aligned_min_agree"] = pct(tree_al.agreement_vs_offline_mean.min(), 1)
+    N["tree_aligned_min_agree"] = pct(tree_al.agreement_vs_offline_mean.min(), 2)
     # california
     c = {bs: srow("california", "stateless", "app", bs) for bs in ["1", "16", "256", "full"]}
     N["ca_stateless_crash16"] = pct(c["16"].crash_rate_mean)
@@ -228,14 +228,28 @@ def compute():
     rows = kn.groupby("config").kernel_rows_done.mean()
     N["knn_rows_cast"] = f(rows.get("full", np.nan), 0)
     N["knn_rows_nocast"] = f(rows.get("no_cast", np.nan), 0)
+    ok = shr[shr.status == "ok"]
+    tl = ok[ok.explainer.isin(["TreeExplainer", "LinearExplainer", "Tree", "Linear"])]
+    N["mem_tree_linear_max_mb"] = f(tl.peak_mem_mb.max(), 0)
+    kk = ok[ok.explainer.astype(str).str.contains("Kernel")]
+    N["mem_kernel_ok_max_mb"] = f(kk.peak_mem_mb.max(), 0)
     mem = kn.groupby("config").peak_mem_mb.mean()
     N["knn_mem_cast_gb"] = f(mem.get("full", np.nan) / 1000, 1)
     N["knn_mem_nocast_gb"] = f(mem.get("no_cast", np.nan) / 1000, 2)
     msg = shr[(shr.dataset == "credit") & (shr.model == "Gradient Boosting") & (shr.config == "full") &
               (shr.status == "error")].message.dropna()
     m = re.search(r"sum of the SHAP values was (-?\d+(?:\.\d+)?), while the model output was (-?\d+(?:\.\d+)?)", " ".join(msg))
-    N["gb_additivity_sum"] = f"{float(m.group(1)):.1e}" if m else "---"
+    if m:
+        mant, exp = f"{float(m.group(1)):.1e}".split("e")
+        N["gb_additivity_sum"] = f"{mant}\\times10^{{{int(exp)}}}"
+    else:
+        N["gb_additivity_sum"] = "---"
     N["gb_additivity_out"] = f(float(m.group(2)), 1) if m else "---"
+    cap = checks.get("adult_capital_columns", {})
+    N["adult_xgb_app_acc"] = f(cap.get("app_features_mean"), 3) if cap else "---"
+    N["adult_xgb_app_acc_std"] = f(cap.get("app_features_std"), 3) if cap else "---"
+    N["adult_xgb_rawcap_acc"] = f(cap.get("with_raw_capital_columns_mean"), 3) if cap else "---"
+    N["adult_xgb_rawcap_acc_std"] = f(cap.get("with_raw_capital_columns_std"), 3) if cap else "---"
     nc = checks.get("shap_no_cast_linear", {})
     N["nocast_linear_error"] = (nc.get("no_cast") or {}).get("error", "---") if isinstance(nc.get("no_cast"), dict) else nc.get("no_cast")
 
@@ -275,6 +289,8 @@ def flag_values(N):
     """Short strings used by merge_paper.py for the comment-only flags."""
     return {
         "adult_best_acc": N["adult_best_acc"], "adult_best_acc_model": N["adult_best_acc_model"],
+        "adult_capital_note": f"IQR capping sets capital-gain/capital-loss to 0 and the selector drops them; restoring "
+                              f"them lifts XGBoost from {N['adult_xgb_app_acc']} to {N['adult_xgb_rawcap_acc']}",
         "credit_best_acc": N["credit_best_acc"], "credit_majority_acc": N["credit_majority_acc"],
         "california_best_r2": N["california_best_r2"], "california_best_r2_model": N["california_best_r2_model"],
         "california_best_rmse": N["california_best_rmse"],

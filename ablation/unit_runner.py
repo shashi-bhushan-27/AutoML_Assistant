@@ -153,3 +153,66 @@ def rerun_preproc(dataset, seed):
                                              PREPROC_MODELS[task], task)
     dump_json(result, path)
     _log(f"  {dataset} s{seed} preprocessing ablation re-run in {time.perf_counter() - t0:.0f}s")
+
+
+def find_killed_shap_jobs():
+    """SHAP jobs whose worker was killed by SIGKILL (e.g. the container's OOM killer), per unit."""
+    import glob
+    import json
+
+    todo = {}
+    for p in sorted(glob.glob(os.path.join(RAW_DIR, "unit_*_s*.json"))):
+        with open(p) as f:
+            u = json.load(f)
+        jobs = [(r["model"], r["config"]) for r in u.get("shap", [])
+                if r.get("status") == "crashed_process" and r.get("exitcode") == -9]
+        if jobs:
+            todo[(u["dataset"], int(u["seed"]))] = jobs
+    return todo
+
+
+def rerun_shap_jobs(dataset, seed, jobs, shap_timeout=300.0):
+    """Re-run specific SHAP jobs of a unit with seed-identical model fits; records the re-run in the JSON."""
+    import json
+
+    from app_backend.model_trainer import ModelTrainer
+    from app_backend.preprocessing_engine.engine import AutoPreprocessor
+    from app_backend.statistical_engine import analyze_dataset
+    from shap_ablation import run_job
+
+    warnings.filterwarnings("ignore")
+    _warm_imports()
+    path = os.path.join(RAW_DIR, f"unit_{dataset}_s{seed}.json")
+    with open(path) as f:
+        result = json.load(f)
+    target = DATASET_META[dataset]["target"]
+    df = load_dataset(dataset)
+    stats = analyze_dataset(df.copy(), target_col=target)
+    task = stats["task_type"]
+    prep = AutoPreprocessor(target_col=target, task_type="auto", is_time_series=False,
+                            apply_smote=False, verbose=False)
+    prep.splitter.random_state = seed
+    with contextlib.redirect_stdout(io.StringIO()):
+        out = prep.fit_transform(df=df)
+    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"))
+    trainer.set_preprocessed_data(out["X_train"], out["X_test"], out["y_train"], out["y_test"])
+    key = "RMSE" if task == "Regression" else "Accuracy"
+    for name in sorted({m for m, _ in jobs}):
+        np.random.seed(seed)  # identical to the brute-force fit of the same model
+        with contextlib.redirect_stdout(io.StringIO()):
+            res = trainer.run_selected_models([name])
+        ref = next(r for r in result["brute_force"] if r["Model"] == name)
+        assert abs(float(res.iloc[0][key]) - float(ref[key])) < 1e-9, f"{name} refit differs from brute force"
+    for model, cfg in jobs:
+        r = run_job(cfg, trainer.trained_models[model], out["X_train"], out["X_test"], task, timeout_s=shap_timeout)
+        r["model"] = model
+        r["model_class"] = type(trainer.trained_models[model]).__name__
+        r["rerun"] = True
+        r["rerun_reason"] = "original worker killed by SIGKILL (container out-of-memory while 4 units ran in parallel)"
+        for i, old in enumerate(result["shap"]):
+            if old["model"] == model and old["config"] == cfg:
+                r["original_status"] = old.get("status")
+                result["shap"][i] = r
+                break
+        _log(f"  {dataset} s{seed} rerun shap {model:<20} {cfg:<14} {r['status']:<10} {r.get('runtime_s', 0):7.1f}s")
+    dump_json(result, path)

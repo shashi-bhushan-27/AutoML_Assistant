@@ -216,8 +216,43 @@ def check_no_cast_linear_explainer(seed=0):
     return res
 
 
+def check_adult_capital_columns(seeds=(0, 1, 2, 3, 4)):
+    """Diagnostic (not app behaviour): XGBoost on the app's Adult features, with and without the raw
+    capital-gain / capital-loss columns that IQR capping turns into constants and the selector drops."""
+    from app_backend.model_trainer import ModelTrainer
+    from app_backend.preprocessing_engine.engine import AutoPreprocessor
+
+    df = load_dataset("adult")
+    res = {"app_features": [], "with_raw_capital_columns": [], "constant_after_capping": {}}
+    for seed in seeds:
+        prep = AutoPreprocessor(target_col="class", task_type="auto", verbose=False)
+        prep.splitter.random_state = seed
+        with contextlib.redirect_stdout(io.StringIO()):
+            out = prep.fit_transform(df=df)
+        caps = prep.transformer.outlier_caps
+        res["constant_after_capping"] = {c: list(map(float, caps[c])) for c in ("capital-gain", "capital-loss") if c in caps}
+        for key, extra in (("app_features", False), ("with_raw_capital_columns", True)):
+            Xtr, Xte = out["X_train"].copy(), out["X_test"].copy()
+            if extra:
+                for c in ("capital-gain", "capital-loss"):
+                    Xtr[c] = df.loc[Xtr.index, c].values
+                    Xte[c] = df.loc[Xte.index, c].values
+            tr = ModelTrainer(df, "class", "Classification")
+            tr.set_preprocessed_data(Xtr, Xte, out["y_train"], out["y_test"])
+            np.random.seed(seed)
+            with contextlib.redirect_stdout(io.StringIO()), warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                r = tr.run_selected_models(["XGBoost"]).iloc[0]
+            res[key].append(float(r["Accuracy"]))
+    for key in ("app_features", "with_raw_capital_columns"):
+        v = np.asarray(res[key])
+        res[key + "_mean"], res[key + "_std"] = float(v.mean()), float(v.std(ddof=1))
+    return res
+
+
 def run_checks():
     out = {
+        "adult_capital_columns": check_adult_capital_columns(),
         "shap_no_cast_linear": check_no_cast_linear_explainer(),
         "retrieval_latency": check_retrieval_latency(),
         "paper_vs_code": check_paper_vs_code(),

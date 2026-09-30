@@ -87,7 +87,7 @@ def build_flags(s, c):
         ("LLM inference uses Llama 3.1 via the Groq API",
          "code: llama-3.3-70b-versatile (no longer served). Ablation used openai/gpt-oss-120b as a documented substitute."),
         ("The AI-Selected RAG Ensemble achieves the highest performance across all metrics: 90.4",
-         f"{acc}. Full per-model results: ablation/results/brute_force_summary.csv."),
+         f"{acc}. {g('adult_capital_note')}. Full per-model results: ablation/results/brute_force_summary.csv."),
         ("The AI-Selected RAG Stacking ensemble achieves the lowest RMSE (38,910)",
          f"{r2}; RMSE in $100k: {g('california_best_rmse')}."),
         ("The RAG-based algorithm selection reduces total search compute time by 86.4",
@@ -128,7 +128,9 @@ def merge(original, tail, section, future_par, flags, out):
 
     # 1) packages: graphicx for the figures; algorithm/algpseudocode are used by the draft but not loaded
     pkg_anchor = "\\usepackage{hyperref}"
-    add = ("\\usepackage{graphicx}   % added for the ablation figures\n"
+    add = ("\\usepackage{amssymb}    % added: the draft uses \\mathbb without loading amssymb\n"
+           "\\usepackage{graphicx}   % added for the ablation figures\n"
+           "\\usepackage{array}      % added for the ablation table (ragged-right notes column)\n"
            "\\usepackage{algorithm}  % added: the draft uses algorithm/algorithmic environments\n"
            "\\usepackage{algpseudocode}\n")
     assert pkg_anchor in text

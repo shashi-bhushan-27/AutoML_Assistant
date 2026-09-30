@@ -43,6 +43,25 @@ def cmd_preproc_only(args):
         rerun_preproc(args.dataset, s)
 
 
+def cmd_shap_rerun(args):
+    """Re-run SHAP jobs whose worker was killed by SIGKILL (container OOM), at most --workers at a time."""
+    from unit_runner import find_killed_shap_jobs
+
+    todo = find_killed_shap_jobs()
+    print("killed SHAP jobs:", {f"{d}_s{s}": j for (d, s), j in todo.items()}, flush=True)
+    env = dict(os.environ, OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1", PYTHONUNBUFFERED="1")
+    queue = list(todo.items())
+    running = []
+    while queue or running:
+        while queue and len(running) < args.workers:
+            (ds, s), jobs = queue.pop(0)
+            code = (f"import sys; sys.path.insert(0, {HERE!r}); from unit_runner import rerun_shap_jobs; "
+                    f"rerun_shap_jobs({ds!r}, {s}, {jobs!r}, shap_timeout={args.shap_timeout})")
+            running.append(subprocess.Popen([sys.executable, "-c", code], env=env))
+        running = [p for p in running if p.poll() is None]
+        time.sleep(2)
+
+
 def cmd_unit(args):
     from unit_runner import run_unit
 
@@ -154,6 +173,10 @@ def main():
     p.add_argument("--dataset", required=True, choices=DATASETS)
     p.add_argument("--seeds", nargs="+", type=int, required=True)
 
+    p = sub.add_parser("shap-rerun", help="re-run SHAP jobs killed by SIGKILL (OOM)")
+    p.add_argument("--workers", type=int, default=2)
+    p.add_argument("--shap-timeout", type=float, default=300.0)
+
     p = sub.add_parser("units")
     p.add_argument("--datasets", nargs="*", choices=DATASETS)
     p.add_argument("--seeds", nargs="*", type=int)
@@ -180,7 +203,7 @@ def main():
     sub.add_parser("figures")
 
     args = ap.parse_args()
-    {"prepare": cmd_prepare, "unit": cmd_unit, "preproc-only": cmd_preproc_only, "units": cmd_units, "llm": cmd_llm, "checks": cmd_checks,
+    {"prepare": cmd_prepare, "unit": cmd_unit, "preproc-only": cmd_preproc_only, "shap-rerun": cmd_shap_rerun, "units": cmd_units, "llm": cmd_llm, "checks": cmd_checks,
      "aggregate": cmd_aggregate, "figures": cmd_figures, "all": cmd_all}[args.cmd](args)
 
 

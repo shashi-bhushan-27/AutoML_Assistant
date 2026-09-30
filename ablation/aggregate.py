@@ -216,10 +216,10 @@ def preproc_tables(units):
                         "served_RMSE", "served_R2", "offline_RMSE", "offline_R2", "transform_rows_per_s"]:
                 if col in g and g[col].notna().any():
                     rec[col + "_mean"], rec[col + "_std"], _ = ms(g[col].astype(float))
-            key = "Accuracy" if task != "Regression" else "RMSE"
-            if f"served_{key}" in g and g[f"served_{key}"].notna().any():
-                d = (g[f"served_{key}"] - g[f"offline_{key}"]).astype(float)
-                rec[f"{key}_change_mean"], rec[f"{key}_change_std"], _ = ms(d)
+            for key in (("RMSE", "R2") if task == "Regression" else ("Accuracy", "F1")):
+                if f"served_{key}" in g and g[f"served_{key}"].notna().any():
+                    d = (g[f"served_{key}"] - g[f"offline_{key}"]).astype(float)
+                    rec[f"{key}_change_mean"], rec[f"{key}_change_std"], _ = ms(d)
             rec["top_error"] = Counter(g.top_error.dropna()).most_common(1)[0][0] if g.top_error.notna().any() else None
             if "stream" in g:
                 rec["stream"] = Counter(g["stream"].dropna()).most_common(1)[0][0] if g["stream"].notna().any() else None
