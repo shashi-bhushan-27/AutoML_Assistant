@@ -1,0 +1,12 @@
+# The repository root ignores *.csv / *.json / *.pkl; results of the ablation are
+# small and are meant to be versioned, so re-include them here.
+!results/
+!results/*.csv
+!results/*.json
+!results/raw/
+!results/raw/*.json
+!results/raw/*.jsonl
+# Local caches (datasets, temporary workspaces) are never committed.
+.cache/
+_tmp/
+__pycache__/
