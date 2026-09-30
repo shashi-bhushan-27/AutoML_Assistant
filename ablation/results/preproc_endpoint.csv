@@ -1,0 +1,586 @@
+dataset,seed,variant,model,status_code,raw_fallback_triggered,detail,agreement_vs_offline
+adult,0,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,0,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,baseline,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,0,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,unseen_category,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,0,unseen_category,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,unseen_category,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,0,missing_column,XGBoost,500,True,"Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio",
+adult,0,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,0,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,1,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,1,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,baseline,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,1,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,unseen_category,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,1,unseen_category,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,unseen_category,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,1,missing_column,XGBoost,500,True,"Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio",
+adult,1,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,1,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,2,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,2,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,baseline,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,2,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,unseen_category,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,2,unseen_category,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,unseen_category,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,2,missing_column,XGBoost,500,True,"Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio",
+adult,2,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,2,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,3,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,3,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,baseline,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,3,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,unseen_category,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,3,unseen_category,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,unseen_category,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,3,missing_column,XGBoost,500,True,"Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio",
+adult,3,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,3,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,4,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,4,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,baseline,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,4,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,unseen_category,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel",
+adult,4,unseen_category,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,unseen_category,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- native-country
+Feature names seen at fit time, yet now missing:
+- marital-status_Married-",
+adult,4,missing_column,XGBoost,500,True,"Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio",
+adult,4,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+adult,4,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- capital-gain
+- capital-loss
+- marital-status
+- native-country
+- race
+- ...
+Feature names seen at fit time, yet now miss",
+credit,0,baseline,XGBoost,200,False,,1.0
+credit,0,baseline,Random Forest,200,False,,1.0
+credit,0,baseline,Logistic Regression,200,False,,0.984375
+credit,0,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,0,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,0,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,0,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,0,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,0,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,1,baseline,XGBoost,200,False,,1.0
+credit,1,baseline,Random Forest,200,False,,1.0
+credit,1,baseline,Logistic Regression,200,False,,0.984375
+credit,1,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,1,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,1,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,1,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,1,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,1,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,2,baseline,XGBoost,200,False,,1.0
+credit,2,baseline,Random Forest,200,False,,1.0
+credit,2,baseline,Logistic Regression,200,False,,0.90625
+credit,2,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,2,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,2,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,2,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,2,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,2,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,3,baseline,XGBoost,200,False,,1.0
+credit,3,baseline,Random Forest,200,False,,1.0
+credit,3,baseline,Logistic Regression,200,False,,0.90625
+credit,3,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,3,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,3,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,3,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,3,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,3,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,4,baseline,XGBoost,200,False,,1.0
+credit,4,baseline,Random Forest,200,False,,1.0
+credit,4,baseline,Logistic Regression,200,False,,0.890625
+credit,4,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,4,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,4,reordered_columns,Logistic Regression,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names must be in the same order as they were in fit.
+",
+credit,4,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']",
+credit,4,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+credit,4,missing_column,Logistic Regression,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names seen at fit time, yet now missing:
+- V14
+",
+california,0,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+training dat",
+california,0,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,0,baseline,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,0,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['Longitude', 'Latitude', 'AveOccup', 'Population', 'AveBedrms', 'AveRooms', 'HouseAge', 'MedInc']
+training dat",
+california,0,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,0,reordered_columns,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,0,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+expected MedInc in inp",
+california,0,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,0,missing_column,Ridge,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,1,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+training dat",
+california,1,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,1,baseline,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,1,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['Longitude', 'Latitude', 'AveOccup', 'Population', 'AveBedrms', 'AveRooms', 'HouseAge', 'MedInc']
+training dat",
+california,1,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,1,reordered_columns,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,1,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+expected MedInc in inp",
+california,1,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,1,missing_column,Ridge,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,2,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+training dat",
+california,2,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,2,baseline,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,2,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['Longitude', 'Latitude', 'AveOccup', 'Population', 'AveBedrms', 'AveRooms', 'HouseAge', 'MedInc']
+training dat",
+california,2,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,2,reordered_columns,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,2,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+expected MedInc in inp",
+california,2,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,2,missing_column,Ridge,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,3,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+training dat",
+california,3,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,3,baseline,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,3,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['Longitude', 'Latitude', 'AveOccup', 'Population', 'AveBedrms', 'AveRooms', 'HouseAge', 'MedInc']
+training dat",
+california,3,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,3,reordered_columns,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,3,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+expected MedInc in inp",
+california,3,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,3,missing_column,Ridge,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,4,baseline,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+training dat",
+california,4,baseline,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,4,baseline,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,4,reordered_columns,XGBoost,500,False,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['Longitude', 'Latitude', 'AveOccup', 'Population', 'AveBedrms', 'AveRooms', 'HouseAge', 'MedInc']
+training dat",
+california,4,reordered_columns,Random Forest,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,4,reordered_columns,Ridge,500,False,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+",
+california,4,missing_column,XGBoost,500,True,"Prediction failed: feature_names mismatch: ['MedInc', 'HouseAge', 'AveRooms', 'Population', 'AveOccup', 'Latitude', 'Longitude'] ['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+expected MedInc in inp",
+california,4,missing_column,Random Forest,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",
+california,4,missing_column,Ridge,500,True,"Prediction failed: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- AveBedrms
+Feature names seen at fit time, yet now missing:
+- MedInc
+",

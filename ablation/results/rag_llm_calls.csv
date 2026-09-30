@@ -1,0 +1,331 @@
+dataset,config,call_idx,llm_model,latency_s,advisor_branch,history_in_prompt,n_similar_workspaces,context_rules,recommendations,n_recommended,n_exact_valid,llm_error,total_tokens,reasoning_tokens
+adult,as_shipped,0,llama-3.3-70b-versatile,2.5165092669999467,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,0,openai/gpt-oss-120b,3.4812833089999913,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1222.0,271.0
+adult,no_rag,0,openai/gpt-oss-120b,1.2982853889998296,json,False,0,,Random Forest|XGBoost|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,772.0,128.0
+adult,no_meta,0,openai/gpt-oss-120b,2.2759726439999213,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1185.0,283.0
+adult,no_fuzzy,0,openai/gpt-oss-120b,2.716090040000381,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1187.0,260.0
+adult,full_sameprior,0,openai/gpt-oss-120b,2.056469302000096,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],XGBoost|Gradient Boosting|Random Forest|AdaBoost,4,4,,1233.0,327.0
+adult,as_shipped,1,llama-3.3-70b-versatile,0.5104023180001604,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,1,openai/gpt-oss-120b,1.8470322610000949,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1205.0,251.0
+adult,no_rag,1,openai/gpt-oss-120b,1.461211693000223,json,False,0,,Random Forest|XGBoost|Gradient Boosting|Logistic Regression,4,4,,845.0,255.0
+adult,no_meta,1,openai/gpt-oss-120b,3.604838182000094,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1210.0,299.0
+adult,no_fuzzy,1,openai/gpt-oss-120b,1.9320166570000765,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1219.0,291.0
+adult,full_sameprior,1,openai/gpt-oss-120b,2.6121742420000373,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],XGBoost|Gradient Boosting|Random Forest|Extra Trees|Logistic Regression,5,5,,1165.0,239.0
+adult,as_shipped,2,llama-3.3-70b-versatile,0.9577902159999212,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,2,openai/gpt-oss-120b,1.8113150479998694,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],Random Forest|XGBoost|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1239.0,336.0
+adult,no_rag,2,openai/gpt-oss-120b,1.4613541869998699,json,False,0,,Random Forest|XGBoost|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,789.0,139.0
+adult,no_meta,2,openai/gpt-oss-120b,1.8934823800000231,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1196.0,290.0
+adult,no_fuzzy,2,openai/gpt-oss-120b,3.4189305859999877,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1258.0,324.0
+adult,full_sameprior,2,openai/gpt-oss-120b,3.948576573000082,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|AdaBoost,4,4,,1402.0,472.0
+adult,as_shipped,3,llama-3.3-70b-versatile,0.9566043879999597,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,3,openai/gpt-oss-120b,1.9839802749997943,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1114.0,174.0
+adult,no_rag,3,openai/gpt-oss-120b,1.3402349309999408,json,False,0,,Random Forest|XGBoost|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,823.0,194.0
+adult,no_meta,3,openai/gpt-oss-120b,2.745139692000066,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1190.0,283.0
+adult,no_fuzzy,3,openai/gpt-oss-120b,2.077968819999569,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1227.0,258.0
+adult,full_sameprior,3,openai/gpt-oss-120b,4.346548135000376,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|AdaBoost|Logistic Regression,5,5,,1305.0,274.0
+adult,as_shipped,4,llama-3.3-70b-versatile,0.7238245219996315,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,4,openai/gpt-oss-120b,1.9826131519998853,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1158.0,201.0
+adult,no_rag,4,openai/gpt-oss-120b,1.3979665709998699,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,820.0,190.0
+adult,no_meta,4,openai/gpt-oss-120b,2.2303199269999823,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Extra Trees|Gradient Boosting|Logistic Regression,5,5,,1276.0,333.0
+adult,no_fuzzy,4,openai/gpt-oss-120b,3.0599180280000837,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1182.0,248.0
+adult,full_sameprior,4,openai/gpt-oss-120b,1.7188141290002932,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|Logistic Regression|Extra Trees,5,5,,1202.0,215.0
+adult,as_shipped,5,llama-3.3-70b-versatile,1.8042757279999933,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,5,openai/gpt-oss-120b,3.5648310599999604,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1230.0,274.0
+adult,no_rag,5,openai/gpt-oss-120b,1.355397868000182,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|Logistic Regression,5,5,,802.0,161.0
+adult,no_meta,5,openai/gpt-oss-120b,2.051202956999987,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1219.0,311.0
+adult,no_fuzzy,5,openai/gpt-oss-120b,2.0777925990000767,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1234.0,260.0
+adult,full_sameprior,5,openai/gpt-oss-120b,1.8859982119997767,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|Logistic Regression,4,4,,1253.0,291.0
+adult,as_shipped,6,llama-3.3-70b-versatile,0.6832507750000332,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,6,openai/gpt-oss-120b,2.4462530920000063,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1237.0,291.0
+adult,no_rag,6,openai/gpt-oss-120b,2.6253142749997096,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,844.0,245.0
+adult,no_meta,6,openai/gpt-oss-120b,2.7385288239997863,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1296.0,362.0
+adult,no_fuzzy,6,openai/gpt-oss-120b,6.176553736999722,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1262.0,315.0
+adult,full_sameprior,6,openai/gpt-oss-120b,5.240363387999878,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],XGBoost|Gradient Boosting|Random Forest|Logistic Regression|AdaBoost,5,5,,1204.0,195.0
+adult,as_shipped,7,llama-3.3-70b-versatile,3.4180904919999193,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,7,openai/gpt-oss-120b,2.1990279000001465,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1165.0,235.0
+adult,no_rag,7,openai/gpt-oss-120b,1.4218109809999078,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Logistic Regression|Extra Trees,5,5,,761.0,138.0
+adult,no_meta,7,openai/gpt-oss-120b,1.8229307449996668,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],Random Forest|XGBoost|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1129.0,182.0
+adult,no_fuzzy,7,openai/gpt-oss-120b,2.9296005900000637,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1119.0,197.0
+adult,full_sameprior,7,openai/gpt-oss-120b,1.9242306559999633,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|Logistic Regression|AdaBoost,5,5,,1212.0,233.0
+adult,as_shipped,8,llama-3.3-70b-versatile,1.033106375999978,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,8,openai/gpt-oss-120b,4.406096311000056,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],Random Forest|XGBoost|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1190.0,263.0
+adult,no_rag,8,openai/gpt-oss-120b,1.3560256589998971,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Logistic Regression|SVM,5,5,,756.0,151.0
+adult,no_meta,8,openai/gpt-oss-120b,2.0435104760003924,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1214.0,243.0
+adult,no_fuzzy,8,openai/gpt-oss-120b,1.8325753740000437,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees|Logistic Regression,5,5,,1176.0,241.0
+adult,full_sameprior,8,openai/gpt-oss-120b,2.458080020000125,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|AdaBoost|Logistic Regression,5,5,,1391.0,422.0
+adult,as_shipped,9,llama-3.3-70b-versatile,0.7537573079998765,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+adult,full,9,openai/gpt-oss-120b,2.166909123000096,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|SVM,5,5,,1305.0,334.0
+adult,no_rag,9,openai/gpt-oss-120b,1.305033751999872,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Logistic Regression|Extra Trees,5,5,,736.0,138.0
+adult,no_meta,9,openai/gpt-oss-120b,2.096875466000256,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1180.0,249.0
+adult,no_fuzzy,9,openai/gpt-oss-120b,1.8526193010002316,json,False,0,[RULE: MISSING_VALUES];[RULE: HIGH_CARDINALITY_FEATURES];[RULE: IMBALANCED_DATA],XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1222.0,299.0
+adult,full_sameprior,9,openai/gpt-oss-120b,2.5627067950003948,json,True,1,[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];[RULE: MODEL_RANKING],Gradient Boosting|XGBoost|Random Forest|Logistic Regression,4,4,,1361.0,440.0
+credit,as_shipped,0,llama-3.3-70b-versatile,2.8371920560002764,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,0,openai/gpt-oss-120b,3.6783119930000794,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1187.0,163.0
+credit,no_rag,0,openai/gpt-oss-120b,1.3478692839998985,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,860.0,181.0
+credit,no_meta,0,openai/gpt-oss-120b,1.570366708000165,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1157.0,150.0
+credit,no_fuzzy,0,openai/gpt-oss-120b,4.120771993999824,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1262.0,267.0
+credit,full_sameprior,0,openai/gpt-oss-120b,3.7366134100002455,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1264.0,192.0
+credit,as_shipped,1,llama-3.3-70b-versatile,1.164966454000023,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,1,openai/gpt-oss-120b,2.0489492940000673,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1193.0,191.0
+credit,no_rag,1,openai/gpt-oss-120b,1.2512074080000275,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,794.0,100.0
+credit,no_meta,1,openai/gpt-oss-120b,3.618477071000143,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1203.0,203.0
+credit,no_fuzzy,1,openai/gpt-oss-120b,2.6333602219997374,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Logistic Regression|Gradient Boosting|AdaBoost,5,5,,1290.0,307.0
+credit,full_sameprior,1,openai/gpt-oss-120b,2.2280516499999976,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1175.0,159.0
+credit,as_shipped,2,llama-3.3-70b-versatile,0.5730565660001048,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,2,openai/gpt-oss-120b,1.569591341999967,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1173.0,164.0
+credit,no_rag,2,openai/gpt-oss-120b,1.5336613410004247,json,False,0,,XGBoost|Random Forest|Logistic Regression|Gradient Boosting|AdaBoost,5,5,,836.0,170.0
+credit,no_meta,2,openai/gpt-oss-120b,1.749432037999668,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1220.0,244.0
+credit,no_fuzzy,2,openai/gpt-oss-120b,1.5758509510001204,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1161.0,176.0
+credit,full_sameprior,2,openai/gpt-oss-120b,1.7982518409999102,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1323.0,274.0
+credit,as_shipped,3,llama-3.3-70b-versatile,0.8453656379997483,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,3,openai/gpt-oss-120b,1.6421507899999597,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1207.0,177.0
+credit,no_rag,3,openai/gpt-oss-120b,1.6435466719999567,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,857.0,184.0
+credit,no_meta,3,openai/gpt-oss-120b,2.7489280559998406,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1180.0,151.0
+credit,no_fuzzy,3,openai/gpt-oss-120b,2.0957780899998397,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1211.0,186.0
+credit,full_sameprior,3,openai/gpt-oss-120b,1.9856682429999637,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting,4,4,,1276.0,245.0
+credit,as_shipped,4,llama-3.3-70b-versatile,2.884860323999874,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,4,openai/gpt-oss-120b,1.8143444669999553,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1207.0,200.0
+credit,no_rag,4,openai/gpt-oss-120b,1.4119573940001828,json,False,0,,XGBoost|Random Forest|Gradient Boosting|AdaBoost|Logistic Regression,5,5,,768.0,108.0
+credit,no_meta,4,openai/gpt-oss-120b,2.069605676000265,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Logistic Regression|Gradient Boosting|Extra Trees,5,5,,1252.0,235.0
+credit,no_fuzzy,4,openai/gpt-oss-120b,1.970148065000103,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1309.0,312.0
+credit,full_sameprior,4,openai/gpt-oss-120b,2.0178011070001958,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1371.0,314.0
+credit,as_shipped,5,llama-3.3-70b-versatile,0.5480726800001321,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,5,openai/gpt-oss-120b,1.6036981100000958,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1976.0,189.0
+credit,no_rag,5,openai/gpt-oss-120b,1.3654890269999669,json,False,0,,XGBoost|Random Forest|Gradient Boosting|AdaBoost|Logistic Regression,5,5,,769.0,100.0
+credit,no_meta,5,openai/gpt-oss-120b,2.1831366480000725,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1166.0,172.0
+credit,no_fuzzy,5,openai/gpt-oss-120b,3.7002942899998743,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1174.0,197.0
+credit,full_sameprior,5,openai/gpt-oss-120b,1.772899653999957,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1214.0,138.0
+credit,as_shipped,6,llama-3.3-70b-versatile,2.445080970000163,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,6,openai/gpt-oss-120b,1.6305194309998114,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1192.0,193.0
+credit,no_rag,6,openai/gpt-oss-120b,1.2792677329998696,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,844.0,144.0
+credit,no_meta,6,openai/gpt-oss-120b,2.122957741999926,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1204.0,224.0
+credit,no_fuzzy,6,openai/gpt-oss-120b,1.5564463320001778,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1164.0,143.0
+credit,full_sameprior,6,openai/gpt-oss-120b,1.78109487599977,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1192.0,129.0
+credit,as_shipped,7,llama-3.3-70b-versatile,0.6576029739999285,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,7,openai/gpt-oss-120b,2.2917330560003393,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Logistic Regression|Gradient Boosting|AdaBoost,5,5,,1917.0,144.0
+credit,no_rag,7,openai/gpt-oss-120b,1.1635105760001352,json,False,0,,XGBoost|Random Forest|Gradient Boosting|AdaBoost|Logistic Regression,5,5,,780.0,107.0
+credit,no_meta,7,openai/gpt-oss-120b,1.7358127669999703,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1175.0,172.0
+credit,no_fuzzy,7,openai/gpt-oss-120b,2.5982402269996783,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Logistic Regression|Gradient Boosting,4,4,,1295.0,322.0
+credit,full_sameprior,7,openai/gpt-oss-120b,3.1892737039997883,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1327.0,254.0
+credit,as_shipped,8,llama-3.3-70b-versatile,0.8362385599998561,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,8,openai/gpt-oss-120b,1.7262871689999884,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression,4,4,,1187.0,209.0
+credit,no_rag,8,openai/gpt-oss-120b,1.4103439210002762,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,825.0,158.0
+credit,no_meta,8,openai/gpt-oss-120b,1.9836686379999264,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1160.0,144.0
+credit,no_fuzzy,8,openai/gpt-oss-120b,4.987593017999643,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1154.0,128.0
+credit,full_sameprior,8,openai/gpt-oss-120b,1.649048553999819,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1208.0,177.0
+credit,as_shipped,9,llama-3.3-70b-versatile,0.6579461500000434,exception_fallback,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest,2,2,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+credit,full,9,openai/gpt-oss-120b,2.525968097000259,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1227.0,253.0
+credit,no_rag,9,openai/gpt-oss-120b,1.3779731129998254,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,874.0,157.0
+credit,no_meta,9,openai/gpt-oss-120b,2.3257406000002447,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|AdaBoost,5,5,,1274.0,279.0
+credit,no_fuzzy,9,openai/gpt-oss-120b,1.841315694000059,json,False,0,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: HIGH_CARDINALITY_FEATURES],XGBoost|Random Forest|Gradient Boosting|Logistic Regression|Extra Trees,5,5,,1185.0,166.0
+credit,full_sameprior,9,openai/gpt-oss-120b,2.0204953089996707,json,True,1,[RULE: MISSING_VALUES];[RULE: DATASET_TYPE_IDENTIFICATION];[RULE: TRAIN_TEST_SPLIT]/[RULE: MODEL_EVALUATION_METRICS],Extra Trees|XGBoost|Random Forest|Gradient Boosting|Logistic Regression,5,5,,1397.0,341.0
+california,as_shipped,0,llama-3.3-70b-versatile,1.3409463749999304,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,0,openai/gpt-oss-120b,1.85238791699976,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees,4,4,,1051.0,221.0
+california,no_rag,0,openai/gpt-oss-120b,1.3713791430000128,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,755.0,135.0
+california,no_meta,0,openai/gpt-oss-120b,1.7276109610002095,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees,4,4,,1079.0,245.0
+california,no_fuzzy,0,openai/gpt-oss-120b,1.7605959680004162,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1115.0,243.0
+california,full_sameprior,0,openai/gpt-oss-120b,3.677621545999955,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1144.0,264.0
+california,as_shipped,1,llama-3.3-70b-versatile,1.8459663640001054,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,1,openai/gpt-oss-120b,2.2912886680001066,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1213.0,323.0
+california,no_rag,1,openai/gpt-oss-120b,1.1573527759996978,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,728.0,103.0
+california,no_meta,1,openai/gpt-oss-120b,2.2855159989999265,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1153.0,300.0
+california,no_fuzzy,1,openai/gpt-oss-120b,2.5400878139998895,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1300.0,438.0
+california,full_sameprior,1,openai/gpt-oss-120b,1.7805877319997307,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1190.0,328.0
+california,as_shipped,2,llama-3.3-70b-versatile,2.5780279760001577,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,2,openai/gpt-oss-120b,2.009285652000017,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1120.0,277.0
+california,no_rag,2,openai/gpt-oss-120b,1.3601738689999365,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,772.0,131.0
+california,no_meta,2,openai/gpt-oss-120b,3.0743024869998408,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees,4,4,,1149.0,303.0
+california,no_fuzzy,2,openai/gpt-oss-120b,3.4982380810001814,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees,4,4,,1038.0,211.0
+california,full_sameprior,2,openai/gpt-oss-120b,3.606013225999959,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1193.0,308.0
+california,as_shipped,3,llama-3.3-70b-versatile,0.9488481929997761,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,3,openai/gpt-oss-120b,3.3975303160000294,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1133.0,250.0
+california,no_rag,3,openai/gpt-oss-120b,1.3614200460001484,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,756.0,133.0
+california,no_meta,3,openai/gpt-oss-120b,2.3877910549999797,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1046.0,215.0
+california,no_fuzzy,3,openai/gpt-oss-120b,1.808952248999958,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1089.0,264.0
+california,full_sameprior,3,openai/gpt-oss-120b,3.8328381269998317,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,1123.0,258.0
+california,as_shipped,4,llama-3.3-70b-versatile,2.5561032239997985,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,4,openai/gpt-oss-120b,3.7043645839999044,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1154.0,308.0
+california,no_rag,4,openai/gpt-oss-120b,1.066036049000104,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,755.0,136.0
+california,no_meta,4,openai/gpt-oss-120b,3.4419396050002433,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1052.0,164.0
+california,no_fuzzy,4,openai/gpt-oss-120b,1.938233439999749,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,995.0,187.0
+california,full_sameprior,4,openai/gpt-oss-120b,2.4977003109997895,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1157.0,304.0
+california,as_shipped,5,llama-3.3-70b-versatile,0.4531620379998458,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,5,openai/gpt-oss-120b,2.146750713000074,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1133.0,257.0
+california,no_rag,5,openai/gpt-oss-120b,1.697830361999877,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,839.0,216.0
+california,no_meta,5,openai/gpt-oss-120b,2.06167495300042,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|SVM,5,5,,1140.0,268.0
+california,no_fuzzy,5,openai/gpt-oss-120b,2.2440384350002205,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1075.0,234.0
+california,full_sameprior,5,openai/gpt-oss-120b,1.654439467999964,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1106.0,229.0
+california,as_shipped,6,llama-3.3-70b-versatile,1.5728959299999588,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,6,openai/gpt-oss-120b,1.7326386200002162,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1054.0,209.0
+california,no_rag,6,openai/gpt-oss-120b,1.2499167619998843,json,False,0,,XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,820.0,179.0
+california,no_meta,6,openai/gpt-oss-120b,2.081781194999621,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1134.0,272.0
+california,no_fuzzy,6,openai/gpt-oss-120b,2.8648662770001465,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1106.0,294.0
+california,full_sameprior,6,openai/gpt-oss-120b,2.029863651999676,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1127.0,280.0
+california,as_shipped,7,llama-3.3-70b-versatile,2.610888533999969,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,7,openai/gpt-oss-120b,2.4699435400002585,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|ElasticNet,5,5,,1148.0,274.0
+california,no_rag,7,openai/gpt-oss-120b,1.4244200040002397,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,829.0,213.0
+california,no_meta,7,openai/gpt-oss-120b,4.597146091000013,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1129.0,263.0
+california,no_fuzzy,7,openai/gpt-oss-120b,2.4297841059997154,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1086.0,238.0
+california,full_sameprior,7,openai/gpt-oss-120b,2.4598990310000772,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|AdaBoost,5,5,,1090.0,218.0
+california,as_shipped,8,llama-3.3-70b-versatile,2.6481153869999616,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,8,openai/gpt-oss-120b,3.6135674110000764,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees|AdaBoost,5,5,,1045.0,166.0
+california,no_rag,8,openai/gpt-oss-120b,2.9230070789999445,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,723.0,128.0
+california,no_meta,8,openai/gpt-oss-120b,3.727867298000092,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Gradient Boosting|Random Forest|Extra Trees|AdaBoost,5,5,,1104.0,236.0
+california,no_fuzzy,8,openai/gpt-oss-120b,3.1097206800000095,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1074.0,236.0
+california,full_sameprior,8,openai/gpt-oss-120b,2.508000361000086,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|ElasticNet,4,4,,1082.0,238.0
+california,as_shipped,9,llama-3.3-70b-versatile,0.7641514110000571,exception_fallback,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Linear Regression,3,3,"NotFoundError: Error code: 404 - {'error': {'message': 'The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}",,
+california,full,9,openai/gpt-oss-120b,2.06761264700026,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1140.0,295.0
+california,no_rag,9,openai/gpt-oss-120b,1.0878032079999684,json,False,0,,Random Forest|Gradient Boosting|XGBoost|Extra Trees|AdaBoost,5,5,,714.0,120.0
+california,no_meta,9,openai/gpt-oss-120b,2.1081710549997297,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees|ElasticNet,5,5,,1175.0,291.0
+california,no_fuzzy,9,openai/gpt-oss-120b,2.7218125260001216,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1002.0,160.0
+california,full_sameprior,9,openai/gpt-oss-120b,2.0633445169996776,json,False,0,"[RULE: DATASET_SIZE_STRATEGY]/[RULE: MODEL_SELECTION_BY_PATTERN];[RULE: DATASET_SIZE_STRATEGY];IF dataset shows:
+    - Seasonality
+    - Long cycles
+THEN t",XGBoost|Random Forest|Gradient Boosting|Extra Trees,4,4,,1031.0,205.0
