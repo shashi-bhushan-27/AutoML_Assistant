@@ -1,0 +1,702 @@
+{
+  "adult_capital_columns": {
+    "app_features": [
+      0.8358,
+      0.8388,
+      0.8387,
+      0.8439,
+      0.837
+    ],
+    "with_raw_capital_columns": [
+      0.8711,
+      0.8728,
+      0.8708,
+      0.8753,
+      0.8727
+    ],
+    "constant_after_capping": {
+      "capital-gain": [
+        0.0,
+        0.0
+      ],
+      "capital-loss": [
+        0.0,
+        0.0
+      ]
+    },
+    "app_features_mean": 0.83884,
+    "app_features_std": 0.0030924100633648198,
+    "with_raw_capital_columns_mean": 0.8725400000000001,
+    "with_raw_capital_columns_std": 0.0017896927110540384
+  },
+  "shap_no_cast_linear": {
+    "dtypes": {
+      "bool": 22,
+      "float64": 7
+    },
+    "float32_cast": "ok",
+    "no_cast": {
+      "error": "AttributeError: 'float' object has no attribute 'shape'",
+      "raised_in": [
+        "_linear.py:168 __init__",
+        "function_base.py:2724 cov",
+        "function_base.py:557 average"
+      ]
+    },
+    "numpy_bool_subtract": "TypeError: numpy boolean subtract, the `-` operator, is not supported, use the bitwise_xor, the `^` operator, or the logical_xor function instead."
+  },
+  "retrieval_latency": {
+    "index_load_s": 3.1222755020007753,
+    "n_chunks": 30,
+    "per_dataset": {
+      "adult": {
+        "median_ms": 23.334294000960654,
+        "p95_ms": 27.738115599368022,
+        "rules": [
+          "[RULE: MISSING_VALUES]",
+          "[RULE: HIGH_CARDINALITY_FEATURES]",
+          "[RULE: MISSING_TELEMETRY_DATA]"
+        ]
+      },
+      "credit": {
+        "median_ms": 23.99435799998173,
+        "p95_ms": 32.27927614916552,
+        "rules": [
+          "[RULE: MISSING_VALUES]",
+          "IF the dataset has no time component and each row is indepen",
+          "*** DOMAIN: AUTOMOTIVE & TIME SERIES MACHINE LEARNING ***"
+        ]
+      },
+      "california": {
+        "median_ms": 18.12275150041387,
+        "p95_ms": 22.643290399992107,
+        "rules": [
+          "[RULE: OUTLIER_DETECTION]",
+          "[RULE: MISSING_VALUES]",
+          "IF dataset shows:"
+        ]
+      }
+    }
+  },
+  "paper_vs_code": {
+    "levenshtein_or_threshold_0.85": [
+      "app_frontend/main_ui.py:755: <div style=\"text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.85rem;\">"
+    ],
+    "ensemble_or_stacking_models": [],
+    "llm_model_strings": [
+      "app_backend/llm_rag_core.py:34: embeddings = HuggingFaceEmbeddings(model_name=\"all-MiniLM-L6-v2\")",
+      "app_backend/llm_rag_core.py:43: embeddings = HuggingFaceEmbeddings(model_name=\"all-MiniLM-L6-v2\")",
+      "app_backend/llm_rag_core.py:59: model_name=\"llama-3.3-70b-versatile\""
+    ],
+    "llm_output_validation": [
+      "app_backend/llm_rag_core.py:78: Return ONLY a JSON object with two keys: \"recommendations\" (list of strings) and \"reasoning\" (list of strings correspond",
+      "app_backend/llm_rag_core.py:79: Example: {{\"recommendations\": [\"XGBoost\", \"SVM\"], \"reasoning\": [\"Robust to outliers\", \"Effective for high-dimensional da",
+      "app_backend/llm_rag_core.py:86: def get_recommendations(self, stats_json, supported_models=None, similar_workspaces=None):",
+      "app_backend/llm_rag_core.py:127: data = json.loads(json_str)",
+      "app_backend/llm_rag_core.py:128: return data # Expects {\"recommendations\": [], \"reasoning\": []}",
+      "app_backend/llm_rag_core.py:139: return {\"recommendations\": recs, \"reasoning\": [\"Selected based on general performance.\"]*len(recs)}",
+      "app_backend/llm_rag_core.py:157: return {\"recommendations\": found_models, \"reasoning\": [\"Extracted from AI response.\"]*len(found_models)}",
+      "app_backend/llm_rag_core.py:160: return {\"recommendations\": smart_fallback, \"reasoning\": [\"Fallback selection.\"]*len(smart_fallback)}",
+      "app_backend/llm_rag_core.py:164: return {\"recommendations\": smart_fallback, \"reasoning\": [\"System fallback due to error.\"]*len(smart_fallback)}"
+    ],
+    "similarity_rule": [
+      "app_backend/workspace_manager.py:373: col_diff = abs(ws_cols - current_cols) / max(current_cols, 1)",
+      "app_backend/workspace_manager.py:376: if row_diff < 0.5 or col_diff < 0.3:"
+    ],
+    "prophet_fallback_rule": [
+      "app_backend/llm_rag_core.py:100: smart_fallback = [\"XGBoost\", \"Random Forest\"]",
+      "app_backend/llm_rag_core.py:103: smart_fallback = [\"Prophet\", \"XGBoost\", \"Random Forest\"]",
+      "app_backend/llm_rag_core.py:109: smart_fallback = [m for m in smart_fallback if m in supported_models]",
+      "app_backend/llm_rag_core.py:111: smart_fallback = supported_models[:3] # Fallback to first 3 supported if no match"
+    ],
+    "api_raw_data_fallback": [
+      "app_backend/main_api.py:195: print(f\"[API] Preprocessor transform failed: {e}. Using raw data.\")",
+      "app_backend/main_api.py:253: print(f\"[API] Preprocessor transform failed: {e}. Using raw data.\")"
+    ],
+    "transform_steps": [
+      "app_backend/preprocessing_engine/engine.py:142: X = self.transformer.fit_transform(X, target_col=None)",
+      "app_backend/preprocessing_engine/engine.py:146: X = self.imputer.fit_transform(X, target_col=None)",
+      "app_backend/preprocessing_engine/engine.py:150: X = self.encoder.fit_transform(X, target_col=None, y=y)",
+      "app_backend/preprocessing_engine/engine.py:154: X = self.selector.fit_transform(X, target_col=None)",
+      "app_backend/preprocessing_engine/engine.py:205: X = self.transformer.correct_types(df)",
+      "app_backend/preprocessing_engine/engine.py:206: X = self.imputer.transform(X)",
+      "app_backend/preprocessing_engine/engine.py:207: X = self.encoder.transform(X)",
+      "app_backend/preprocessing_engine/engine.py:208: X = self.scaler.transform(X)"
+    ]
+  },
+  "fuzzy_matcher_probes": [
+    {
+      "task": "Classification",
+      "name": "Random Forest",
+      "match_type": "exact",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "random forest",
+      "match_type": "normalized",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForest",
+      "match_type": "normalized",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Random Forest Classifier",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForestClassifier",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForestClassifierRegressor",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "XGBoost",
+      "match_type": "exact",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "XGBClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "XGBRegressor",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "xgboost (weighted)",
+      "match_type": "substring",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "LightGBM",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "CatBoost",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "HistGradientBoostingClassifier",
+      "match_type": "substring",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Gradient Boosting Machine",
+      "match_type": "substring",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Support Vector Machine",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "SVC",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Linear SVM",
+      "match_type": "substring",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "K-Nearest Neighbors",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "KNeighborsClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Logistic Regression",
+      "match_type": "exact",
+      "mapped_to": "Logistic Regression",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "LogisticRegression",
+      "match_type": "normalized",
+      "mapped_to": "Logistic Regression",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Neural Network",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "MLPClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Stacking Ensemble",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Isolation Forest",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Naive Bayes",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Ridge Classifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Linear Regression",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Bayesian Ridge",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Prophet",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Random Forest",
+      "match_type": "exact",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "random forest",
+      "match_type": "normalized",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForest",
+      "match_type": "normalized",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Random Forest Classifier",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForestClassifier",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForestClassifierRegressor",
+      "match_type": "substring",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "XGBoost",
+      "match_type": "exact",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "XGBClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "XGBRegressor",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "xgboost (weighted)",
+      "match_type": "substring",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "LightGBM",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "CatBoost",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "HistGradientBoostingClassifier",
+      "match_type": "substring",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Gradient Boosting Machine",
+      "match_type": "substring",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Support Vector Machine",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "SVC",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Linear SVM",
+      "match_type": "substring",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "K-Nearest Neighbors",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "KNeighborsClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Logistic Regression",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "LogisticRegression",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Neural Network",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "MLPClassifier",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Stacking Ensemble",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Isolation Forest",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Naive Bayes",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Ridge Classifier",
+      "match_type": "substring",
+      "mapped_to": "Ridge",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Linear Regression",
+      "match_type": "exact",
+      "mapped_to": "Linear Regression",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "Bayesian Ridge",
+      "match_type": "substring",
+      "mapped_to": "Ridge",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Prophet",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    }
+  ],
+  "meta_learning_similarity": [
+    {
+      "query": "adult",
+      "prior": "credit",
+      "same_task": true,
+      "row_diff": 4.83119036894476,
+      "col_diff": 1.0,
+      "match": false
+    },
+    {
+      "query": "adult",
+      "prior": "california",
+      "same_task": false,
+      "row_diff": 0.5774128823553499,
+      "col_diff": 0.4,
+      "match": false
+    },
+    {
+      "query": "credit",
+      "prior": "adult",
+      "same_task": true,
+      "row_diff": 0.8285084285147486,
+      "col_diff": 0.5,
+      "match": false
+    },
+    {
+      "query": "credit",
+      "prior": "california",
+      "same_task": false,
+      "row_diff": 0.9275298711056962,
+      "col_diff": 0.7,
+      "match": false
+    },
+    {
+      "query": "california",
+      "prior": "adult",
+      "same_task": false,
+      "row_diff": 1.3663759689922481,
+      "col_diff": 0.6666666666666666,
+      "match": false
+    },
+    {
+      "query": "california",
+      "prior": "credit",
+      "same_task": false,
+      "row_diff": 12.798788759689922,
+      "col_diff": 2.3333333333333335,
+      "match": false
+    }
+  ],
+  "regression_best_model_bookkeeping": {
+    "best_model_recorded_for_california": null,
+    "best_score": null,
+    "repo_workspaces_regression": 7,
+    "repo_workspaces_regression_with_best_model": 0
+  },
+  "adult_string_label_training": [
+    {
+      "Model": "XGBoost",
+      "Error": "Invalid classes inferred from unique values of `y`.  Expected: [0 1], got ['<=50K' '>50K']",
+      "Time (s)": null,
+      "Accuracy": null
+    },
+    {
+      "Model": "Logistic Regression",
+      "Error": "Eval Failed: pos_label=1 is not a valid label. It should be one of ['<=50K', '>50K']",
+      "Time (s)": 1.8096,
+      "Accuracy": 0.8256
+    }
+  ],
+  "target_encoding_leakage_adult": {
+    "education": {
+      "n_levels": 16,
+      "max_abs_diff": 0.006634080153923999,
+      "mean_abs_diff": 0.0029424506271870723,
+      "levels_only_in_test": 0,
+      "test_rows_with_label_derived_code_from_own_split": 0
+    },
+    "occupation": {
+      "n_levels": 15,
+      "max_abs_diff": 0.007550737726409573,
+      "mean_abs_diff": 0.002699149315642529,
+      "levels_only_in_test": 0,
+      "test_rows_with_label_derived_code_from_own_split": 0
+    },
+    "native-country": {
+      "n_levels": 42,
+      "max_abs_diff": 0.1157894736842105,
+      "mean_abs_diff": 0.022289857773353905,
+      "levels_only_in_test": 1,
+      "test_rows_with_label_derived_code_from_own_split": 1
+    }
+  }
+}

@@ -1,0 +1,53 @@
+\begin{table*}[t]
+\centering
+\caption{Ablation study of RAG-AutoML (mean$\pm$std over five splits; LLM rows also average 10 calls each). Metric~1/2: Accuracy/F1 (Adult, Credit) or RMSE in \$100k/$R^2$ (California) of the best model in the selected set; serving rows ($\Delta$) give the change against the offline predictions on the same rows (XGBoost, batches of 256). Search: LLM latency plus training of the selected models on one thread. SHAP: model families explained within 300\,s, out of six (median runtime). All LLM-returned names were valid. ---: could not complete; n/a: not involved.}
+\label{tab:ablation}
+\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}lcccl>{\raggedright\arraybackslash}p{2.0cm}@{}}
+\hline
+\textbf{System Configuration} & \textbf{Metric 1} & \textbf{Metric 2} & \textbf{Search (s)} & \textbf{SHAP} & \textbf{Notes} \\
+\hline
+\multicolumn{6}{@{}l}{\textit{Adult (Acc. / F1)}} \\
+Full RAG-AutoML$^\dagger$ & 0.844$\pm$0.003 & 0.639$\pm$0.007 & 19.1$\pm$0.5 & 4/6 (0.67\,s) & 4.9 models \\
+\quad w/o RAG & 0.844$\pm$0.003 & 0.639$\pm$0.007 & 18.0$\pm$0.5 & 4/6 (0.67\,s) & 4.8 models \\
+\quad w/o Meta-learning & 0.844$\pm$0.003 & 0.639$\pm$0.007 & 14.1$\pm$0.4 & 4/6 (0.67\,s) & same prompt \\
+\quad w/o Fuzzy match & 0.844$\pm$0.003 & 0.639$\pm$0.007 & 15.4$\pm$0.5 & 4/6 (0.67\,s) & 0\% fail, 4.6 models \\
+Brute force (all 9) & 0.844$\pm$0.003 & 0.639$\pm$0.007 & 54.0$\pm$1.1 & 4/6 (0.67\,s) & Full: $-$69\% time \\
+As shipped (no LLM)$^\ddagger$ & 0.839$\pm$0.003 & 0.637$\pm$0.009 & 6.2$\pm$0.2 & 4/6 (0.67\,s) & fallback 100\% \\
+Served, stateful ($\Delta$) & --- & --- & n/a & n/a & crash 100\% \\
+\quad w/o Stateful ($\Delta$) & --- & --- & n/a & n/a & crash 100\% \\
+\quad w/o routing (Tree) & n/a & n/a & n/a & 3/6 (0.19\,s) & err KNN LR SVM \\
+\quad w/o routing (Kernel) & n/a & n/a & n/a & 3/6 (73\,s) & t/o KNN SVM; err XGB \\
+\quad w/o float32 cast & n/a & n/a & n/a & 3/6 (0.19\,s) & t/o KNN SVM; err LR \\
+\hline
+\multicolumn{6}{@{}l}{\textit{Credit Card Fraud (Acc. / F1)}} \\
+Full RAG-AutoML$^\dagger$ & 0.9996$\pm$0.0001 & 0.856$\pm$0.019 & 489.8$\pm$5.1 & 3.2/6 (0.85\,s) & 4.9 models \\
+\quad w/o RAG & 0.9996$\pm$0.0001 & 0.856$\pm$0.019 & 505.3$\pm$5.5 & 3.2/6 (0.85\,s) & 5.0 models \\
+\quad w/o Meta-learning & 0.9996$\pm$0.0001 & 0.856$\pm$0.019 & 495.0$\pm$5.2 & 3.2/6 (0.85\,s) & same prompt \\
+\quad w/o Fuzzy match & 0.9996$\pm$0.0001 & 0.858$\pm$0.019 & 499.2$\pm$5.4 & 3.2/6 (0.85\,s) & 0\% fail, 4.8 models \\
+Brute force (all 9) & 0.9996$\pm$0.0001 & 0.857$\pm$0.018 & 716.4$\pm$8.9 & 3.2/6 (0.85\,s) & Full: $-$32\% time \\
+As shipped (no LLM)$^\ddagger$ & 0.9996$\pm$0.0001 & 0.855$\pm$0.021 & 134.9$\pm$7.4 & 3.2/6 (0.85\,s) & fallback 100\% \\
+Served, stateful ($\Delta$) & $+$0.000$\pm$0.000 & $+$0.001$\pm$0.003 & n/a & n/a & crash 0\%; 100\% same \\
+\quad w/o Stateful ($\Delta$) & $-$0.061$\pm$0.014 & $-$0.671$\pm$0.210 & n/a & n/a & crash 0\%; 94\% same \\
+\quad w/o routing (Tree) & n/a & n/a & n/a & 2.2/6 (0.22\,s) & err GB KNN LR SVM \\
+\quad w/o routing (Kernel) & n/a & n/a & n/a & 3/6 (72\,s) & t/o KNN SVM; err XGB \\
+\quad w/o float32 cast & n/a & n/a & n/a & 3.2/6 (0.77\,s) & t/o KNN SVM; err GB \\
+\hline
+\multicolumn{6}{@{}l}{\textit{California Housing (RMSE / $R^2$)}} \\
+Full RAG-AutoML$^\dagger$ & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 22.1$\pm$0.8 & 5/6 (0.68\,s) & 4.4 models \\
+\quad w/o RAG & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 21.5$\pm$0.9 & 5/6 (0.68\,s) & 5.0 models \\
+\quad w/o Meta-learning & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 23.2$\pm$0.8 & 5/6 (0.68\,s) & same prompt \\
+\quad w/o Fuzzy match & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 21.9$\pm$0.7 & 5/6 (0.68\,s) & 0\% fail, 4.1 models \\
+Brute force (all 12) & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 28.9$\pm$1.5 & 5/6 (0.68\,s) & Full: $-$32\% time \\
+As shipped (no LLM)$^\ddagger$ & 0.460$\pm$0.009 & 0.839$\pm$0.006 & 13.9$\pm$0.4 & 5/6 (0.68\,s) & fallback 100\% \\
+Served, stateful ($\Delta$) & --- & --- & n/a & n/a & crash 100\% \\
+\quad w/o Stateful ($\Delta$) & $+$0.159$\pm$0.039 & $-$0.131$\pm$0.034 & n/a & n/a & crash 0\%; 0\% same \\
+\quad w/o routing (Tree) & n/a & n/a & n/a & 3/6 (0.63\,s) & err KNN Ridge SVM \\
+\quad w/o routing (Kernel) & n/a & n/a & n/a & 4/6 (13\,s) & t/o SVM; err XGB \\
+\quad w/o float32 cast & n/a & n/a & n/a & 5/6 (0.64\,s) & t/o SVM \\
+\hline
+\end{tabular}
+\par\smallskip
+\parbox{\textwidth}{\scriptsize $^\dagger$The Groq model hard-coded in the application (\texttt{llama-3.3-70b-versatile}) is no longer served; the recommendation rows use \texttt{openai/\allowbreak gpt-oss-120b} at the application's temperature (0.3) with its prompt, retriever and parser unchanged. $^\ddagger$The unmodified advisor: every call fails with \texttt{model\_not\_found} and the hard-coded fallback (XGBoost, Random Forest; plus Linear Regression for regression) is trained.}
+\end{table*}

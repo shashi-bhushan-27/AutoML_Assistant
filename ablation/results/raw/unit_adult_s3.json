@@ -1,0 +1,1909 @@
+{
+  "dataset": "adult",
+  "seed": 3,
+  "task": "Classification",
+  "stats": {
+    "rows": 48842,
+    "columns": 15,
+    "missing_values": 6465,
+    "numerical_columns": [
+      "age",
+      "fnlwgt",
+      "education-num",
+      "capital-gain",
+      "capital-loss",
+      "hours-per-week",
+      "class"
+    ],
+    "categorical_columns": [
+      "workclass",
+      "education",
+      "marital-status",
+      "occupation",
+      "relationship",
+      "race",
+      "sex",
+      "native-country"
+    ],
+    "datetime_columns": [],
+    "is_time_series": false,
+    "time_frequency": "None",
+    "task_type": "Classification"
+  },
+  "preprocessing": {
+    "fit_transform_s": 0.7073488930000167,
+    "fit_rows_per_s": 69049.37645813047,
+    "n_train": 39032,
+    "n_test": 9758,
+    "n_features": 29,
+    "rows_after_dedup": 48790,
+    "feature_dtypes": {
+      "bool": 22,
+      "float64": 7
+    },
+    "scaler": "StandardScaler",
+    "dropped_features": {
+      "low_variance": [
+        "capital-gain",
+        "capital-loss",
+        "native-country"
+      ],
+      "high_correlation": []
+    },
+    "skew_transforms": {},
+    "outlier_capped_features": [
+      "age",
+      "capital-gain",
+      "capital-loss",
+      "education-num",
+      "fnlwgt",
+      "hours-per-week"
+    ],
+    "encoders": {
+      "workclass": "onehot",
+      "education": "target",
+      "marital-status": "onehot",
+      "occupation": "target",
+      "relationship": "onehot",
+      "race": "onehot",
+      "sex": "label",
+      "native-country": "target"
+    },
+    "imputers": {
+      "workclass": "mode",
+      "occupation": "mode",
+      "native-country": "mode"
+    }
+  },
+  "brute_force": [
+    {
+      "Model": "AdaBoost",
+      "Time (s)": 1.2936,
+      "Accuracy": 0.8428,
+      "F1 Score": 0.6375,
+      "Precision": 0.7115,
+      "Recall": 0.5775,
+      "MCC": 0.5433,
+      "Cohen Kappa": 0.5385,
+      "AUC-ROC": 0.8969,
+      "wall_s": 1.3837090970000645
+    },
+    {
+      "Model": "Decision Tree",
+      "Time (s)": 0.229,
+      "Accuracy": 0.778,
+      "F1 Score": 0.5376,
+      "Precision": 0.5362,
+      "Recall": 0.539,
+      "MCC": 0.3915,
+      "Cohen Kappa": 0.3915,
+      "AUC-ROC": 0.6966,
+      "wall_s": 0.2692776739995679
+    },
+    {
+      "Model": "Extra Trees",
+      "Time (s)": 3.8094,
+      "Accuracy": 0.8192,
+      "F1 Score": 0.5943,
+      "Precision": 0.6421,
+      "Recall": 0.5531,
+      "MCC": 0.481,
+      "Cohen Kappa": 0.4788,
+      "AUC-ROC": 0.8629,
+      "wall_s": 4.147084406999966
+    },
+    {
+      "Model": "Gradient Boosting",
+      "Time (s)": 4.2819,
+      "Accuracy": 0.8489,
+      "F1 Score": 0.6494,
+      "Precision": 0.7307,
+      "Recall": 0.5843,
+      "MCC": 0.5603,
+      "Cohen Kappa": 0.5546,
+      "AUC-ROC": 0.9004,
+      "wall_s": 4.332461402000263
+    },
+    {
+      "Model": "KNN",
+      "Time (s)": 2.6501,
+      "Accuracy": 0.8225,
+      "F1 Score": 0.6083,
+      "Precision": 0.6448,
+      "Recall": 0.5758,
+      "MCC": 0.4954,
+      "Cohen Kappa": 0.494,
+      "AUC-ROC": 0.8448,
+      "wall_s": 4.108698190999348
+    },
+    {
+      "Model": "Logistic Regression",
+      "Time (s)": 0.2906,
+      "Accuracy": 0.8392,
+      "F1 Score": 0.6174,
+      "Precision": 0.7173,
+      "Recall": 0.542,
+      "MCC": 0.5263,
+      "Cohen Kappa": 0.5181,
+      "AUC-ROC": 0.8935,
+      "wall_s": 0.3532490810002855
+    },
+    {
+      "Model": "Random Forest",
+      "Time (s)": 4.0278,
+      "Accuracy": 0.8289,
+      "F1 Score": 0.6116,
+      "Precision": 0.6696,
+      "Recall": 0.5629,
+      "MCC": 0.506,
+      "Cohen Kappa": 0.5029,
+      "AUC-ROC": 0.8774,
+      "wall_s": 4.271039301000201
+    },
+    {
+      "Model": "SVM",
+      "Time (s)": 34.5235,
+      "Accuracy": 0.8398,
+      "F1 Score": 0.6054,
+      "Precision": 0.7378,
+      "Recall": 0.5133,
+      "MCC": 0.5221,
+      "Cohen Kappa": 0.5089,
+      "wall_s": 34.556454352999936
+    },
+    {
+      "Model": "XGBoost",
+      "Time (s)": 0.4669,
+      "Accuracy": 0.8439,
+      "F1 Score": 0.6517,
+      "Precision": 0.6996,
+      "Recall": 0.61,
+      "MCC": 0.5539,
+      "Cohen Kappa": 0.5518,
+      "AUC-ROC": 0.8967,
+      "wall_s": 0.533038953999494
+    }
+  ],
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-6.18.44-fc-v50-x86_64-with-glibc2.39",
+    "cpu_count": 4,
+    "memory_gb": 15.7,
+    "omp_num_threads": "1",
+    "packages": {
+      "numpy": "1.26.4",
+      "pandas": "2.2.3",
+      "sklearn": "1.3.2",
+      "xgboost": "2.0.3",
+      "shap": "0.46.0",
+      "scipy": "1.17.1",
+      "faiss": "1.15.1",
+      "langchain_core": "1.6.6",
+      "langchain_groq": "1.1.3",
+      "langchain_classic": "1.0.8",
+      "langchain_community": "0.4.2",
+      "sentence_transformers": "6.1.0",
+      "torch": "2.14.0+cpu",
+      "fastapi": "0.142.1",
+      "statsmodels": "0.15.0"
+    },
+    "timestamp": "2026-09-30T04:59:32"
+  },
+  "preproc": {
+    "serialization": {
+      "pickle_mb": 5.380063,
+      "save_s": 0.00774980999995023,
+      "load_s": 0.001751458999933675
+    },
+    "parity": {
+      "n_train_features": 29,
+      "n_serving_features": 32,
+      "same_column_order": false,
+      "missing_at_serving": [],
+      "extra_at_serving": [
+        "capital-gain",
+        "capital-loss",
+        "native-country"
+      ],
+      "n_common_features_mismatched": 4,
+      "mismatched_features": {
+        "age": {
+          "rows_differing_frac": 0.0036892805902848944,
+          "max_abs_diff": 0.876979005571735
+        },
+        "fnlwgt": {
+          "rows_differing_frac": 0.029821684771469563,
+          "max_abs_diff": 8.313701161735016
+        },
+        "education-num": {
+          "rows_differing_frac": 0.035765525722484114,
+          "max_abs_diff": 1.4250578269200123
+        },
+        "hours-per-week": {
+          "rows_differing_frac": 0.27987292477966796,
+          "max_abs_diff": 7.520626438604162
+        }
+      },
+      "cell_mismatch_frac": 0.01203963502978988,
+      "transform_rows_per_s": 26661.65069885657
+    },
+    "serving": [
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 1024
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {},
+        "agreement_vs_offline": 0.8037109375,
+        "served_Accuracy": 0.779296875,
+        "served_F1": 0.30246913580246915,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1024
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {},
+        "agreement_vs_offline": 0.8212890625,
+        "served_Accuracy": 0.7685546875,
+        "served_F1": 0.2476190476190476,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1024
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 109.78879469951653,
+        "errors": {},
+        "agreement_vs_offline": 0.826171875,
+        "served_Accuracy": 0.763671875,
+        "served_F1": 0.21935483870967742,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 64
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {},
+        "agreement_vs_offline": 0.974609375,
+        "served_Accuracy": 0.8291015625,
+        "served_F1": 0.6478873239436619,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 64
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {},
+        "agreement_vs_offline": 0.9697265625,
+        "served_Accuracy": 0.8056640625,
+        "served_F1": 0.5720430107526882,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 64
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 1700.1501723908511,
+        "errors": {},
+        "agreement_vs_offline": 0.94921875,
+        "served_Accuracy": 0.822265625,
+        "served_F1": 0.6192468619246863,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 4
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {},
+        "agreement_vs_offline": 1.0,
+        "served_Accuracy": 0.8310546875,
+        "served_F1": 0.6666666666666667,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 4
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {},
+        "agreement_vs_offline": 1.0,
+        "served_Accuracy": 0.80859375,
+        "served_F1": 0.5983606557377049,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 4
+        },
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 13435.613868037828,
+        "errors": {},
+        "agreement_vs_offline": 0.978515625,
+        "served_Accuracy": 0.837890625,
+        "served_F1": 0.6598360655737705,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateful",
+        "stream": "random"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 1
+        },
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {},
+        "agreement_vs_offline": 1.0,
+        "served_Accuracy": 0.8439229350276696,
+        "served_F1": 0.6517265035444775,
+        "offline_Accuracy": 0.8439229350276696,
+        "offline_F1": 0.6517265035444775,
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1
+        },
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {},
+        "agreement_vs_offline": 1.0,
+        "served_Accuracy": 0.8288583726173396,
+        "served_F1": 0.6116279069767442,
+        "offline_Accuracy": 0.8288583726173396,
+        "offline_F1": 0.6116279069767442,
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1
+        },
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 23865.136630790777,
+        "errors": {},
+        "agreement_vs_offline": 0.9768395162943226,
+        "served_Accuracy": 0.834904693584751,
+        "served_F1": 0.6179748636471425,
+        "offline_Accuracy": 0.8392088542734167,
+        "offline_F1": 0.6174103877103146,
+        "preprocessing": "stateful",
+        "stream": "full test set"
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 1024
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {},
+        "agreement_vs_offline": 0.7568359375,
+        "served_Accuracy": 0.736328125,
+        "served_F1": 0.0,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.947265625,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1024
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {},
+        "agreement_vs_offline": 0.787109375,
+        "served_Accuracy": 0.736328125,
+        "served_F1": 0.0,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.9560546875,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1024
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "1",
+        "n_rows": 1024,
+        "n_batches": 1024,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 26.221453812395186,
+        "errors": {},
+        "agreement_vs_offline": 0.798828125,
+        "served_Accuracy": 0.736328125,
+        "served_F1": 0.0,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.9609375,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 64
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {},
+        "agreement_vs_offline": 0.7939453125,
+        "served_Accuracy": 0.765625,
+        "served_F1": 0.368421052631579,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.8154296875,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 64
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {},
+        "agreement_vs_offline": 0.8349609375,
+        "served_Accuracy": 0.7841796875,
+        "served_F1": 0.45965770171149145,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.859375,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 64
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "16",
+        "n_rows": 1024,
+        "n_batches": 64,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 370.2209655621394,
+        "errors": {},
+        "agreement_vs_offline": 0.8701171875,
+        "served_Accuracy": 0.7880859375,
+        "served_F1": 0.41823056300268097,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.8759765625,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 4
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {},
+        "agreement_vs_offline": 0.7783203125,
+        "served_Accuracy": 0.744140625,
+        "served_F1": 0.354679802955665,
+        "offline_Accuracy": 0.8310546875,
+        "offline_F1": 0.6666666666666667,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.7783203125,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 4
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {},
+        "agreement_vs_offline": 0.8291015625,
+        "served_Accuracy": 0.7763671875,
+        "served_F1": 0.4876957494407159,
+        "offline_Accuracy": 0.80859375,
+        "offline_F1": 0.5983606557377049,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.8291015625,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 4
+        },
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "256",
+        "n_rows": 1024,
+        "n_batches": 4,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 5233.6808337211205,
+        "errors": {},
+        "agreement_vs_offline": 0.9052734375,
+        "served_Accuracy": 0.8115234375,
+        "served_F1": 0.5089058524173029,
+        "offline_Accuracy": 0.837890625,
+        "offline_F1": 0.6512605042016806,
+        "preprocessing": "stateless",
+        "stream": "random",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.8974609375,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {
+          "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', ": 1
+        },
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "XGBoost",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {},
+        "agreement_vs_offline": 0.7984218077474893,
+        "served_Accuracy": 0.765320762451322,
+        "served_F1": 0.33546140452698786,
+        "offline_Accuracy": 0.8439229350276696,
+        "offline_F1": 0.6517265035444775,
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.7984218077474893,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1
+        },
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Random Forest",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {},
+        "agreement_vs_offline": 0.8448452551752408,
+        "served_Accuracy": 0.7985242877638861,
+        "served_F1": 0.49408131755018003,
+        "offline_Accuracy": 0.8288583726173396,
+        "offline_F1": 0.6116279069767442,
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.8448452551752408,
+        "rows_served_by_both_aligned": 1.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "app",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 1.0,
+        "row_coverage": 0.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {
+          "ValueError: The feature names should match those that were passed during fit.": 1
+        },
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": null,
+        "rows_served_by_both_aligned": 0.0
+      },
+      {
+        "model": "Logistic Regression",
+        "mode": "aligned",
+        "batch_size": "full",
+        "n_rows": 9758,
+        "n_batches": 1,
+        "crash_rate": 0.0,
+        "row_coverage": 1.0,
+        "rows_dropped_by_preprocessor": 0,
+        "transform_crash_rate": 0.0,
+        "transform_rows_per_s": 61594.30165216876,
+        "errors": {},
+        "agreement_vs_offline": 0.9248821479811437,
+        "served_Accuracy": 0.8220946915351507,
+        "served_F1": 0.5259421081376296,
+        "offline_Accuracy": 0.8392088542734167,
+        "offline_F1": 0.6174103877103146,
+        "preprocessing": "stateless",
+        "stream": "full test set",
+        "agreement_vs_stateful_app": null,
+        "rows_served_by_both_app": 0.0,
+        "agreement_vs_stateful_aligned": 0.9209879073580651,
+        "rows_served_by_both_aligned": 1.0
+      }
+    ],
+    "schema": [
+      {
+        "variant": "baseline",
+        "model": "XGBoost",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', "
+      },
+      {
+        "variant": "baseline",
+        "model": "Random Forest",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "baseline",
+        "model": "Logistic Regression",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "XGBoost",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', "
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "Random Forest",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "Logistic Regression",
+        "perturbed_column": null,
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "unseen_category",
+        "model": "XGBoost",
+        "perturbed_column": "workclass",
+        "status": "crash",
+        "error": "ValueError: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', "
+      },
+      {
+        "variant": "unseen_category",
+        "model": "Random Forest",
+        "perturbed_column": "workclass",
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "unseen_category",
+        "model": "Logistic Regression",
+        "perturbed_column": "workclass",
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "missing_column",
+        "model": "XGBoost",
+        "perturbed_column": "age",
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "missing_column",
+        "model": "Random Forest",
+        "perturbed_column": "age",
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      },
+      {
+        "variant": "missing_column",
+        "model": "Logistic Regression",
+        "perturbed_column": "age",
+        "status": "crash",
+        "error": "ValueError: The feature names should match those that were passed during fit."
+      }
+    ],
+    "endpoint": [
+      {
+        "variant": "baseline",
+        "model": "XGBoost",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel"
+      },
+      {
+        "variant": "baseline",
+        "model": "Random Forest",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "baseline",
+        "model": "Logistic Regression",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "XGBoost",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel"
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "Random Forest",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "reordered_columns",
+        "model": "Logistic Regression",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "unseen_category",
+        "model": "XGBoost",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: feature_names mismatch: ['age', 'fnlwgt', 'education', 'education-num', 'occupation', 'sex', 'hours-per-week', 'workclass_Local-gov', 'workclass_Never-worked', 'workclass_Private', 'workclass_Self-emp-inc', 'workclass_Sel"
+      },
+      {
+        "variant": "unseen_category",
+        "model": "Random Forest",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "unseen_category",
+        "model": "Logistic Regression",
+        "status_code": 500,
+        "raw_fallback_triggered": false,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- native-country\nFeature names seen at fit time, yet now missing:\n- marital-status_Married-"
+      },
+      {
+        "variant": "missing_column",
+        "model": "XGBoost",
+        "status_code": 500,
+        "raw_fallback_triggered": true,
+        "detail": "Prediction failed: DataFrame.dtypes for data must be int, float, bool or category. When categorical type is supplied, The experimental DMatrix parameter`enable_categorical` must be set to `True`.  Invalid columns:workclass: object, educatio"
+      },
+      {
+        "variant": "missing_column",
+        "model": "Random Forest",
+        "status_code": 500,
+        "raw_fallback_triggered": true,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- marital-status\n- native-country\n- race\n- ...\nFeature names seen at fit time, yet now miss"
+      },
+      {
+        "variant": "missing_column",
+        "model": "Logistic Regression",
+        "status_code": 500,
+        "raw_fallback_triggered": true,
+        "detail": "Prediction failed: The feature names should match those that were passed during fit.\nFeature names unseen at fit time:\n- capital-gain\n- capital-loss\n- marital-status\n- native-country\n- race\n- ...\nFeature names seen at fit time, yet now miss"
+      }
+    ],
+    "endpoint_latency": [
+      {
+        "model": "XGBoost",
+        "n_requests": 30,
+        "median_ms": 63.934735000202636,
+        "p95_ms": 76.06492859972603,
+        "status_codes": {
+          "500": 30
+        },
+        "model_only_median_ms": 2.0345880002423655,
+        "trained_models_pkl_mb": 111.048009,
+        "pipeline_pkl_mb": 5.380463
+      },
+      {
+        "model": "Random Forest",
+        "n_requests": 30,
+        "median_ms": 179.55993850000596,
+        "p95_ms": 676.5609051497904,
+        "status_codes": {
+          "500": 30
+        },
+        "model_only_median_ms": 3.924110000298242,
+        "trained_models_pkl_mb": 111.048009,
+        "pipeline_pkl_mb": 5.380463
+      },
+      {
+        "model": "Logistic Regression",
+        "n_requests": 30,
+        "median_ms": 58.40784349993555,
+        "p95_ms": 62.02558219979437,
+        "status_codes": {
+          "500": 30
+        },
+        "model_only_median_ms": 0.8043544999054575,
+        "trained_models_pkl_mb": 111.048009,
+        "pipeline_pkl_mb": 5.380463
+      }
+    ],
+    "stream": "random"
+  },
+  "shap": [
+    {
+      "config": "full",
+      "runtime_s": 104.73705511800017,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 132.85376,
+      "kernel_rows_done": 0,
+      "wall_s": 104.78929521400005,
+      "timeout_s": 300.0,
+      "model": "Random Forest",
+      "model_class": "RandomForestClassifier"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 105.50322956499986,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 132.857856,
+      "kernel_rows_done": 0,
+      "wall_s": 105.55358052800057,
+      "timeout_s": 300.0,
+      "model": "Random Forest",
+      "model_class": "RandomForestClassifier"
+    },
+    {
+      "config": "forced_kernel",
+      "runtime_s": 264.6323676860002,
+      "route": "kernel",
+      "explainer": "KernelExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 276.205568,
+      "kernel_rows_done": 200,
+      "wall_s": 264.6748219779993,
+      "timeout_s": 300.0,
+      "model": "Random Forest",
+      "model_class": "RandomForestClassifier"
+    },
+    {
+      "config": "no_cast",
+      "runtime_s": 107.33565917099986,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "bool": 22,
+        "float64": 7
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 130.936832,
+      "kernel_rows_done": 0,
+      "wall_s": 107.37899869499961,
+      "timeout_s": 300.0,
+      "model": "Random Forest",
+      "model_class": "RandomForestClassifier"
+    },
+    {
+      "config": "full",
+      "runtime_s": 0.2094481430003725,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 22.106112,
+      "kernel_rows_done": 0,
+      "wall_s": 0.25877316300011444,
+      "timeout_s": 300.0,
+      "model": "XGBoost",
+      "model_class": "XGBClassifier"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 0.22333553899989056,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 22.110208,
+      "kernel_rows_done": 0,
+      "wall_s": 0.2797675920000984,
+      "timeout_s": 300.0,
+      "model": "XGBoost",
+      "model_class": "XGBClassifier"
+    },
+    {
+      "config": "forced_kernel",
+      "runtime_s": 0.025454700000409503,
+      "route": "kernel",
+      "explainer": null,
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "status": "error",
+      "message": "[SHAP] Explainer build failed: property 'feature_names_in_' of 'XGBClassifier' object has no setter",
+      "peak_mem_mb": 3.035136,
+      "kernel_rows_done": 0,
+      "wall_s": 0.0637179629993625,
+      "timeout_s": 300.0,
+      "model": "XGBoost",
+      "model_class": "XGBClassifier"
+    },
+    {
+      "config": "no_cast",
+      "runtime_s": 0.18453010899975197,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "bool": 22,
+        "float64": 7
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 20.549632,
+      "kernel_rows_done": 0,
+      "wall_s": 0.22585774299932382,
+      "timeout_s": 300.0,
+      "model": "XGBoost",
+      "model_class": "XGBClassifier"
+    },
+    {
+      "config": "full",
+      "runtime_s": 0.031453229000362626,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 3.280896,
+      "kernel_rows_done": 0,
+      "wall_s": 0.07432917000005546,
+      "timeout_s": 300.0,
+      "model": "Gradient Boosting",
+      "model_class": "GradientBoostingClassifier"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 0.03109162100008689,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 3.03104,
+      "kernel_rows_done": 0,
+      "wall_s": 0.07498425599987968,
+      "timeout_s": 300.0,
+      "model": "Gradient Boosting",
+      "model_class": "GradientBoostingClassifier"
+    },
+    {
+      "config": "forced_kernel",
+      "runtime_s": 75.98660365399974,
+      "route": "kernel",
+      "explainer": "KernelExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 62.083072,
+      "kernel_rows_done": 200,
+      "wall_s": 76.02510691299995,
+      "timeout_s": 300.0,
+      "model": "Gradient Boosting",
+      "model_class": "GradientBoostingClassifier"
+    },
+    {
+      "config": "no_cast",
+      "runtime_s": 0.03604839599938714,
+      "route": "tree",
+      "explainer": "TreeExplainer",
+      "X_test_dtypes": {
+        "bool": 22,
+        "float64": 7
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 3.280896,
+      "kernel_rows_done": 0,
+      "wall_s": 0.08122542999990401,
+      "timeout_s": 300.0,
+      "model": "Gradient Boosting",
+      "model_class": "GradientBoostingClassifier"
+    },
+    {
+      "config": "full",
+      "runtime_s": 1.1334661959999721,
+      "route": "linear",
+      "explainer": "LinearExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 23.814144,
+      "kernel_rows_done": 0,
+      "wall_s": 1.1725963009994302,
+      "timeout_s": 300.0,
+      "model": "Logistic Regression",
+      "model_class": "LogisticRegression"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 0.016198340999835636,
+      "route": "tree",
+      "explainer": null,
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "status": "error",
+      "message": "[SHAP] Explainer build failed: Model type not yet supported by TreeExplainer: <class 'sklearn.linear_model._logistic.LogisticRegression'>",
+      "peak_mem_mb": 3.280896,
+      "kernel_rows_done": 0,
+      "wall_s": 0.05765953600075591,
+      "timeout_s": 300.0,
+      "model": "Logistic Regression",
+      "model_class": "LogisticRegression"
+    },
+    {
+      "config": "forced_kernel",
+      "runtime_s": 62.730418694000946,
+      "route": "kernel",
+      "explainer": "KernelExplainer",
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "shape": [
+        200,
+        29
+      ],
+      "nan_frac": 0.0,
+      "status": "ok",
+      "message": "",
+      "peak_mem_mb": 91.598848,
+      "kernel_rows_done": 200,
+      "wall_s": 62.770005862999824,
+      "timeout_s": 300.0,
+      "model": "Logistic Regression",
+      "model_class": "LogisticRegression"
+    },
+    {
+      "config": "no_cast",
+      "runtime_s": 0.07460170400008792,
+      "route": "linear",
+      "explainer": null,
+      "X_test_dtypes": {
+        "bool": 22,
+        "float64": 7
+      },
+      "status": "error",
+      "message": "[SHAP] Explainer build failed: 'float' object has no attribute 'shape'",
+      "peak_mem_mb": 28.553216,
+      "kernel_rows_done": 0,
+      "wall_s": 0.11525922999862814,
+      "timeout_s": 300.0,
+      "model": "Logistic Regression",
+      "model_class": "LogisticRegression"
+    },
+    {
+      "config": "full",
+      "status": "timeout",
+      "runtime_s": 300.1438687030004,
+      "peak_mem_mb": 74.887168,
+      "kernel_rows_done": 3,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 20009.591246866694,
+      "wall_s": 300.1438687030004,
+      "timeout_s": 300.0,
+      "model": "SVM",
+      "model_class": "SVC"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 0.018961515999762923,
+      "route": "tree",
+      "explainer": null,
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "status": "error",
+      "message": "[SHAP] Explainer build failed: Model type not yet supported by TreeExplainer: <class 'sklearn.svm._classes.SVC'>",
+      "peak_mem_mb": 3.03104,
+      "kernel_rows_done": 0,
+      "wall_s": 0.05976774500049942,
+      "timeout_s": 300.0,
+      "model": "SVM",
+      "model_class": "SVC"
+    },
+    {
+      "config": "forced_kernel",
+      "status": "timeout",
+      "runtime_s": 300.1310654450008,
+      "peak_mem_mb": 74.887168,
+      "kernel_rows_done": 3,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 20008.737696333385,
+      "wall_s": 300.1310654450008,
+      "timeout_s": 300.0,
+      "model": "SVM",
+      "model_class": "SVC"
+    },
+    {
+      "config": "no_cast",
+      "status": "timeout",
+      "runtime_s": 300.12623718800023,
+      "peak_mem_mb": 75.743232,
+      "kernel_rows_done": 3,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 20008.41581253335,
+      "wall_s": 300.12623718800023,
+      "timeout_s": 300.0,
+      "model": "SVM",
+      "model_class": "SVC"
+    },
+    {
+      "config": "full",
+      "status": "timeout",
+      "runtime_s": 300.10740113799875,
+      "peak_mem_mb": 2211.483648,
+      "kernel_rows_done": 2,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 30010.740113799875,
+      "wall_s": 300.10740113799875,
+      "timeout_s": 300.0,
+      "model": "KNN",
+      "model_class": "KNeighborsClassifier",
+      "rerun": true,
+      "rerun_reason": "original worker killed by SIGKILL (container out-of-memory while 4 units ran in parallel)",
+      "original_status": "crashed_process"
+    },
+    {
+      "config": "forced_tree",
+      "runtime_s": 0.021699126999010332,
+      "route": "tree",
+      "explainer": null,
+      "X_test_dtypes": {
+        "float32": 29
+      },
+      "status": "error",
+      "message": "[SHAP] Explainer build failed: Model type not yet supported by TreeExplainer: <class 'sklearn.neighbors._classification.KNeighborsClassifier'>",
+      "peak_mem_mb": 0.167936,
+      "kernel_rows_done": 0,
+      "wall_s": 0.06897039099931135,
+      "timeout_s": 300.0,
+      "model": "KNN",
+      "model_class": "KNeighborsClassifier"
+    },
+    {
+      "config": "forced_kernel",
+      "status": "timeout",
+      "runtime_s": 300.1016118280004,
+      "peak_mem_mb": 2211.483648,
+      "kernel_rows_done": 2,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 30010.16118280004,
+      "wall_s": 300.1016118280004,
+      "timeout_s": 300.0,
+      "model": "KNN",
+      "model_class": "KNeighborsClassifier",
+      "rerun": true,
+      "rerun_reason": "original worker killed by SIGKILL (container out-of-memory while 4 units ran in parallel)",
+      "original_status": "crashed_process"
+    },
+    {
+      "config": "no_cast",
+      "status": "timeout",
+      "runtime_s": 300.12994096299917,
+      "peak_mem_mb": 93.290496,
+      "kernel_rows_done": 20,
+      "exitcode": -9,
+      "extrapolated_runtime_s": 3001.2994096299917,
+      "wall_s": 300.12994096299917,
+      "timeout_s": 300.0,
+      "model": "KNN",
+      "model_class": "KNeighborsClassifier"
+    }
+  ]
+}
