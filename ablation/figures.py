@@ -167,8 +167,10 @@ def fig_preproc(model="XGBoost"):
 
 # ─────────────────────────────── Figure: SHAP matrix ───────────────────────────────
 
-SHAP_CFGS = [("full", "Full\n(routing+f32)"), ("forced_tree", "Forced\nTree"), ("forced_kernel", "Forced\nKernel"),
-             ("no_cast", "No f32\ncast")]
+SHAP_CFGS = [("full", "Full\n(routing + f32)"), ("forced_tree", "Forced\nTree"),
+             ("forced_kernel", "Forced\nKernel"), ("no_cast", "No f32\ncast")]
+SHAP_ABBR = {"Random Forest": "RF", "XGBoost": "XGBoost", "Gradient Boosting": "GB",
+             "Logistic Regression": "LogReg", "Ridge": "Ridge", "SVM": "SVM", "KNN": "KNN"}
 
 
 def _tint(hex_color, a=0.38):
@@ -176,55 +178,70 @@ def _tint(hex_color, a=0.38):
     return tuple(1 - a * (1 - v) for v in c)
 
 
+def _dur(sec):
+    return f"~{sec / 3600:.1f} h" if sec >= 5400 else f"~{sec / 60:.0f} min"
+
+
 def fig_shap():
     runs = _read("shap_runs.csv")
     if runs.empty:
         return
-    fig, axes = plt.subplots(1, 3, figsize=(7.0, 2.6), gridspec_kw={"wspace": 0.42})
-    for j, ds in enumerate(DATASETS):
-        ax = axes[j]
+    blocks = [(ds, list(dict.fromkeys(runs[runs.dataset == ds].model))) for ds in DATASETS
+              if (runs.dataset == ds).any()]
+    n_rows = sum(len(m) for _, m in blocks) + len(blocks) - 1
+    fig, ax = plt.subplots(figsize=(5.0, 0.24 * n_rows + 0.9))
+    ax.set_xlim(-0.5, len(SHAP_CFGS) - 0.5)
+    ax.set_ylim(n_rows - 0.5, -0.5)
+    ax.grid(False)
+    yticks, ylabels = [], []
+    row = 0
+    for bi, (ds, models) in enumerate(blocks):
         d = runs[runs.dataset == ds]
-        models = list(dict.fromkeys(d.model))
-        ax.set_xlim(-0.5, len(SHAP_CFGS) - 0.5)
-        ax.set_ylim(len(models) - 0.5, -0.5)
-        ax.grid(False)
-        for i, m in enumerate(models):
+        top = row
+        for m in models:
+            yticks.append(row)
+            ylabels.append(SHAP_ABBR.get(m, m))
             for k, (cfg, _) in enumerate(SHAP_CFGS):
                 g = d[(d.model == m) & (d.config == cfg)]
                 if g.empty:
                     continue
                 n, n_ok = len(g), int((g.status == "ok").sum())
                 dominant = g.status.value_counts().index[0]
-                face = _tint(STATUS.get(dominant, MUTED), 0.45 if dominant != "ok" else 0.35)
-                ax.add_patch(plt.Rectangle((k - 0.47, i - 0.45), 0.94, 0.9, facecolor=face, edgecolor="white", lw=1.5))
+                face = _tint(STATUS.get(dominant, MUTED), 0.35 if dominant == "ok" else 0.45)
+                ax.add_patch(plt.Rectangle((k - 0.48, row - 0.46), 0.96, 0.92, facecolor=face,
+                                           edgecolor="white", lw=1.2))
                 if dominant == "ok":
                     t = g[g.status == "ok"].runtime_s.median()
-                    txt = f"ok {t:.1f}s" if t < 100 else f"ok {t:.0f}s"
+                    txt = f"{t:.2f} s" if t < 1 else (f"{t:.1f} s" if t < 10 else f"{t:.0f} s")
                 elif dominant == "timeout":
-                    txt = "timeout"
-                    if "extrapolated_runtime_s" in g and g.extrapolated_runtime_s.notna().any():
-                        txt += f"\n~{g.extrapolated_runtime_s.median() / 60:.0f} min"
+                    ex = g.extrapolated_runtime_s.dropna() if "extrapolated_runtime_s" in g else []
+                    txt = "timeout" + (f" {_dur(ex.median())}" if len(ex) else "")
                 elif dominant == "nan_values":
-                    txt = "NaN out"
+                    txt = "NaN output"
                 else:
                     txt = "error"
                 if n_ok not in (0, n):
-                    txt += f" ({n_ok}/{n})"
-                ax.text(k, i, txt, ha="center", va="center", fontsize=5.6, color=INK, linespacing=0.95)
-        ax.set_xticks(range(len(SHAP_CFGS)))
-        ax.set_xticklabels([l for _, l in SHAP_CFGS], fontsize=5.8)
-        ax.xaxis.tick_top()
-        ax.set_yticks(range(len(models)))
-        ax.set_yticklabels(models)
-        ax.tick_params(length=0)
-        for s in ax.spines.values():
-            s.set_visible(False)
-        ax.set_title(DATASET_META[ds]["label"], color=INK, loc="left", fontweight="bold", pad=22)
-    handles = [plt.Rectangle((0, 0), 1, 1, facecolor=_tint(STATUS[s], 0.35 if s == "ok" else 0.45), edgecolor=AXIS,
-                             lw=0.4) for s in ("ok", "timeout", "error")]
-    fig.legend(handles, ["ok (median runtime, 200 rows)", "timeout (> 300 s; ~ = extrapolated)",
-                         "error (explainer raised)"], loc="lower center", ncol=3, frameon=False,
-               bbox_to_anchor=(0.5, -0.08))
+                    txt += f" ({n_ok}/{n} ok)"
+                ax.text(k, row, txt, ha="center", va="center", fontsize=5.8, color=INK)
+            row += 1
+        ax.text(-0.5 - 0.62, (top + row - 1) / 2, DATASET_META[ds]["label"].replace(" ", "\n", 1),
+                ha="right", va="center", fontsize=6.3, color=INK, fontweight="bold", linespacing=1.0)
+        if bi < len(blocks) - 1:
+            row += 1  # spacer row
+    ax.set_xticks(range(len(SHAP_CFGS)))
+    ax.set_xticklabels([l for _, l in SHAP_CFGS], fontsize=6.3)
+    ax.xaxis.tick_top()
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(ylabels, fontsize=6.3)
+    ax.tick_params(length=0)
+    for s_ in ax.spines.values():
+        s_.set_visible(False)
+    handles = [plt.Rectangle((0, 0), 1, 1, facecolor=_tint(STATUS[s_], 0.35 if s_ == "ok" else 0.45),
+                             edgecolor=AXIS, lw=0.4) for s_ in ("ok", "timeout", "error")]
+    fig.legend(handles, ["finished: median runtime (200 rows)", "no result in 300 s (~ extrapolated)",
+                         "explainer raised an error"], loc="lower center", ncol=3, frameon=False,
+               bbox_to_anchor=(0.5, -0.02), fontsize=6)
+    fig.subplots_adjust(left=0.27, right=0.98, top=0.9, bottom=0.07)
     _save(fig, "fig_ablation_shap")
 
 
@@ -234,26 +251,35 @@ def fig_claims():
     bf = _read("brute_force_models.csv")
     if bf.empty:
         return
-    panels = [("adult", "Accuracy", 0.904, "Paper: 0.904"), ("credit", "F1 Score", None, None),
-              ("california", "R²", 0.884, "Paper: 0.884")]
-    fig, axes = plt.subplots(1, 3, figsize=(7.0, 2.3), gridspec_kw={"wspace": 0.55})
-    for ax, (ds, metric, claim, claim_label) in zip(axes, panels):
+    # (dataset, metric, paper value, extra reference line)
+    panels = [("adult", "Accuracy", 0.904, None),
+              ("credit", "Accuracy", 0.904, (1 - 492 / 284807, "all-negative\nbaseline 0.998")),
+              ("california", "R²", 0.884, None)]
+    fig, axes = plt.subplots(1, 3, figsize=(7.0, 2.4), gridspec_kw={"wspace": 0.95})
+    for ax, (ds, metric, claim, ref) in zip(axes, panels):
         d = bf[(bf.dataset == ds) & bf[metric].notna()]
         agg = d.groupby("Model")[metric].agg(["mean", "std"]).sort_values("mean")
         y = np.arange(len(agg))
         ax.errorbar(agg["mean"], y, xerr=agg["std"].fillna(0), fmt="o", ms=4, color=SLOT[0], ecolor=INK2,
-                    elinewidth=0.7, capsize=1.5, markeredgecolor="white", markeredgewidth=0.6)
+                    elinewidth=0.7, capsize=1.5, markeredgecolor="white", markeredgewidth=0.6, zorder=3)
         ax.set_yticks(y)
         ax.set_yticklabels(agg.index)
         ax.grid(axis="y", visible=False)
-        lab = {"Accuracy": "Accuracy", "F1 Score": "F1 (fraud class)", "R²": "$R^2$"}[metric]
-        ax.set_xlabel(lab)
+        ax.set_xlabel({"Accuracy": "Accuracy", "R²": "$R^2$"}[metric])
         ax.set_title(DATASET_META[ds]["label"], color=INK, loc="left", fontweight="bold")
-        if claim is not None:
-            ax.axvline(claim, color=SLOT[7], lw=1.1)
-            ax.text(claim, len(agg) - 0.4, claim_label, color=SLOT[7], fontsize=6, ha="right", va="bottom")
-            lo = min(agg["mean"].min(), claim)
-            ax.set_xlim(max(lo - 0.08, agg["mean"].min() - 0.1), max(claim, agg["mean"].max()) + 0.02)
+        ax.axvline(claim, color=SLOT[7], lw=1.1)
+        right_of_data = claim > agg["mean"].max()
+        ax.text(claim, len(agg) - 0.35, (f"paper: {claim} " if right_of_data else f" paper: {claim}"),
+                color=SLOT[7], fontsize=6, ha="right" if right_of_data else "left", va="bottom")
+        lo = min(agg["mean"].min(), claim)
+        hi = max(agg["mean"].max(), claim)
+        if ref is not None:
+            ax.axvline(ref[0], color=MUTED, lw=1.0)
+            ax.text(ref[0] - 0.004, (len(agg) - 1) / 2, ref[1], color=INK2, fontsize=5.8, ha="right", va="center",
+                    linespacing=0.95)
+        pad = (hi - lo) * 0.08
+        ax.set_xlim(max(lo - pad, agg["mean"].min() - 0.15), hi + pad)
+        ax.set_ylim(-1.2, len(agg) + 0.2)
     _save(fig, "fig_measured_vs_claimed")
 
 

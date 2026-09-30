@@ -10,3 +10,6 @@
 .cache/
 _tmp/
 __pycache__/
+
+# The merged paper draft is delivered to the authors, not published in this public repository.
+paper_with_ablation.tex
