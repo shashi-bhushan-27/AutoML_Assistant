@@ -17,9 +17,12 @@ import pandas as pd
 
 ABLATION_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(ABLATION_DIR)
-RESULTS_DIR = os.path.join(ABLATION_DIR, "results")
+# ABLATION_OUT selects the output folder (default "results"); the re-run after the fixes uses
+# "results_after_fixes" so the baseline results stay untouched. Figures follow the same suffix.
+OUT_NAME = os.environ.get("ABLATION_OUT", "results")
+RESULTS_DIR = os.path.join(ABLATION_DIR, OUT_NAME)
 RAW_DIR = os.path.join(RESULTS_DIR, "raw")
-FIG_DIR = os.path.join(ABLATION_DIR, "figures")
+FIG_DIR = os.path.join(ABLATION_DIR, "figures" + OUT_NAME[len("results"):])
 CACHE_DIR = os.path.join(ABLATION_DIR, ".cache")
 TMP_DIR = os.path.join(ABLATION_DIR, "_tmp")
 

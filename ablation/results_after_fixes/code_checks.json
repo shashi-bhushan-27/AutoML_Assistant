@@ -1,0 +1,759 @@
+{
+  "adult_capital_columns": {
+    "app_features": [
+      0.8679,
+      0.8681,
+      0.872,
+      0.8754,
+      0.8735
+    ],
+    "with_raw_capital_columns": [
+      0.8679,
+      0.8681,
+      0.872,
+      0.8754,
+      0.8735
+    ],
+    "constant_after_capping": {},
+    "app_features_mean": 0.87138,
+    "app_features_std": 0.0033131555955010603,
+    "with_raw_capital_columns_mean": 0.87138,
+    "with_raw_capital_columns_std": 0.0033131555955010603
+  },
+  "shap_no_cast_linear": {
+    "dtypes": {
+      "float64": 36
+    },
+    "float32_cast": "ok",
+    "no_cast": "ok",
+    "numpy_bool_subtract": "ok"
+  },
+  "retrieval_latency": {
+    "index_load_s": 6.342786299996078,
+    "n_chunks": 18,
+    "per_dataset": {
+      "adult": {
+        "median_ms": 52.95214999932796,
+        "p95_ms": 55.10624498419929,
+        "rules": [
+          "[RULE: MANY_CATEGORICAL_FEATURES]",
+          "[RULE: SMALL_DATASET]",
+          "[RULE: MEDIUM_DATASET]"
+        ]
+      },
+      "credit": {
+        "median_ms": 53.52469999343157,
+        "p95_ms": 78.71905503270673,
+        "rules": [
+          "[RULE: TIME_SERIES_DATA]",
+          "[RULE: MANY_CATEGORICAL_FEATURES]",
+          "[RULE: SMALL_DATASET]"
+        ]
+      },
+      "california": {
+        "median_ms": 52.66914999810979,
+        "p95_ms": 55.77651998901274,
+        "rules": [
+          "[RULE: MANY_CATEGORICAL_FEATURES]",
+          "[RULE: SMALL_DATASET]",
+          "[RULE: INTERPRETABILITY_AND_EXPLANATIONS]"
+        ]
+      }
+    }
+  },
+  "paper_vs_code": {
+    "levenshtein_or_threshold_0.85": [],
+    "ensemble_or_stacking_models": [
+      "app_backend/model_trainer.py:21: from app_backend.ensemble import PrefitVotingEnsemble",
+      "app_backend/model_trainer.py:266: ens = PrefitVotingEnsemble(members, self.task_type)",
+      "app_backend/model_trainer.py:268: proba = ens.predict_proba(self.X_test) if ens.voting == \"soft\" else None"
+    ],
+    "llm_model_strings": [
+      "app_backend/llm_rag_core.py:92: return HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)",
+      "app_backend/llm_rag_core.py:273: self.model_name = model_name or get_llm_model()",
+      "app_backend/llm_rag_core.py:287: self.llm = ChatGroq(temperature=temperature, model_name=self.model_name, max_retries=1, timeout=90)"
+    ],
+    "llm_output_validation": [
+      "app_backend/llm_rag_core.py:9: * ``get_recommendations`` always returns ``source`` (\"llm\" or \"fallback\") and ``error``;",
+      "app_backend/llm_rag_core.py:10: the output is validated with a pydantic schema (``recommendations: list[str]``,",
+      "app_backend/llm_rag_core.py:39: MAX_RECOMMENDATIONS = 6",
+      "app_backend/llm_rag_core.py:195: recommendations: List[str]",
+      "app_backend/llm_rag_core.py:198: @field_validator(\"recommendations\", mode=\"before\")",
+      "app_backend/llm_rag_core.py:204: raise ValueError(\"recommendations must be a list\")",
+      "app_backend/llm_rag_core.py:212: raise ValueError(\"no model names in recommendations\")",
+      "app_backend/llm_rag_core.py:213: return out[:MAX_RECOMMENDATIONS]",
+      "app_backend/llm_rag_core.py:235: data = json.loads(match.group(0))",
+      "app_backend/llm_rag_core.py:238: if not isinstance(data, dict) or \"recommendations\" not in data:",
+      "app_backend/llm_rag_core.py:239: return None, \"JSON has no 'recommendations' key\"",
+      "app_backend/llm_rag_core.py:241: rec = LLMRecommendation(**{k: data.get(k) for k in (\"recommendations\", \"reasoning\")})",
+      "app_backend/llm_rag_core.py:244: n = len(rec.recommendations)",
+      "app_backend/llm_rag_core.py:263: Return ONLY a JSON object with two keys: \"recommendations\" (list of model names, exactly as written in",
+      "app_backend/llm_rag_core.py:265: Example: {{\"recommendations\": [\"XGBoost\", \"Random Forest\"], \"reasoning\": [\"...\", \"...\"]}}",
+      "app_backend/llm_rag_core.py:325: def get_recommendations(self, stats_json, supported_models=None, similar_workspaces=None) -> Dict[str, Any]:",
+      "app_backend/llm_rag_core.py:332: return {**base, \"recommendations\": fallback, \"reasoning\": [FALLBACK_REASON_ERROR] * len(fallback),",
+      "app_backend/llm_rag_core.py:349: return {**base, \"recommendations\": parsed.recommendations, \"reasoning\": parsed.reasoning,",
+      "app_backend/llm_rag_core.py:352: return {**base, \"recommendations\": fallback, \"reasoning\": [reason] * len(fallback),"
+    ],
+    "similarity_rule": [],
+    "prophet_fallback_rule": [],
+    "api_raw_data_fallback": [],
+    "transform_steps": []
+  },
+  "fuzzy_matcher_probes": [
+    {
+      "task": "Classification",
+      "name": "Random Forest",
+      "match_type": "exact",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "random forest",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForest",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Random Forest Classifier",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForestClassifier",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "RandomForestClassifierRegressor",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "XGBoost",
+      "match_type": "exact",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "XGBClassifier",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "XGBRegressor",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "xgboost (weighted)",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "LightGBM",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "CatBoost",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "HistGradientBoostingClassifier",
+      "match_type": "alias",
+      "mapped_to": "Hist Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Gradient Boosting Machine",
+      "match_type": "alias",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Support Vector Machine",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "SVC",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Linear SVM",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "K-Nearest Neighbors",
+      "match_type": "alias",
+      "mapped_to": "KNN",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "KNeighborsClassifier",
+      "match_type": "alias",
+      "mapped_to": "KNN",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Logistic Regression",
+      "match_type": "exact",
+      "mapped_to": "Logistic Regression",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Classification",
+      "name": "LogisticRegression",
+      "match_type": "alias",
+      "mapped_to": "Logistic Regression",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Neural Network",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "MLPClassifier",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Stacking Ensemble",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Isolation Forest",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Naive Bayes",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Ridge Classifier",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Linear Regression",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Bayesian Ridge",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Classification",
+      "name": "Prophet",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Random Forest",
+      "match_type": "exact",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "random forest",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForest",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Random Forest Classifier",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForestClassifier",
+      "match_type": "alias",
+      "mapped_to": "Random Forest",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "RandomForestClassifierRegressor",
+      "match_type": "unmatched",
+      "mapped_to": null,
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "XGBoost",
+      "match_type": "exact",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "XGBClassifier",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "XGBRegressor",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "xgboost (weighted)",
+      "match_type": "alias",
+      "mapped_to": "XGBoost",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "LightGBM",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "CatBoost",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "HistGradientBoostingClassifier",
+      "match_type": "alias",
+      "mapped_to": "Hist Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Gradient Boosting Machine",
+      "match_type": "alias",
+      "mapped_to": "Gradient Boosting",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Support Vector Machine",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "SVC",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Linear SVM",
+      "match_type": "alias",
+      "mapped_to": "SVM",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "K-Nearest Neighbors",
+      "match_type": "alias",
+      "mapped_to": "KNN",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "KNeighborsClassifier",
+      "match_type": "alias",
+      "mapped_to": "KNN",
+      "ui_default_used": false,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Logistic Regression",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "LogisticRegression",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Neural Network",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "MLPClassifier",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Stacking Ensemble",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Isolation Forest",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Naive Bayes",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Ridge Classifier",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Linear Regression",
+      "match_type": "exact",
+      "mapped_to": "Linear Regression",
+      "ui_default_used": false,
+      "exact_in_registry": true
+    },
+    {
+      "task": "Regression",
+      "name": "Bayesian Ridge",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    },
+    {
+      "task": "Regression",
+      "name": "Prophet",
+      "match_type": "unsupported",
+      "mapped_to": "XGBoost",
+      "ui_default_used": true,
+      "exact_in_registry": false
+    }
+  ],
+  "meta_learning_similarity": [
+    {
+      "query": "adult",
+      "prior": "adult",
+      "same_task": true,
+      "similarity": 1.0,
+      "threshold": 0.9,
+      "match": true
+    },
+    {
+      "query": "adult",
+      "prior": "credit",
+      "same_task": true,
+      "similarity": 0.7095423810972532,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "adult",
+      "prior": "california",
+      "same_task": false,
+      "similarity": 0.6158038311715532,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "credit",
+      "prior": "adult",
+      "same_task": true,
+      "similarity": 0.7095423810972532,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "credit",
+      "prior": "credit",
+      "same_task": true,
+      "similarity": 1.0,
+      "threshold": 0.9,
+      "match": true
+    },
+    {
+      "query": "credit",
+      "prior": "california",
+      "same_task": false,
+      "similarity": 0.7095463262377872,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "california",
+      "prior": "adult",
+      "same_task": false,
+      "similarity": 0.6158038311715532,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "california",
+      "prior": "credit",
+      "same_task": false,
+      "similarity": 0.7095463262377872,
+      "threshold": 0.9,
+      "match": false
+    },
+    {
+      "query": "california",
+      "prior": "california",
+      "same_task": true,
+      "similarity": 1.0,
+      "threshold": 0.9,
+      "match": true
+    }
+  ],
+  "regression_best_model_bookkeeping": {
+    "skipped": "unit_california_s0.json not available yet"
+  },
+  "adult_string_label_training": [
+    {
+      "Model": "XGBoost",
+      "Time (s)": 0.3023,
+      "Accuracy": 0.8695,
+      "Balanced Accuracy": 0.8003,
+      "F1 Score": 0.7101,
+      "Precision": 0.7586,
+      "Recall": 0.6674,
+      "MCC": 0.6285,
+      "Cohen Kappa": 0.6264,
+      "Positive class": 1,
+      "AUC-ROC": 0.9249,
+      "PR-AUC": 0.8197,
+      "Per-Class Report": {
+        "0": {
+          "precision": 0.8991302090094768,
+          "recall": 0.9331716518458637,
+          "f1-score": 0.9158347107438016,
+          "support": 7422.0
+        },
+        "1": {
+          "precision": 0.7586374695863747,
+          "recall": 0.6673801369863014,
+          "f1-score": 0.7100888180368937,
+          "support": 2336.0
+        }
+      }
+    },
+    {
+      "Model": "Logistic Regression",
+      "Time (s)": 3.4924,
+      "Accuracy": 0.8426,
+      "Balanced Accuracy": 0.7482,
+      "F1 Score": 0.6331,
+      "Precision": 0.7162,
+      "Recall": 0.5672,
+      "MCC": 0.5405,
+      "Cohen Kappa": 0.5346,
+      "Positive class": 1,
+      "AUC-ROC": 0.8987,
+      "PR-AUC": 0.7451,
+      "Per-Class Report": {
+        "0": {
+          "precision": 0.872154779969651,
+          "recall": 0.929264349232013,
+          "f1-score": 0.8998043052837573,
+          "support": 7422.0
+        },
+        "1": {
+          "precision": 0.7162162162162162,
+          "recall": 0.567208904109589,
+          "f1-score": 0.6330625895843287,
+          "support": 2336.0
+        }
+      }
+    }
+  ],
+  "target_encoding_leakage_adult": {
+    "education": {
+      "n_levels": 16,
+      "max_abs_diff": 0.006634080153923999,
+      "mean_abs_diff": 0.0029424506271870723,
+      "levels_only_in_test": 0,
+      "test_rows_with_label_derived_code_from_own_split": 0
+    },
+    "occupation": {
+      "n_levels": 15,
+      "max_abs_diff": 0.007550737726409573,
+      "mean_abs_diff": 0.002699149315642529,
+      "levels_only_in_test": 0,
+      "test_rows_with_label_derived_code_from_own_split": 0
+    },
+    "native-country": {
+      "n_levels": 42,
+      "max_abs_diff": 0.1157894736842105,
+      "mean_abs_diff": 0.022289857773353905,
+      "levels_only_in_test": 1,
+      "test_rows_with_label_derived_code_from_own_split": 1
+    }
+  },
+  "app_target_encoding_train_only": {
+    "education": {
+      "levels": 16,
+      "same_levels_as_train_only": true,
+      "max_abs_diff_vs_train_only": 0.0
+    },
+    "occupation": {
+      "levels": 14,
+      "same_levels_as_train_only": true,
+      "max_abs_diff_vs_train_only": 0.0
+    },
+    "native-country": {
+      "levels": 41,
+      "same_levels_as_train_only": true,
+      "max_abs_diff_vs_train_only": 0.0
+    }
+  }
+}

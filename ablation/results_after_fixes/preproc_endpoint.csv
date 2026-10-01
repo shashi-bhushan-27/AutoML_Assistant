@@ -1,0 +1,151 @@
+dataset,seed,variant,model,status_code,raw_fallback_triggered,agreement_vs_offline,detail
+adult,0,baseline,XGBoost,200,False,1.0,
+adult,0,baseline,Random Forest,200,False,1.0,
+adult,0,baseline,Logistic Regression,200,False,1.0,
+adult,0,reordered_columns,XGBoost,200,False,1.0,
+adult,0,reordered_columns,Random Forest,200,False,1.0,
+adult,0,reordered_columns,Logistic Regression,200,False,1.0,
+adult,0,unseen_category,XGBoost,200,False,1.0,
+adult,0,unseen_category,Random Forest,200,False,0.921875,
+adult,0,unseen_category,Logistic Regression,200,False,0.96875,
+adult,0,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,0,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,0,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,1,baseline,XGBoost,200,False,1.0,
+adult,1,baseline,Random Forest,200,False,1.0,
+adult,1,baseline,Logistic Regression,200,False,1.0,
+adult,1,reordered_columns,XGBoost,200,False,1.0,
+adult,1,reordered_columns,Random Forest,200,False,1.0,
+adult,1,reordered_columns,Logistic Regression,200,False,1.0,
+adult,1,unseen_category,XGBoost,200,False,0.96875,
+adult,1,unseen_category,Random Forest,200,False,0.9375,
+adult,1,unseen_category,Logistic Regression,200,False,0.9375,
+adult,1,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,1,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,1,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,2,baseline,XGBoost,200,False,1.0,
+adult,2,baseline,Random Forest,200,False,1.0,
+adult,2,baseline,Logistic Regression,200,False,1.0,
+adult,2,reordered_columns,XGBoost,200,False,1.0,
+adult,2,reordered_columns,Random Forest,200,False,1.0,
+adult,2,reordered_columns,Logistic Regression,200,False,1.0,
+adult,2,unseen_category,XGBoost,200,False,1.0,
+adult,2,unseen_category,Random Forest,200,False,0.953125,
+adult,2,unseen_category,Logistic Regression,200,False,1.0,
+adult,2,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,2,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,2,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,3,baseline,XGBoost,200,False,1.0,
+adult,3,baseline,Random Forest,200,False,1.0,
+adult,3,baseline,Logistic Regression,200,False,1.0,
+adult,3,reordered_columns,XGBoost,200,False,1.0,
+adult,3,reordered_columns,Random Forest,200,False,1.0,
+adult,3,reordered_columns,Logistic Regression,200,False,1.0,
+adult,3,unseen_category,XGBoost,200,False,0.953125,
+adult,3,unseen_category,Random Forest,200,False,0.953125,
+adult,3,unseen_category,Logistic Regression,200,False,0.9375,
+adult,3,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,3,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,3,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,4,baseline,XGBoost,200,False,1.0,
+adult,4,baseline,Random Forest,200,False,1.0,
+adult,4,baseline,Logistic Regression,200,False,1.0,
+adult,4,reordered_columns,XGBoost,200,False,1.0,
+adult,4,reordered_columns,Random Forest,200,False,1.0,
+adult,4,reordered_columns,Logistic Regression,200,False,1.0,
+adult,4,unseen_category,XGBoost,200,False,0.96875,
+adult,4,unseen_category,Random Forest,200,False,1.0,
+adult,4,unseen_category,Logistic Regression,200,False,0.96875,
+adult,4,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,4,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+adult,4,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['age']"", 'missing_columns': ['age'], 'invalid_columns': {}, 'required_columns': ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', '"
+credit,0,baseline,XGBoost,200,False,1.0,
+credit,0,baseline,Random Forest,200,False,1.0,
+credit,0,baseline,Logistic Regression,200,False,1.0,
+credit,0,reordered_columns,XGBoost,200,False,1.0,
+credit,0,reordered_columns,Random Forest,200,False,1.0,
+credit,0,reordered_columns,Logistic Regression,200,False,1.0,
+credit,0,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,0,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,0,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,1,baseline,XGBoost,200,False,1.0,
+credit,1,baseline,Random Forest,200,False,1.0,
+credit,1,baseline,Logistic Regression,200,False,1.0,
+credit,1,reordered_columns,XGBoost,200,False,1.0,
+credit,1,reordered_columns,Random Forest,200,False,1.0,
+credit,1,reordered_columns,Logistic Regression,200,False,1.0,
+credit,1,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,1,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,1,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,2,baseline,XGBoost,200,False,1.0,
+credit,2,baseline,Random Forest,200,False,1.0,
+credit,2,baseline,Logistic Regression,200,False,1.0,
+credit,2,reordered_columns,XGBoost,200,False,1.0,
+credit,2,reordered_columns,Random Forest,200,False,1.0,
+credit,2,reordered_columns,Logistic Regression,200,False,1.0,
+credit,2,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,2,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,2,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,3,baseline,XGBoost,200,False,1.0,
+credit,3,baseline,Random Forest,200,False,1.0,
+credit,3,baseline,Logistic Regression,200,False,1.0,
+credit,3,reordered_columns,XGBoost,200,False,1.0,
+credit,3,reordered_columns,Random Forest,200,False,1.0,
+credit,3,reordered_columns,Logistic Regression,200,False,1.0,
+credit,3,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,3,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,3,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,4,baseline,XGBoost,200,False,1.0,
+credit,4,baseline,Random Forest,200,False,1.0,
+credit,4,baseline,Logistic Regression,200,False,1.0,
+credit,4,reordered_columns,XGBoost,200,False,1.0,
+credit,4,reordered_columns,Random Forest,200,False,1.0,
+credit,4,reordered_columns,Logistic Regression,200,False,1.0,
+credit,4,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,4,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+credit,4,missing_column,Logistic Regression,422,False,,"{'message': ""missing required column(s): ['V14']"", 'missing_columns': ['V14'], 'invalid_columns': {}, 'required_columns': ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', "
+california,0,baseline,XGBoost,200,False,1.0,
+california,0,baseline,Random Forest,200,False,1.0,
+california,0,baseline,Ridge,200,False,1.0,
+california,0,reordered_columns,XGBoost,200,False,1.0,
+california,0,reordered_columns,Random Forest,200,False,1.0,
+california,0,reordered_columns,Ridge,200,False,1.0,
+california,0,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,0,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,0,missing_column,Ridge,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,1,baseline,XGBoost,200,False,1.0,
+california,1,baseline,Random Forest,200,False,1.0,
+california,1,baseline,Ridge,200,False,1.0,
+california,1,reordered_columns,XGBoost,200,False,1.0,
+california,1,reordered_columns,Random Forest,200,False,1.0,
+california,1,reordered_columns,Ridge,200,False,1.0,
+california,1,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,1,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,1,missing_column,Ridge,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,2,baseline,XGBoost,200,False,1.0,
+california,2,baseline,Random Forest,200,False,1.0,
+california,2,baseline,Ridge,200,False,1.0,
+california,2,reordered_columns,XGBoost,200,False,1.0,
+california,2,reordered_columns,Random Forest,200,False,1.0,
+california,2,reordered_columns,Ridge,200,False,1.0,
+california,2,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,2,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,2,missing_column,Ridge,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,3,baseline,XGBoost,200,False,1.0,
+california,3,baseline,Random Forest,200,False,1.0,
+california,3,baseline,Ridge,200,False,1.0,
+california,3,reordered_columns,XGBoost,200,False,1.0,
+california,3,reordered_columns,Random Forest,200,False,1.0,
+california,3,reordered_columns,Ridge,200,False,1.0,
+california,3,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,3,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,3,missing_column,Ridge,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,4,baseline,XGBoost,200,False,1.0,
+california,4,baseline,Random Forest,200,False,1.0,
+california,4,baseline,Ridge,200,False,1.0,
+california,4,reordered_columns,XGBoost,200,False,1.0,
+california,4,reordered_columns,Random Forest,200,False,1.0,
+california,4,reordered_columns,Ridge,200,False,1.0,
+california,4,missing_column,XGBoost,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,4,missing_column,Random Forest,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"
+california,4,missing_column,Ridge,422,False,,"{'message': ""missing required column(s): ['MedInc']"", 'missing_columns': ['MedInc'], 'invalid_columns': {}, 'required_columns': ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']}"

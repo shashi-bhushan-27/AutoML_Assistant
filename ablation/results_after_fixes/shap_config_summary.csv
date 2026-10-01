@@ -1,0 +1,13 @@
+dataset,config,n_models,models_ok_mean,models_ok_min,models_ok_or_budget_mean,success_rate,budget_exceeded,timeouts,errors,nan_values
+adult,forced_kernel,6,4.0,4,6.0,0.6666666666666666,10,0,0,0
+adult,forced_tree,6,3.0,3,6.0,0.5,15,0,0,0
+adult,full,6,3.0,3,6.0,0.5,15,0,0,0
+adult,no_cast,6,3.0,3,6.0,0.5,15,0,0,0
+california,forced_kernel,6,5.0,5,6.0,0.8333333333333334,5,0,0,0
+california,forced_tree,6,4.8,4,6.0,0.8,6,0,0,0
+california,full,6,4.8,4,6.0,0.8,6,0,0,0
+california,no_cast,6,4.6,3,6.0,0.7666666666666667,7,0,0,0
+credit,forced_kernel,6,4.0,4,6.0,0.6666666666666666,10,0,0,0
+credit,forced_tree,6,4.0,4,6.0,0.6666666666666666,10,0,0,0
+credit,full,6,4.0,4,6.0,0.6666666666666666,10,0,0,0
+credit,no_cast,6,4.0,4,6.0,0.6666666666666666,10,0,0,0

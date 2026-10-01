@@ -24,7 +24,19 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+# --out NAME (or ABLATION_OUT=NAME) writes to ablation/NAME and ablation/figures<suffix>; must be set before
+# common.py is imported. Subprocesses inherit it through the environment.
+if "--out" in sys.argv:
+    _i = sys.argv.index("--out")
+    os.environ["ABLATION_OUT"] = sys.argv[_i + 1]
+    del sys.argv[_i:_i + 2]
+
 from common import CACHE_DIR, DATASETS, RAW_DIR, SEEDS, dump_json, environment_info, load_dataset  # noqa: E402
+
+try:  # Windows: the app package loads torch before anything imports scikit-learn (see app_backend/__init__.py)
+    import app_backend  # noqa: E402,F401
+except ImportError:
+    pass
 
 LOG_DIR = os.path.join(CACHE_DIR, "logs")
 
@@ -116,6 +128,12 @@ def cmd_units(args):
 def cmd_llm(args):
     from rag_ablation import collect_llm_calls
 
+    try:  # the app reads the key from .env; do the same (the key is never printed)
+        from dotenv import load_dotenv
+
+        load_dotenv(os.path.join(os.path.dirname(HERE), ".env"))
+    except ImportError:
+        pass
     if not os.environ.get("GROQ_API_KEY"):
         sys.exit("GROQ_API_KEY is not set")
     datasets = args.datasets or DATASETS

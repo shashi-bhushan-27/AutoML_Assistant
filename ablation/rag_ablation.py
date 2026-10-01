@@ -42,21 +42,36 @@ from common import (DATASET_META, RAW_DIR, SEEDS, TMP_DIR, load_dataset, load_js
                     primary_metrics)
 
 LLM_LOG = os.path.join(RAW_DIR, "llm_calls.jsonl")
-SHIPPED_MODEL = "llama-3.3-70b-versatile"
 DEFAULT_SUBSTITUTE = "openai/gpt-oss-120b"
 CONFIGS = ["as_shipped", "full", "no_rag", "no_meta", "no_fuzzy", "full_sameprior"]
 
+# After the fixes the matcher and the best-model bookkeeping live in the backend
+# (app_backend.model_matcher / app_backend.leaderboard) and are used directly; the
+# verbatim UI ports below are kept for the baseline run on older code.
+try:
+    from app_backend.llm_rag_core import get_llm_model
+    from app_backend.model_matcher import select_models as _backend_select
+    from app_backend.leaderboard import select_best_model as _backend_best
+    SHIPPED_MODEL = get_llm_model()          # the model the app now uses by default (GROQ_MODEL)
+except ImportError:  # baseline code
+    _backend_select = _backend_best = None
+    SHIPPED_MODEL = "llama-3.3-70b-versatile"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# UI logic replicated verbatim (main_ui.py cannot be imported: it is a Streamlit
-# script that renders on import).
-# ─────────────────────────────────────────────────────────────────────────────
 
 def ui_fuzzy_select(recommendations, all_supported_models, task):
-    """Port of app_frontend/main_ui.py, Tab 3 "Fuzzy matching implementation".
+    """Model-name matching as the app does it: the backend matcher when present, otherwise a verbatim
+    port of the old app_frontend/main_ui.py matcher.
 
     Returns (selection, per-name match types, used_default_fallback).
     """
+    if _backend_select is not None:
+        selection, results, used_default = _backend_select(list(recommendations or []), all_supported_models, task)
+        return selection, [r.match_type for r in results], used_default
+    return _legacy_ui_fuzzy_select(recommendations, all_supported_models, task)
+
+
+def _legacy_ui_fuzzy_select(recommendations, all_supported_models, task):
+    """Port of the pre-fix app_frontend/main_ui.py, Tab 3 "Fuzzy matching implementation"."""
     default_selection = []
     match_types = []
     normalized_supported = {m.lower().replace(" ", ""): m for m in all_supported_models}
@@ -95,8 +110,16 @@ def ui_fuzzy_select(recommendations, all_supported_models, task):
     return default_selection, match_types, used_default
 
 
-def ui_best_model(results_df: pd.DataFrame, ws_task_type: str):
-    """Port of the best-model bookkeeping in main_ui.py (training block).
+def ui_best_model(results_df: pd.DataFrame, ws_task_type: str, minority_share=None):
+    """Best-model bookkeeping as the app does it (backend when present, else the old UI port)."""
+    if _backend_best is not None:
+        best = _backend_best(results_df, ws_task_type, minority_share)
+        return (best["model"], best["score"]) if best else (None, None)
+    return _legacy_ui_best_model(results_df, ws_task_type)
+
+
+def _legacy_ui_best_model(results_df: pd.DataFrame, ws_task_type: str):
+    """Port of the pre-fix best-model bookkeeping in main_ui.py (training block).
 
     Note the comparison with lower-case "regression": the analysis step stores
     ``stats['task_type']`` ("Regression"), so for regression the UI looks for an
@@ -142,7 +165,7 @@ def seed_prior_workspace(wm, dataset: str, stats: dict, brute_results: List[dict
     ws.task_type = stats["task_type"]          # value stored by the analysis step
     ws.profile_summary = stats
     ws.recommendations = list(results_df["Model"])
-    best, score = ui_best_model(results_df, ws.task_type)
+    best, score = ui_best_model(results_df, ws.task_type, stats.get("minority_class_share"))
     ws.best_model, ws.best_score = best, score
     ws.status = "completed"
     wm.save_workspace(ws)
@@ -234,6 +257,8 @@ def classify_advisor_output(out) -> str:
     """Which branch of ModelAdvisor.get_recommendations produced the result."""
     if not isinstance(out, dict):
         return "non_dict"
+    if out.get("source") == "llm":  # after the fixes the advisor states its source explicitly
+        return "json"
     reasons = out.get("reasoning") or []
     first = reasons[0] if isinstance(reasons, list) and reasons else None
     if first == "System fallback due to error.":
@@ -404,6 +429,8 @@ def run_names_through_trainer(names, task: str, cached: Dict[str, dict]):
         df, exc = pd.DataFrame(), f"{type(e).__name__}: {e}"
     skipped = [ln.split("Warning: ")[1].split(" not found")[0]
                for ln in buf.getvalue().splitlines() if "not found in model map" in ln]
+    skipped += [f["Model"] for f in getattr(tr, "failed_models", [])
+                if "Not supported" in f["Error"] or "Invalid model name" in f["Error"]]
     return df, skipped, exc
 
 
@@ -452,7 +479,8 @@ def evaluate_calls(records: List[dict], units_by_ds: Dict[str, Dict[int, dict]])
                     "advisor_branch": rec["advisor_branch"], "history_in_prompt": rec["history_in_prompt"],
                     "n_recommended": len(raw_names),
                     "n_exact_valid": sum(1 for n in raw_names if n in supported),
-                    "n_after_matcher": sum(1 for t in (match_types or []) if t != "unmatched") if match_types else None,
+                    "n_after_matcher": (sum(1 for t in match_types if t not in ("unmatched", "unsupported"))
+                                        if match_types else None),
                     "ui_default_fallback": used_default,
                     "n_requested": len(names), "n_trained": len(trained), "n_skipped": len(skipped),
                     "trainer_exception": exc, "runtime_failure": (len(trained) == 0) or (exc is not None),

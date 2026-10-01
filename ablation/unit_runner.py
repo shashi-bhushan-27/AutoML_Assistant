@@ -70,7 +70,7 @@ def run_unit(dataset, seed, do_preproc=True, do_shap=True, shap_timeout=300.0):
     }
 
     # 2) brute force over every supported model
-    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"))
+    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"), random_state=seed)
     trainer.set_preprocessed_data(X_train, X_test, y_train, y_test)
     brute = []
     for name in trainer.get_supported_models():
@@ -139,7 +139,7 @@ def rerun_preproc(dataset, seed):
     prep.splitter.random_state = seed
     with contextlib.redirect_stdout(io.StringIO()):
         out = prep.fit_transform(df=df)
-    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"))
+    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"), random_state=seed)
     trainer.set_preprocessed_data(out["X_train"], out["X_test"], out["y_train"], out["y_test"])
     for name in PREPROC_MODELS[task]:
         np.random.seed(seed)  # identical to the brute-force fit of the same model
@@ -194,7 +194,7 @@ def rerun_shap_jobs(dataset, seed, jobs, shap_timeout=300.0):
     prep.splitter.random_state = seed
     with contextlib.redirect_stdout(io.StringIO()):
         out = prep.fit_transform(df=df)
-    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"))
+    trainer = ModelTrainer(df, target, task, stats["is_time_series"], stats.get("time_column"), random_state=seed)
     trainer.set_preprocessed_data(out["X_train"], out["X_test"], out["y_train"], out["y_test"])
     key = "RMSE" if task == "Regression" else "Accuracy"
     for name in sorted({m for m, _ in jobs}):

@@ -92,8 +92,10 @@ def check_regression_best_model():
     res = pd.DataFrame([r for r in brute if not r.get("Error")])
     best, score = ui_best_model(res, "Regression")  # value written by the analysis step
     tracked = os.path.join(REPO_ROOT, "workspaces", "index.json")
-    with open(tracked) as f:
-        idx = json.load(f)
+    idx = {"workspaces": []}
+    if os.path.exists(tracked):
+        with open(tracked) as f:
+            idx = json.load(f)
     reg = [w for w in idx["workspaces"] if w.get("task_type") == "Regression"]
     return {"best_model_recorded_for_california": best, "best_score": score,
             "repo_workspaces_regression": len(reg),
@@ -101,23 +103,60 @@ def check_regression_best_model():
 
 
 def check_meta_similarity():
-    """Pairwise outcome of WorkspaceManager.find_similar_workspaces' rule between the benchmarks."""
+    """Pairwise outcome of the app's meta-learning rule between the benchmarks (including each dataset
+    against itself, i.e. a prior run on the same data)."""
     from app_backend.statistical_engine import analyze_dataset
 
     stats = {ds: analyze_dataset(load_dataset(ds).copy(), target_col=DATASET_META[ds]["target"])
              for ds in DATASET_META}
+    try:
+        from app_backend import meta_learning
+    except ImportError:
+        meta_learning = None
     pairs = []
     for a in stats:
         for b in stats:
+            same_task = stats[a]["task_type"] == stats[b]["task_type"]
+            if meta_learning is not None:
+                sim = meta_learning.similarity(stats[a]["profile"], stats[b]["profile"])
+                pairs.append({"query": a, "prior": b, "same_task": same_task, "similarity": sim,
+                              "threshold": meta_learning.SIMILARITY_THRESHOLD,
+                              "match": same_task and sim >= meta_learning.SIMILARITY_THRESHOLD})
+                continue
             if a == b:
                 continue
             ra, ca, rb, cb = stats[a]["rows"], stats[a]["columns"], stats[b]["rows"], stats[b]["columns"]
             row_diff = abs(rb - ra) / max(ra, 1)
             col_diff = abs(cb - ca) / max(ca, 1)
-            same_task = stats[a]["task_type"] == stats[b]["task_type"]
             pairs.append({"query": a, "prior": b, "same_task": same_task, "row_diff": row_diff,
                           "col_diff": col_diff, "match": same_task and (row_diff < 0.5 or col_diff < 0.3)})
     return pairs
+
+
+def check_app_target_encoding_train_only(seed=0):
+    """After the fixes: the app's fitted target encodings equal a TargetEncoder fitted on the training rows only."""
+    from sklearn.preprocessing import TargetEncoder
+
+    from app_backend.preprocessing_engine.encoder import as_str
+    from app_backend.preprocessing_engine.engine import AutoPreprocessor
+
+    df = load_dataset("adult")
+    prep = AutoPreprocessor(target_col="class", verbose=False, random_state=seed)
+    with contextlib.redirect_stdout(io.StringIO()):
+        out = prep.fit_transform(df=df)
+    res = {}
+    for col, info in prep.encoder.encoders.items():
+        if info["type"] != "target":
+            continue
+        raw = df.loc[out["X_train"].index, col].to_numpy()
+        values = as_str(np.where(pd.isna(raw), prep.imputer.imputers[col]["value"], raw).astype(object))
+        ref = TargetEncoder(target_type="binary", smooth="auto").fit(values.reshape(-1, 1), np.asarray(out["y_train"]))
+        app = info["encoder"]
+        same_levels = list(ref.categories_[0]) == list(app.categories_[0])
+        res[col] = {"levels": int(len(app.categories_[0])), "same_levels_as_train_only": same_levels,
+                    "max_abs_diff_vs_train_only": float(np.max(np.abs(ref.encodings_[0] - app.encodings_[0])))
+                    if same_levels else None}
+    return res
 
 
 def check_fuzzy_probes():
@@ -262,6 +301,10 @@ def run_checks():
         "adult_string_label_training": check_string_label_xgboost(),
         "target_encoding_leakage_adult": check_target_encoding_leakage(),
     }
+    try:
+        out["app_target_encoding_train_only"] = check_app_target_encoding_train_only()
+    except ImportError as exc:  # baseline code has no as_str helper
+        out["app_target_encoding_train_only"] = {"skipped": str(exc)}
     path = os.path.join(RESULTS_DIR, "code_checks.json")
     dump_json(out, path)
     print("wrote", path)
