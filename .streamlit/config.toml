@@ -1,0 +1,50 @@
+# Generated from app_frontend/ui/theme.py - edit the tokens there and run
+#   python -m app_frontend.ui.theme
+[server]
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"
+
+[theme]
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+showWidgetBorder = true
+showSidebarBorder = true
+
+[theme.light]
+primaryColor = "#1c5cab"
+backgroundColor = "#f4f4f1"
+secondaryBackgroundColor = "#ecebe6"
+textColor = "#0b0b0b"
+linkColor = "#1c5cab"
+borderColor = "#e1e0d9"
+dataframeBorderColor = "#e1e0d9"
+greenColor = "#006300"
+yellowColor = "#8a5a00"
+redColor = "#b42318"
+blueColor = "#1c5cab"
+
+[theme.light.sidebar]
+backgroundColor = "#fcfcfb"
+secondaryBackgroundColor = "#ecebe6"
+
+[theme.dark]
+primaryColor = "#6da7ec"
+backgroundColor = "#141413"
+secondaryBackgroundColor = "#242422"
+textColor = "#f2f2ef"
+linkColor = "#6da7ec"
+borderColor = "#2c2c2a"
+dataframeBorderColor = "#2c2c2a"
+greenColor = "#3fbf3f"
+yellowColor = "#fab219"
+redColor = "#f07a7a"
+blueColor = "#6da7ec"
+
+[theme.dark.sidebar]
+backgroundColor = "#1a1a19"
+secondaryBackgroundColor = "#242422"
