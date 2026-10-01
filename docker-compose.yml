@@ -1,34 +1,36 @@
 services:
-  # The Streamlit UI
+  # Streamlit UI
   frontend:
     build: .
     command: streamlit run app_frontend/main_ui.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
+    environment:
+      AUTOML_DATA_ROOT: /data
+      API_BASE_URL: http://backend:8000        # used by the Deploy page's readiness check
+      API_PUBLIC_URL: http://localhost:8000    # shown in links and generated examples
     volumes:
-      - app_data:/app/workspaces
-      - app_data:/app/data/uploads
+      - app_data:/data
       - hf_cache:/root/.cache/huggingface
     env_file:
       - .env
     depends_on:
       - backend
 
-  # The FastAPI Inference Server
+  # FastAPI inference server (reads the same workspaces)
   backend:
     build: .
     command: uvicorn app_backend.main_api:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
+    environment:
+      AUTOML_DATA_ROOT: /data
     volumes:
-      - app_data:/app/workspaces
-      - app_data:/app/data/uploads
+      - app_data:/data
       - hf_cache:/root/.cache/huggingface
-
     env_file:
       - .env
 
-# Shared persistent volume for both services to access saved models/data
 volumes:
   app_data:
   hf_cache:

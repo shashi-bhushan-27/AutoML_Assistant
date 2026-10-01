@@ -4,18 +4,21 @@ Generates comprehensive statistics and analysis of the dataset.
 """
 import pandas as pd
 import numpy as np
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
+
+from app_backend.task_types import detect_task_type
 
 
 class DatasetProfiler:
-    """Analyzes dataset and generates profiling report."""
-    
+    """Descriptive profile of the uploaded data (all rows). Nothing here is used to fit a transform."""
+
     def __init__(self):
         self.log: List[Dict[str, Any]] = []
         self._profile_data: Dict[str, Any] = {}
-    
+
     def _log(self, step: str, action: str, reason: str, status: str = "applied"):
-        self.log.append({"step": step, "action": action, "reason": reason, "status": status})
+        self.log.append({"step": step, "action": action, "reason": reason, "status": status,
+                         "fitted_on": "all rows (descriptive only)"})
     
     def get_basic_stats(self, df: pd.DataFrame) -> Dict[str, Any]:
         """Get basic dataset statistics."""
@@ -58,7 +61,7 @@ class DatasetProfiler:
         
         skewed = [col for col, s in stats.items() if abs(s['skewness']) > 1]
         if skewed:
-            self._log("Numeric Analysis", f"{len(skewed)} skewed columns detected", f"May need transformation")
+            self._log("Numeric Analysis", f"{len(skewed)} skewed columns detected", "May need transformation")
         
         return stats
     
@@ -109,14 +112,7 @@ class DatasetProfiler:
             return "unknown"
         
         y = df[target_col]
-        
-        if y.dtype == 'object' or y.dtype.name == 'category':
-            task = "classification"
-        elif y.nunique() <= 10:
-            task = "classification"
-        else:
-            task = "regression"
-        
+        task = detect_task_type(y).value
         self._log("Target Detection", f"Task type: {task}", f"Target has {y.nunique()} unique values")
         return task
     

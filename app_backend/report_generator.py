@@ -1,220 +1,96 @@
 """
-Report Generator Module
-Generates exportable reports using Groq LLM.
+Experiment report: a Groq-written summary when the LLM is available, otherwise a
+template. ``generate`` always says which one produced the text.
 """
+import logging
 import os
-from typing import Dict, Any, List
 from datetime import datetime
+from typing import Any, Dict, List
+
 from dotenv import load_dotenv
 
+from app_backend.llm_rag_core import get_report_model
+
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class ReportGenerator:
-    """Generates analysis reports using Groq LLM."""
-    
-    def __init__(self):
+    def __init__(self, model_name: str = None):
+        self.model_name = model_name or get_report_model()
         self.llm = None
-        self._init_llm()
-    
-    def _init_llm(self):
-        """Initialize Groq LLM."""
+        self.init_error = None
+        self.last_source = None
+        self.last_error = None
+        if not os.environ.get("GROQ_API_KEY"):
+            self.init_error = "GROQ_API_KEY is not set"
+            return
         try:
             from langchain_groq import ChatGroq
-            self.llm = ChatGroq(
-                temperature=0.3,
-                model_name="llama-3.1-8b-instant"
-            )
-        except Exception as e:
-            print(f"LLM initialization failed: {e}")
-            self.llm = None
-    
+
+            self.llm = ChatGroq(temperature=0.3, model_name=self.model_name, max_retries=1, timeout=90)
+        except Exception as exc:
+            self.init_error = f"{type(exc).__name__}: {exc}"
+
+    def _prompt(self, d: Dict[str, Any]) -> str:
+        targets = d.get("target_cols") or [d.get("target_col")]
+        return f"""Write a concise experiment report in Markdown for this AutoML run. Use ONLY the facts below;
+do not invent numbers, models or steps. If something is not given, do not mention it.
+
+Dataset: {d.get('dataset_name')} (shape {d.get('dataset_shape')})
+Task: {d.get('task_type')}; target(s): {', '.join(map(str, targets))}
+Split: {d.get('split')}
+Selection metric: {d.get('metric')} ({d.get('metric_reason', '')})
+Leaderboard (test split): {d.get('leaderboard')}
+Majority-class baseline: {d.get('baseline')}
+Failed models: {d.get('failed_models') or 'none'}
+Preprocessing steps (fitted on the training rows unless stated): {d.get('preprocessing_steps')}
+Recommendation source: {d.get('recommendation_source')}
+
+Sections: 1. Summary  2. Data  3. Preprocessing  4. Model comparison  5. Caveats and next steps"""
+
+    def generate(self, workspace_data: Dict[str, Any]) -> Dict[str, Any]:
+        """{"text", "source" ("llm" | "template"), "model", "error"}."""
+        if self.llm is not None:
+            try:
+                text = self.llm.invoke(self._prompt(workspace_data)).content
+                self.last_source, self.last_error = "llm", None
+                return {"text": text, "source": "llm", "model": self.model_name, "error": None}
+            except Exception as exc:
+                self.last_error = f"{type(exc).__name__}: {str(exc)[:300]}"
+                logger.warning("LLM report failed: %s", self.last_error)
+        else:
+            self.last_error = self.init_error
+        self.last_source = "template"
+        return {"text": self._template(workspace_data), "source": "template", "model": None,
+                "error": self.last_error}
+
     def generate_summary_report(self, workspace_data: Dict) -> str:
-        """Generate a summary report using LLM."""
-        if not self.llm:
-            return self._generate_fallback_report(workspace_data)
+        return self.generate(workspace_data)["text"]
 
-        is_multi = workspace_data.get('is_multi_output', False)
-        target_display = workspace_data.get('target_col', 'Unknown')
-        target_cols    = workspace_data.get('target_cols', [])
+    def _template(self, d: Dict[str, Any]) -> str:
+        targets = d.get("target_cols") or [d.get("target_col")]
+        lines = [f"# Experiment report: {d.get('dataset_name', 'dataset')}",
+                 f"_Generated {datetime.now():%Y-%m-%d %H:%M} from a template (no LLM)._", "",
+                 "## Data", f"- Shape: {d.get('dataset_shape')}", f"- Task: {d.get('task_type')}",
+                 f"- Target(s): {', '.join(map(str, targets))}", f"- Split: {d.get('split')}", "",
+                 "## Model comparison (test split)",
+                 f"- Selection metric: **{d.get('metric')}** ({d.get('metric_reason', '')})",
+                 f"- Best model: **{d.get('best_model', 'n/a')}** ({d.get('metric')} = {d.get('best_score', 'n/a')})"]
+        if d.get("baseline"):
+            lines.append(f"- Majority-class baseline: {d['baseline']}")
+        for row in d.get("leaderboard") or []:
+            lines.append(f"  - {row}")
+        if d.get("failed_models"):
+            lines += ["", "## Failed models"] + [f"- {f}" for f in d["failed_models"]]
+        lines += ["", "## Preprocessing", self._format_steps(d.get("preprocessing_steps", []))]
+        lines += ["", "## Recommendations", f"- Source: {d.get('recommendation_source', 'n/a')}",
+                  f"- Models: {', '.join(d.get('recommendations') or []) or 'n/a'}"]
+        return "\n".join(lines)
 
-        multi_section = ""
-        if is_multi:
-            multi_section = f"""
-        Prediction Mode: MULTI-OUTPUT (predicting {len(target_cols)} targets simultaneously)
-        Target Columns: {', '.join(target_cols)}
-        Note: Models were wrapped with MultiOutputRegressor / MultiOutputClassifier.
-        Reported metrics (RMSE, R², Accuracy, F1) are macro-averaged across all targets.
-        """
-        else:
-            multi_section = f"Target Variable: {target_display}"
-
-        prompt = f"""
-        Generate a professional AutoML analysis report based on the following experiment:
-
-        Dataset: {workspace_data.get('dataset_name', 'Unknown')}
-        Shape: {workspace_data.get('dataset_shape', 'Unknown')}
-        Task Type: {workspace_data.get('task_type', 'Unknown')}
-        {multi_section}
-        Best Model: {workspace_data.get('best_model', 'N/A')}
-        Best Score: {workspace_data.get('best_score', 'N/A')}
-
-        Preprocessing Steps Applied:
-        {workspace_data.get('preprocessing_steps', [])}
-
-        Model Recommendations:
-        {workspace_data.get('recommendations', [])}
-
-        Generate a concise, professional report with:
-        1. Executive Summary
-        2. Data Overview
-        3. Preprocessing Applied
-        4. Model Performance{' (include a Multi-Output Prediction section explaining averaged metrics)' if is_multi else ''}
-        5. Recommendations
-
-        Format in Markdown.
-        """
-
-        try:
-            response = self.llm.invoke(prompt)
-            return response.content
-        except Exception as e:
-            print(f"LLM report generation failed: {e}")
-            return self._generate_fallback_report(workspace_data)
-    
-    def _generate_fallback_report(self, workspace_data: Dict) -> str:
-        """Generate report without LLM."""
-        is_multi    = workspace_data.get('is_multi_output', False)
-        target_cols = workspace_data.get('target_cols', [])
-        target_disp = workspace_data.get('target_col', 'Unknown')
-
-        if is_multi:
-            target_section = (
-                f"- **Prediction Mode:** Multi-Output ({len(target_cols)} targets simultaneously)\n"
-                + "\n".join(f"  - `{t}`" for t in target_cols)
-            )
-        else:
-            target_section = f"- **Target Variable:** {target_disp}"
-
-        return f"""
-# AutoML Analysis Report
-
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-## Dataset Overview
-- **Name:** {workspace_data.get('dataset_name', 'Unknown')}
-- **Shape:** {workspace_data.get('dataset_shape', 'Unknown')}
-- **Task Type:** {workspace_data.get('task_type', 'Unknown')}
-{target_section}
-
-## Best Model
-- **Algorithm:** {workspace_data.get('best_model', 'N/A')}
-- **Score:** {workspace_data.get('best_score', 'N/A')}
-{'> ⚠️ Metrics are **macro-averaged** across all target columns.' if is_multi else ''}
-
-## Preprocessing Steps
-{self._format_preprocessing_steps(workspace_data.get('preprocessing_steps', []))}
-
-## Recommendations
-{', '.join(workspace_data.get('recommendations', ['No recommendations']))}
-"""
-    
-    def _format_preprocessing_steps(self, steps: List[Dict]) -> str:
-        """Format preprocessing steps as markdown list."""
+    @staticmethod
+    def _format_steps(steps: List[Dict]) -> str:
         if not steps:
             return "- No preprocessing steps recorded"
-        
-        lines = []
-        for step in steps[:15]:
-            lines.append(f"- **{step.get('step', 'Unknown')}**: {step.get('action', '')}")
-        return "\n".join(lines)
-    
-    def generate_code_export(self, workspace_data: Dict) -> str:
-        """Generate reproducible Python code for Kaggle/Colab."""
-        dataset_name = workspace_data.get('dataset_name', 'dataset.csv')
-        target_col = workspace_data.get('target_col', 'target')
-        task_type = workspace_data.get('task_type', 'classification')
-        best_model = workspace_data.get('best_model', 'Random Forest')
-        
-        # Map model names to sklearn imports
-        model_imports = {
-            "Random Forest": ("sklearn.ensemble", "RandomForestClassifier" if task_type == "classification" else "RandomForestRegressor"),
-            "XGBoost": ("xgboost", "XGBClassifier" if task_type == "classification" else "XGBRegressor"),
-            "Gradient Boosting": ("sklearn.ensemble", "GradientBoostingClassifier" if task_type == "classification" else "GradientBoostingRegressor"),
-            "Logistic Regression": ("sklearn.linear_model", "LogisticRegression"),
-            "Linear Regression": ("sklearn.linear_model", "LinearRegression"),
-        }
-        
-        model_info = model_imports.get(best_model, ("sklearn.ensemble", "RandomForestClassifier"))
-        
-        code = f'''# AutoML Generated Code
-# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-# Task: {task_type.title()}
-# Best Model: {best_model}
-
-# ===== INSTALLATION =====
-# !pip install pandas scikit-learn xgboost
-
-# ===== IMPORTS =====
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, mean_squared_error
-from {model_info[0]} import {model_info[1]}
-
-# ===== LOAD DATA =====
-# Update path to your dataset
-df = pd.read_csv("{dataset_name}")
-print(f"Dataset shape: {{df.shape}}")
-
-# ===== PREPROCESSING =====
-# Separate features and target
-X = df.drop(columns=["{target_col}"])
-y = df["{target_col}"]
-
-# Encode categorical columns
-for col in X.select_dtypes(include=['object']).columns:
-    le = LabelEncoder()
-    X[col] = le.fit_transform(X[col].astype(str))
-
-# Handle missing values
-X = X.fillna(X.median())
-
-# Scale features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.2, random_state=42
-)
-
-# ===== MODEL TRAINING =====
-model = {model_info[1]}()
-model.fit(X_train, y_train)
-
-# ===== EVALUATION =====
-y_pred = model.predict(X_test)
-'''
-        
-        if task_type == "classification":
-            code += '''
-score = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {score:.4f}")
-'''
-        else:
-            code += '''
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-print(f"RMSE: {rmse:.4f}")
-'''
-        
-        code += '''
-# ===== SAVE MODEL =====
-import pickle
-with open("trained_model.pkl", "wb") as f:
-    pickle.dump(model, f)
-print("Model saved to trained_model.pkl")
-'''
-        
-        return code
+        return "\n".join(f"- **{s.get('step')}**: {s.get('action')} (fitted on {s.get('fitted_on', 'n/a')})"
+                         for s in steps[:25])

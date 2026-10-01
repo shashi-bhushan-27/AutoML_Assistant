@@ -1,100 +1,80 @@
 """
 Imputer Module
-Intelligent missing value handling with strategy selection.
+Missing-value handling fitted on the training partition.
+
+Numeric columns: median. Categorical columns: most frequent value. Columns with
+more than 50% missing values in the training partition are dropped. A fill value
+is stored for *every* column (not only those with gaps in training), so a gap that
+first appears at serving time is filled with the training statistic instead of
+reaching the model as NaN.
+
+(The previous single-column KNNImputer was removed: KNN on one column is a mean of
+arbitrary neighbours, and it was not replayed at serving.)
 """
-import pandas as pd
+import logging
+from typing import Any, Dict, List
+
 import numpy as np
-from typing import Dict, Any, List, Tuple
-from sklearn.impute import SimpleImputer, KNNImputer
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+Columns = Dict[str, np.ndarray]
 
 
 class SmartImputer:
-    """Handles missing values with intelligent strategy selection."""
-    
-    def __init__(self):
+    def __init__(self, drop_threshold_pct: float = 50.0):
         self.log: List[Dict[str, Any]] = []
-        self.imputers: Dict[str, Any] = {}
+        self.drop_threshold_pct = drop_threshold_pct
+        self.imputers: Dict[str, Dict[str, Any]] = {}
         self.strategies: Dict[str, str] = {}
-    
-    def _log(self, step: str, action: str, reason: str, status: str = "applied"):
-        self.log.append({"step": step, "action": action, "reason": reason, "status": status})
-    
-    def _select_strategy(self, series: pd.Series, missing_pct: float) -> str:
-        """Select imputation strategy based on missing percentage and data type."""
-        if missing_pct > 50:
-            return "drop"
-        
-        if pd.api.types.is_numeric_dtype(series):
-            if missing_pct < 5:
-                return "median"
-            elif missing_pct < 30:
-                return "knn"
+        self.dropped_columns: List[str] = []
+
+    def _log(self, step, action, reason, status="applied", fitted_on="train"):
+        self.log.append({"step": step, "action": action, "reason": reason, "status": status,
+                         "fitted_on": fitted_on})
+
+    def fit(self, cols: Columns) -> "SmartImputer":
+        for col, a in cols.items():
+            missing = pd.isna(a)
+            missing_pct = float(missing.mean() * 100) if len(a) else 0.0
+            if missing_pct > self.drop_threshold_pct:
+                self.dropped_columns.append(col)
+                self.strategies[col] = "drop"
+                self._log("Imputation", f"Dropping column: {col}",
+                          f"{missing_pct:.1f}% missing in the training rows (> {self.drop_threshold_pct:.0f}%)")
+                continue
+            if a.dtype.kind == "f":
+                value = float(np.nanmedian(a)) if (~missing).any() else 0.0
+                strategy = "median"
             else:
-                return "median"  # KNN too slow for high missing
-        else:
-            return "mode"
-    
-    def fit_transform(self, df: pd.DataFrame, target_col: str = None) -> pd.DataFrame:
-        """Fit and transform missing values."""
-        df = df.copy()
-        cols_to_drop = []
-        
-        for col in df.columns:
-            if col == target_col:
-                continue
-                
-            missing_pct = df[col].isnull().sum() / len(df) * 100
-            
-            if missing_pct == 0:
-                continue
-            
-            strategy = self._select_strategy(df[col], missing_pct)
+                mode = pd.Series(a[~missing]).mode()
+                value = mode.iloc[0] if len(mode) else "__MISSING__"
+                strategy = "mode"
+            self.imputers[col] = {"strategy": strategy, "value": value}
             self.strategies[col] = strategy
-            
-            if strategy == "drop":
-                cols_to_drop.append(col)
-                self._log("Imputation", f"Dropping column: {col}", f"Missing: {missing_pct:.1f}% (too high)")
-                
-            elif strategy == "median":
-                median_val = df[col].median()
-                df[col] = df[col].fillna(median_val)
-                self.imputers[col] = {"strategy": "median", "value": median_val}
-                self._log("Imputation", f"Median impute: {col}", f"Missing: {missing_pct:.1f}%, Value: {median_val:.2f}")
-                
-            elif strategy == "mode":
-                mode_val = df[col].mode().iloc[0] if len(df[col].mode()) > 0 else "unknown"
-                df[col] = df[col].fillna(mode_val)
-                self.imputers[col] = {"strategy": "mode", "value": mode_val}
-                self._log("Imputation", f"Mode impute: {col}", f"Missing: {missing_pct:.1f}%, Value: {mode_val}")
-                
-            elif strategy == "knn":
-                # KNN only works on numeric
-                try:
-                    knn = KNNImputer(n_neighbors=5)
-                    df[[col]] = knn.fit_transform(df[[col]])
-                    self.imputers[col] = {"strategy": "knn", "imputer": knn}
-                    self._log("Imputation", f"KNN impute: {col}", f"Missing: {missing_pct:.1f}%, k=5")
-                except:
-                    median_val = df[col].median()
-                    df[col] = df[col].fillna(median_val)
-                    self._log("Imputation", f"Fallback median: {col}", "KNN failed")
-        
-        if cols_to_drop:
-            df = df.drop(columns=cols_to_drop)
-        
-        return df
-    
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Transform new data using fitted imputers."""
-        df = df.copy()
-        
-        for col, imputer_info in self.imputers.items():
-            if col not in df.columns:
+            if missing_pct > 0:
+                shown = f"{value:.4g}" if isinstance(value, float) else repr(value)
+                self._log("Imputation", f"{strategy.title()} impute: {col}",
+                          f"{missing_pct:.1f}% missing in training rows; fill value {shown}")
+        if not any(e["step"] == "Imputation" for e in self.log):
+            self._log("Imputation", "No missing values in training rows",
+                      "Fill values are still stored for every column in case serving data has gaps",
+                      status="skipped")
+        return self
+
+    def transform(self, cols: Columns, warn: List[str] = None) -> Columns:
+        out: Columns = {}
+        for col, a in cols.items():
+            if col in self.dropped_columns:
                 continue
-            
-            if imputer_info["strategy"] in ["median", "mode"]:
-                df[col] = df[col].fillna(imputer_info["value"])
-            elif imputer_info["strategy"] == "knn":
-                df[[col]] = imputer_info["imputer"].transform(df[[col]])
-        
-        return df
+            info = self.imputers.get(col)
+            if info is not None:
+                missing = pd.isna(a)
+                if missing.any():
+                    a = a.copy()
+                    a[missing] = info["value"]
+                    if warn is not None:
+                        warn.append(f"{col}: {int(missing.sum())} missing value(s) filled with the training "
+                                    f"{info['strategy']}")
+            out[col] = a
+        return out
