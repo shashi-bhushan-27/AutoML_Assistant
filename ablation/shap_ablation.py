@@ -107,6 +107,10 @@ def _child(conn, config, model, X_train, X_test, task, progress, peak_mb):
         out["route"] = ex._get_model_type()
         out["explainer"] = type(ex._explainer).__name__ if ex._explainer is not None else None
         out["X_test_dtypes"] = {str(k): int(v) for k, v in ex.X_test.dtypes.astype(str).value_counts().items()}
+        app = getattr(ex, "last_result", None)  # after the fixes: the app's own outcome record
+        if app is not None:
+            out.update(app_status=app.status, rows_done=app.rows_done, app_warnings=app.warnings,
+                       app_error=app.error, output_explained=app.output_explained)
         if vals is None:
             out["status"] = "error"
         else:
@@ -115,7 +119,10 @@ def _child(conn, config, model, X_train, X_test, task, progress, peak_mb):
             out["shape"] = list(vals.shape)
             out["nan_frac"] = float(1 - finite.mean())
             out["status"] = "ok" if finite.all() else "nan_values"
-        out["message"] = buf.getvalue().strip()[-400:]
+            if app is not None and app.status == "budget_exceeded":
+                out["status"] = "budget_exceeded"  # clean, reported stop at the app's time budget
+        out["message"] = (buf.getvalue().strip() + " " + " | ".join(getattr(app, "warnings", []) or [])
+                          + (f" {app.error}" if getattr(app, "error", None) else "")).strip()[-400:]
     except Exception as e:  # SHAPExplainer catches most errors itself; anything else is recorded
         out["status"] = "error"
         out["message"] = f"{type(e).__name__}: {e}"[-400:] + " | " + traceback.format_exc()[-300:]
@@ -132,7 +139,8 @@ def peak_mem_value(v):
 
 
 def run_job(config, model, X_train, X_test, task, timeout_s=300.0):
-    ctx = mp.get_context("fork")
+    # fork where available (Linux, as in the baseline run); spawn on Windows/macOS
+    ctx = mp.get_context("fork" if "fork" in mp.get_all_start_methods() else "spawn")
     progress = ctx.Value("i", 0)
     peak = ctx.Value("d", 0.0)
     parent, child = ctx.Pipe(duplex=False)

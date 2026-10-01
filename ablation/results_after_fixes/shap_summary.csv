@@ -1,0 +1,73 @@
+dataset,model,config,n_seeds,success_rate,status_counts,explainer,runtime_s_mean,runtime_s_std,peak_mem_mb_mean,peak_mem_mb_std,message
+adult,Gradient Boosting,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,18.238640879979357,1.7276432063185099,44.387532799999995,0.22429854573581257,
+adult,Gradient Boosting,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.040905020001810045,0.009643112011898235,3.0121984,6.627880860994169,
+adult,Gradient Boosting,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.03867101998766884,0.006927302561330022,0.0401408,0.014306712941832585,
+adult,Gradient Boosting,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.03401319999247789,0.005451369760583511,0.036863999999999994,0.009158934435839136,
+adult,KNN,forced_kernel,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,44.4145664,0.46818731316087786,
+adult,KNN,forced_tree,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,44.3981824,0.47198824901982556,TreeExplainer rejected KNeighborsClassifier (InvalidModelError); using KernelExplainer instead
+adult,KNN,full,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,44.5800448,0.6024699453044936,
+adult,KNN,no_cast,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,43.84849919999999,0.307000596617009,
+adult,Logistic Regression,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,17.44324819999747,2.8194414774081995,45.1264512,2.0695896777910354,
+adult,Logistic Regression,forced_tree,5,1.0,"{""ok"": 5}",KernelExplainer,16.52470912000863,1.4918624424361497,44.0786944,0.7191985834557804,TreeExplainer rejected LogisticRegression (InvalidModelError); using KernelExplainer instead
+adult,Logistic Regression,full,5,1.0,"{""ok"": 5}",LinearExplainer,0.016874420002568512,0.0034942401416845456,0.0393216,0.012491121198675483,
+adult,Logistic Regression,no_cast,5,1.0,"{""ok"": 5}",LinearExplainer,0.016328280000016092,0.004219759789554397,0.0524288,0.032043183662052055,
+adult,Random Forest,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,43.43223986000521,10.821599791413362,44.85939199999999,2.1430301749214813,
+adult,Random Forest,forced_tree,5,0.0,"{""budget_exceeded"": 5}",TreeExplainer,,,123.6123648,0.4136899167869594,
+adult,Random Forest,full,5,0.0,"{""budget_exceeded"": 5}",TreeExplainer,,,123.53290239999998,1.0055934432626366,
+adult,Random Forest,no_cast,5,0.0,"{""budget_exceeded"": 5}",TreeExplainer,,,123.34448640000001,0.45042592914351715,
+adult,SVM,forced_kernel,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,43.855052799999996,0.40944022483776593,
+adult,SVM,forced_tree,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,44.61281279999999,1.0306768307880023,TreeExplainer rejected SVC (InvalidModelError); using KernelExplainer instead
+adult,SVM,full,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,44.02298879999999,0.6721896667959113,
+adult,SVM,no_cast,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,45.250150399999995,2.729575444897758,
+adult,XGBoost,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,24.626450120005757,3.4221713616976444,44.0885248,0.5814257211675457,
+adult,XGBoost,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.2929735599900596,0.03765518830679618,19.0464,0.13158300388728056,
+adult,XGBoost,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.31255739998305215,0.07959188603658196,19.032473599999996,0.19006940630411867,
+adult,XGBoost,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.2914238999946974,0.04340667164075086,19.1184896,0.19361129540602703,
+california,Gradient Boosting,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,8.015952020010445,2.9794191942949038,8.378777600000001,0.2480972592770827,
+california,Gradient Boosting,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.03829550000373274,0.012326793713087746,0.40468479999999996,0.8179620726581398,
+california,Gradient Boosting,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.035260499990545216,0.016462031021446277,0.035225599999999996,0.005495360661503483,
+california,Gradient Boosting,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.03205333998193964,0.015067717959786816,0.3874816,0.7794979643519283,
+california,KNN,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,65.86797192000085,31.286289667130053,8.264089599999998,0.21717685728640648,
+california,KNN,forced_tree,5,1.0,"{""ok"": 5}",KernelExplainer,70.46540351998992,25.815054184362978,8.5327872,0.2019415235438221,TreeExplainer rejected KNeighborsRegressor (InvalidModelError); using KernelExplainer instead
+california,KNN,full,5,1.0,"{""ok"": 5}",KernelExplainer,75.64074018000392,23.221389266051474,8.2018304,0.22795629211934465,
+california,KNN,no_cast,5,0.8,"{""budget_exceeded"": 1, ""ok"": 4}",KernelExplainer,60.099942350017955,15.392215561703908,8.0879616,0.32906714395211195,
+california,Random Forest,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,17.494727480004077,6.533081423193223,7.5145216,0.5237725466161814,
+california,Random Forest,forced_tree,5,0.8,"{""budget_exceeded"": 1, ""ok"": 4}",TreeExplainer,72.73117439998896,7.957650199273295,153.0085376,0.20624081973459857,
+california,Random Forest,full,5,0.8,"{""budget_exceeded"": 1, ""ok"": 4}",TreeExplainer,77.13576932501746,10.285012547316093,153.460736,0.4021491932504663,
+california,Random Forest,no_cast,5,0.8,"{""budget_exceeded"": 1, ""ok"": 4}",TreeExplainer,69.69585457498033,5.2628869387918025,153.3304832,0.3412167139446688,
+california,Ridge,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,6.666325119999238,3.393284386029662,8.2894848,0.32205605840474416,
+california,Ridge,forced_tree,5,1.0,"{""ok"": 5}",KernelExplainer,6.818241080001462,3.0343925475889177,8.3533824,0.3730576897542793,TreeExplainer rejected Ridge (InvalidModelError); using KernelExplainer instead
+california,Ridge,full,5,1.0,"{""ok"": 5}",LinearExplainer,0.008427580015268176,0.00256131448081514,0.036044799999999995,0.007327147548671312,
+california,Ridge,no_cast,5,1.0,"{""ok"": 5}",LinearExplainer,0.007493779994547367,0.00272925046001287,0.04014079999999999,0.01019895775067237,
+california,SVM,forced_kernel,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,8.4631552,0.19367194378949157,
+california,SVM,forced_tree,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,8.284569600000001,0.27404352205589555,TreeExplainer rejected SVR (InvalidModelError); using KernelExplainer instead
+california,SVM,full,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,8.3673088,0.34410544512285784,
+california,SVM,no_cast,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,8.149401600000001,0.278958349889011,
+california,XGBoost,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,10.198734900017735,3.8992534237060723,8.576204800000001,0.26138129044596903,
+california,XGBoost,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.4054696800070815,0.16981451574938192,7.8635008000000015,0.14056502866360487,
+california,XGBoost,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.3971470800228417,0.17437930336959265,8.082227200000002,0.37212109278996797,
+california,XGBoost,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.43367406001780184,0.14740996662660133,8.1444864,0.3440591237749697,
+credit,Gradient Boosting,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,42.85410666000098,20.997475913561008,201.4748672,10.772262894238109,
+credit,Gradient Boosting,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.1136403999873437,0.034617207993730574,58.39011839999999,8.617089705690477,TreeExplainer additivity check failed (SHAP values do not sum to the model output); recomputed with check_additivity=False - treat these values with caution
+credit,Gradient Boosting,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.11074161999858916,0.028841000889566634,63.778816000000006,1.83193113470567,TreeExplainer additivity check failed (SHAP values do not sum to the model output); recomputed with check_additivity=False - treat these values with caution
+credit,Gradient Boosting,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.10262931999750435,0.018707056291598356,56.841830400000006,10.656263603860259,TreeExplainer additivity check failed (SHAP values do not sum to the model output); recomputed with check_additivity=False - treat these values with caution
+credit,KNN,forced_kernel,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,201.53466880000002,11.021368047279212,
+credit,KNN,forced_tree,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,199.22452479999998,8.604556608818099,TreeExplainer rejected KNeighborsClassifier (InvalidModelError); using KernelExplainer instead
+credit,KNN,full,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,200.2419712,11.517670287308768,
+credit,KNN,no_cast,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,201.9516416,9.336663136178624,
+credit,Logistic Regression,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,40.537689539999704,20.903671579938713,213.30083840000003,10.525740420725416,
+credit,Logistic Regression,forced_tree,5,1.0,"{""ok"": 5}",KernelExplainer,40.45105526001426,21.343760541823432,214.06023680000004,9.28938187432788,TreeExplainer rejected LogisticRegression (InvalidModelError); using KernelExplainer instead
+credit,Logistic Regression,full,5,1.0,"{""ok"": 5}",LinearExplainer,0.0867794799967669,0.023567411349459902,56.206131199999994,10.124404112047838,
+credit,Logistic Regression,no_cast,5,1.0,"{""ok"": 5}",LinearExplainer,0.09606212001526729,0.028189122198024975,58.24266239999999,6.738085954430441,
+credit,Random Forest,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,57.02972875998821,24.571636173241572,208.7215104,10.08131431356273,
+credit,Random Forest,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,2.2696111000026575,0.861393603570333,68.2541056,0.24292077275687934,
+credit,Random Forest,full,5,1.0,"{""ok"": 5}",TreeExplainer,2.4300288600148634,0.8520020625905097,68.19020800000001,0.1720076173196995,
+credit,Random Forest,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,2.288717419980094,0.9688338647249671,68.11975679999999,0.11967752211338473,
+credit,SVM,forced_kernel,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,201.63788800000003,10.681066325601758,
+credit,SVM,forced_tree,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,206.60387839999999,10.618224343268544,TreeExplainer rejected SVC (InvalidModelError); using KernelExplainer instead
+credit,SVM,full,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,200.55900160000002,9.831709608766772,
+credit,SVM,no_cast,5,0.0,"{""budget_exceeded"": 5}",KernelExplainer,,,202.63157759999999,11.742814320580429,
+credit,XGBoost,forced_kernel,5,1.0,"{""ok"": 5}",KernelExplainer,46.69456569999456,23.786059400873526,209.104896,12.059667433116719,
+credit,XGBoost,forced_tree,5,1.0,"{""ok"": 5}",TreeExplainer,0.3273345800116658,0.12518806663597365,67.20552959999999,0.1124946844468653,
+credit,XGBoost,full,5,1.0,"{""ok"": 5}",TreeExplainer,0.3151494200108573,0.14781614216231623,67.53484800000001,0.13445240882929688,
+credit,XGBoost,no_cast,5,1.0,"{""ok"": 5}",TreeExplainer,0.33265726001700385,0.1070562626996458,67.2628736,0.22510492105860427,

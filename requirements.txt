@@ -1,25 +1,42 @@
-streamlit           # For the GUI
-fastapi             # For the backend API
-uvicorn             # Server for FastAPI
-python-multipart    # Required by FastAPI for CSV file upload (/predict/csv)
-pydantic            # Schema validation for FastAPI
-pandas              # Data manipulation
-numpy               # Math
-scikit-learn        # Standard ML models
-xgboost             # Advanced ML model
-prophet             # Time-series specific model
-statsmodels         # For Time-series analysis (ADF test)
-langchain           # To manage the LLM RAG
-langchain-community # Community tools
-python-dotenv       # To read API keys
-plotly              # Interactive graphs for the UI
-optuna              # Automated Hyperparameter Tuning
-langchain-groq      # Groq LLM integration
-langchain-huggingface # Embeddings
-faiss-cpu           # Vector Store for RAG
-chardet             # CSV encoding detection
-sentence-transformers # Required by langchain-huggingface for embeddings
-scipy               # Statistical functions (used in preprocessing)
-langchain-classic    # LangChain classic chains (RetrievalQA)
-shap                # SHAP model explainability (High Priority Feature)
-# tensorflow        # Optional: LSTM support — uncomment & run: pip install tensorflow
+# Runtime dependencies, pinned to the versions the test suite and the ablation re-run passed with
+# (Python 3.11/3.12). constraints.txt pins every transitive package as well.
+# The paper states scikit-learn 1.3 / XGBoost 2.0; newer majors (pandas 3, scikit-learn >= 1.6, XGBoost 3)
+# have not been validated.
+
+# --- core ML ---
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.3.2
+scipy==1.11.4
+xgboost==2.0.3
+shap==0.46.0
+imbalanced-learn==0.12.3     # SMOTE (optional preprocessing step)
+statsmodels==0.14.4          # ADF test, ARIMA / SARIMAX
+optuna==4.1.0                # hyperparameter tuning
+rapidfuzz==3.10.1            # model-name matching
+chardet==5.2.0               # CSV encoding detection
+
+# --- UI / API ---
+streamlit==1.52.2            # >= 1.51 for custom light + dark themes
+plotly==5.24.1
+fastapi==0.115.0
+uvicorn==0.30.6
+python-multipart==0.0.12     # /predict/csv upload
+pydantic==2.9.2
+httpx==0.28.1                # TestClient and the Deploy page's API check
+python-dotenv==1.0.1
+
+# --- LLM + retrieval ---
+langchain-core==1.6.6
+langchain-classic==1.0.8
+langchain-community==0.4.2
+langchain-text-splitters==1.1.2
+langchain-groq==1.1.3
+langchain-huggingface==1.2.2
+sentence-transformers==5.7.0
+faiss-cpu==1.15.1
+# torch is installed by sentence-transformers; the CPU build is enough (see Dockerfile). On Windows,
+# torch 2.9.1 was validated (2.14 failed to load next to scikit-learn 1.3's OpenMP runtime).
+
+# --- time series (optional models) ---
+prophet==1.1.6

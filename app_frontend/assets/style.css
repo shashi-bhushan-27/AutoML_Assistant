@@ -1,157 +1,98 @@
-/* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+/* Component styles. All colours come from the tokens injected as CSS variables
+   (app_frontend/ui/theme.py); nothing here hard-codes a colour. One typeface: the
+   Streamlit theme font. */
 
-/* Global Reset & Variables */
-:root {
-    --primary-color: #6366f1;
-    --secondary-color: #ec4899;
-    --background-dark: #0f172a;
-    --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --card-radius: 16px;
-    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+.block-container { padding-top: 3.75rem; padding-bottom: 3rem; max-width: 1280px; }
+h1, h2, h3 { letter-spacing: -0.01em; color: var(--text); }
+
+/* keyboard focus is always visible */
+a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, [role="button"]:focus-visible,
+input:focus-visible, textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--focus) !important; outline-offset: 2px !important; border-radius: 4px;
 }
 
-/* Base Styles */
-html,
-body,
-[class*="css"] {
-    font-family: 'Outfit', sans-serif !important;
-    background-color: var(--background-dark);
-    color: var(--text-primary);
-}
+/* primary buttons: text colour from the tokens (dark mode uses dark text on the light accent) */
+button[data-testid="stBaseButton-primary"], button[kind="primary"] { color: var(--on-accent) !important; }
+button[data-testid="stBaseButton-primary"] p { color: var(--on-accent) !important; }
 
-/* Main Container App Background */
-.stApp {
-    background-color: var(--background-dark);
-    background-image:
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
-    background-attachment: fixed;
-}
+/* ── brand ─────────────────────────────────────────────── */
+.brand { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; font-size: 1.05rem; color: var(--text);
+         margin-bottom: var(--space-3); }
+.brand svg { flex: none; }
+.brand small { display: block; font-weight: 400; font-size: var(--font-xs); color: var(--muted); }
 
-/* Titles & Headings */
-h1,
-h2,
-h3 {
-    font-family: 'Outfit', sans-serif !important;
-    font-weight: 700 !important;
-    background: linear-gradient(to right, #fff, #94a3b8);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.5px;
-}
+/* ── cards ─────────────────────────────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+        padding: var(--space-4); margin-bottom: var(--space-3); }
+.card h4 { margin: 0 0 var(--space-1) 0; font-size: 1.05rem; color: var(--text); overflow-wrap: anywhere; }
+.card .meta { color: var(--muted); font-size: var(--font-sm); margin: 0; }
+.card .row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); align-items: center; }
 
-/* Buttons */
-.stButton>button {
-    background: var(--accent-gradient) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.6rem 1.2rem !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-}
+/* ── chips & badges ────────────────────────────────────── */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--radius-pill);
+        font-size: var(--font-xs); font-weight: 600; line-height: 1.6; border: 1px solid var(--border-strong);
+        color: var(--text-2); background: var(--surface-2); max-width: 100%; overflow-wrap: anywhere; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.chip.good { color: var(--good-text); background: var(--good-soft); border-color: var(--good); }
+.chip.good .dot { background: var(--good); }
+.chip.warning { color: var(--warning-text); background: var(--warning-soft); border-color: var(--warning); }
+.chip.warning .dot { background: var(--warning); }
+.chip.critical { color: var(--critical-text); background: var(--critical-soft); border-color: var(--critical); }
+.chip.critical .dot { background: var(--critical); }
+.chip.info { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+.chip.info .dot { background: var(--accent); }
 
-.stButton>button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3) !important;
-}
+/* ── workspace header ──────────────────────────────────── */
+.ws-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3);
+             border-bottom: 1px solid var(--border); padding-bottom: var(--space-3); margin-bottom: var(--space-4); }
+.ws-header .title { font-size: var(--font-xl); font-weight: 700; color: var(--text); margin: 0; overflow-wrap: anywhere; }
+.ws-header .sub { color: var(--muted); font-size: var(--font-sm); margin-top: 2px; }
+.ws-header .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-start; }
 
-/* File Uploader */
-.stFileUploader {
-    background: var(--glass-bg);
-    border-radius: var(--card-radius);
-    padding: 2rem;
-    border: 1px dashed var(--secondary-color);
-}
+/* ── stepper (sidebar and compact header version) ─────── */
+.step-state { font-size: var(--font-xs); color: var(--muted); margin: -6px 0 6px 38px; }
+.step-state.good { color: var(--good-text); }
+.step-state.warning { color: var(--warning-text); }
+.step-state.critical { color: var(--critical-text); }
+.stepper-compact { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 var(--space-3) 0; }
+.stepper-compact span { font-size: var(--font-xs); padding: 2px 8px; border-radius: var(--radius-pill);
+                        border: 1px solid var(--border); color: var(--muted); }
+.stepper-compact span.current { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.stepper-compact span.done { color: var(--good-text); }
+.stepper-compact span.stale { color: var(--warning-text); }
+.stepper-compact span.error { color: var(--critical-text); }
 
-.stFileUploader section {
-    background-color: transparent !important;
-}
+/* ── status banners (icon + word + text; never colour alone) ─ */
+.banner { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4);
+          border-radius: var(--radius-md); border: 1px solid var(--border-strong); background: var(--surface-2);
+          margin: var(--space-2) 0 var(--space-3) 0; color: var(--text); }
+.banner .icon { font-weight: 700; flex: none; }
+.banner.good { border-color: var(--good); background: var(--good-soft); }
+.banner.good .icon { color: var(--good-text); }
+.banner.warning { border-color: var(--warning); background: var(--warning-soft); }
+.banner.warning .icon { color: var(--warning-text); }
+.banner.critical { border-color: var(--critical); background: var(--critical-soft); }
+.banner.critical .icon { color: var(--critical-text); }
+.banner.info { border-color: var(--accent); background: var(--accent-soft); }
+.banner.info .icon { color: var(--accent); }
+.banner p { margin: 0; }
 
-/* Expander/Cards */
-.streamlit-expanderHeader {
-    background-color: var(--glass-bg) !important;
-    border-radius: 8px !important;
-    border: 1px solid var(--glass-border) !important;
-}
+/* ── stat tiles ────────────────────────────────────────── */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); }
+.tile .label { color: var(--muted); font-size: var(--font-xs); text-transform: uppercase; letter-spacing: 0.04em; }
+.tile .value { color: var(--text); font-size: 1.35rem; font-weight: 700; overflow-wrap: anywhere; }
+.tile .note { color: var(--muted); font-size: var(--font-xs); }
 
-.streamlit-expanderContent {
-    background-color: rgba(15, 23, 42, 0.5) !important;
-    border-radius: 0 0 8px 8px !important;
-    border: 1px solid var(--glass-border) !important;
-    border-top: none !important;
-}
+.muted { color: var(--muted); }
+.small { font-size: var(--font-sm); }
+code.inline { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
 
-/* Dataframe/Tables */
-.stDataFrame {
-    border: 1px solid var(--glass-border);
-    border-radius: var(--card-radius);
-    overflow: hidden;
-}
+/* dataframes and charts sit on the surface colour */
+[data-testid="stDataFrame"], [data-testid="stPlotlyChart"] { border-radius: var(--radius-md); }
 
-/* Custom Containers */
-div[data-testid="stVerticalBlock"]>div.element-container {
-    margin-bottom: 1rem;
-}
-
-/* Sidebar (if used) */
-[data-testid="stSidebar"] {
-    background-color: rgba(15, 23, 42, 0.95);
-    border-right: 1px solid var(--glass-border);
-}
-
-/* Metrics & Stats */
-div[data-testid="metric-container"] {
-    background: var(--glass-bg);
-    padding: 1rem;
-    border-radius: var(--card-radius);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Toast/Alerts */
-.stToast {
-    background-color: var(--background-dark) !important;
-    border: 1px solid var(--primary-color) !important;
-    color: white !important;
-}
-
-/* Inputs */
-.stTextInput>div>div>input,
-.stSelectbox>div>div>div {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: white !important;
-    border-radius: 8px !important;
-    border: 1px solid var(--glass-border) !important;
-}
-
-.stTextInput>div>div>input:focus,
-.stSelectbox>div>div>div:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: #0f172a;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+@media (max-width: 640px) {
+  .block-container { padding-left: 1rem; padding-right: 1rem; }
+  .ws-header .title { font-size: var(--font-lg); }
+  .tile .value { font-size: 1.1rem; }
 }

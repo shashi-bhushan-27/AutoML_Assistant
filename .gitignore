@@ -34,7 +34,10 @@ knowledge_base/faiss_index/
 *.joblib
 *.csv
 *.json
+# ...except the small public test fixtures (samples of Adult and California Housing)
+!samples/*.csv
 # Virtual Environment
+.venv/
 venv/
 env/
 ENV/
@@ -48,9 +51,17 @@ venv.bak/
 .vscode/
 .idea/
 
-# Streamlit
-.streamlit/
+# Streamlit (local secrets stay ignored; the theme config is part of the app)
+.streamlit/*
+!.streamlit/config.toml
+
+# test / tool caches
+.pytest_cache/
+app_frontend/screenshots/_tmp/
 
 # OS specific
 .DS_Store
 Thumbs.db
+
+# UI screenshots from local Playwright runs
+screenshots/

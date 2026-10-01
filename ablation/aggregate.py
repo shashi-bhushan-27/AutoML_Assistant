@@ -262,9 +262,12 @@ def shap_tables(units):
     if not df.empty:
         for (ds, cfg), g in df.groupby(["dataset", "config"]):
             per_seed = g.groupby("seed").apply(lambda x: (x.status == "ok").sum())
+            clean = g.groupby("seed").apply(lambda x: x.status.isin(["ok", "budget_exceeded"]).sum())
             per_cfg.append({"dataset": ds, "config": cfg, "n_models": g.model.nunique(),
                             "models_ok_mean": float(per_seed.mean()), "models_ok_min": int(per_seed.min()),
+                            "models_ok_or_budget_mean": float(clean.mean()),
                             "success_rate": float((g.status == "ok").mean()),
+                            "budget_exceeded": int((g.status == "budget_exceeded").sum()),
                             "timeouts": int((g.status == "timeout").sum()),
                             "errors": int((g.status == "error").sum()),
                             "nan_values": int((g.status == "nan_values").sum())})

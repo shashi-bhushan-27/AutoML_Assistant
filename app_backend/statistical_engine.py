@@ -1,126 +1,121 @@
-import pandas as pd
+"""
+Dataset statistics sent to the recommendation engine (and stored as the
+workspace profile for meta-learning). The input dataframe is never modified.
+"""
+import logging
+import warnings
+
 import numpy as np
-from statsmodels.tsa.stattools import adfuller
-from scipy.stats import skew, kurtosis
+import pandas as pd
+from scipy.stats import skew
+
+from app_backend.task_types import TaskType, detect_task_type
+
+logger = logging.getLogger(__name__)
+
 
 def get_column_types(df):
-    """Separates columns into numerical, categorical, and datetime."""
-    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-    
-    num_cols = df.select_dtypes(include=numerics).columns.tolist()
-    cat_cols = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
-    
-    # Attempt to identify datetime columns automatically
+    """Numeric, categorical and datetime columns (datetime = datetime dtype, or a date/time-named column
+    whose values all parse as dates)."""
+    num_cols = df.select_dtypes(include=["number"]).columns.tolist()
+    cat_cols = df.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
     date_cols = []
     for col in df.columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             date_cols.append(col)
-        elif 'date' in col.lower() or 'time' in col.lower():
+        elif ("date" in str(col).lower() or "time" in str(col).lower()) and df[col].dtype == object:
             try:
-                # specific check to avoid false positives
-                pd.to_datetime(df[col], errors='raise') 
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    pd.to_datetime(df[col].dropna().head(500), errors="raise")
                 date_cols.append(col)
-            except:
+            except (ValueError, TypeError):
                 pass
-                
     return num_cols, cat_cols, date_cols
 
+
 def check_stationarity(series):
-    """
-    Performs Augmented Dickey-Fuller test to check if Time Series is stationary.
-    Returns: 'Stationary' or 'Non-Stationary'
-    """
+    """Augmented Dickey-Fuller test."""
+    from statsmodels.tsa.stattools import adfuller
+
+    clean = pd.to_numeric(series, errors="coerce").dropna()
+    if len(clean) < 20:
+        return "Unknown (too little data)"
     try:
-        # Drop NAs just for the test
-        clean_series = series.dropna()
-        if len(clean_series) < 20: # ADF requires some data
-            return "Unknown (Too little data)"
-            
-        result = adfuller(clean_series)
-        p_value = result[1]
-        
-        if p_value < 0.05:
-            return "Stationary (Good for ARIMA)"
-        else:
-            return "Non-Stationary (Needs Differencing/Transformation)"
-    except:
-        return "Check Failed"
+        p_value = adfuller(clean)[1]
+    except (ValueError, np.linalg.LinAlgError) as exc:
+        logger.warning("ADF test failed: %s", exc)
+        return "Check failed"
+    return "Stationary (Good for ARIMA)" if p_value < 0.05 else "Non-Stationary (Needs Differencing/Transformation)"
+
 
 def analyze_dataset(df, target_col=None):
-    """
-    Main function to extract stats for the LLM.
-    """
-    stats = {}
-    
-    # 1. Basic Dimensions
-    stats['rows'] = df.shape[0]
-    stats['columns'] = df.shape[1]
-    stats['missing_values'] = df.isnull().sum().sum()
-    
-    # 2. Column Types
+    """Statistics for the LLM prompt plus ``profile`` (meta-learning features). Does not modify ``df``."""
+    if isinstance(target_col, (list, tuple)):
+        target_col = target_col[0] if target_col else None
+    stats = {"rows": int(df.shape[0]), "columns": int(df.shape[1]),
+             "missing_values": int(df.isnull().sum().sum())}
     num_cols, cat_cols, date_cols = get_column_types(df)
-    stats['numerical_columns'] = num_cols
-    stats['categorical_columns'] = cat_cols
-    stats['datetime_columns'] = date_cols
-    
-    # 3. Time Series Logic (Crucial for your Vehicle Data)
-    if len(date_cols) > 0:
-        stats['is_time_series'] = True
-        stats['time_column'] = date_cols[0] # Assume first date col is the index
-        
-        # Try to infer frequency (Hz, Daily, etc.)
-        try:
-            df[date_cols[0]] = pd.to_datetime(df[date_cols[0]])
-            sorted_df = df.sort_values(by=date_cols[0])
-            time_diff = sorted_df[date_cols[0]].diff().median()
-            stats['time_frequency'] = str(time_diff)
-        except:
-            stats['time_frequency'] = "Irregular"
-    else:
-        stats['is_time_series'] = False
-        stats['time_frequency'] = "None"
+    stats["numerical_columns"] = num_cols
+    stats["categorical_columns"] = cat_cols
+    stats["datetime_columns"] = date_cols
 
-    # 4. Target Variable Analysis (If user selected one)
+    if date_cols:
+        stats["is_time_series"] = True
+        stats["time_column"] = date_cols[0]
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                times = pd.to_datetime(df[date_cols[0]], errors="coerce").sort_values()
+            stats["time_frequency"] = str(times.diff().median())
+        except (ValueError, TypeError):
+            stats["time_frequency"] = "Irregular"
+    else:
+        stats["is_time_series"] = False
+        stats["time_frequency"] = "None"
+
+    features = [c for c in df.columns if c != target_col]
+    feat_num = [c for c in num_cols if c != target_col]
+    feat_cat = [c for c in cat_cols if c != target_col]
+    stats["n_features"] = len(features)
+    cells = max(len(df) * max(len(features), 1), 1)
+    missing_rate = float(df[features].isnull().sum().sum() / cells) if features else 0.0
+    skews = [abs(float(skew(df[c].dropna()))) for c in feat_num if df[c].dropna().nunique() > 1]
+    profile = {
+        "log_rows": float(np.log10(max(len(df), 1))),
+        "n_features": float(len(features)),
+        "categorical_share": float(len(feat_cat) / max(len(features), 1)),
+        "missing_rate": missing_rate,
+        "minority_share": 0.0,
+        "mean_abs_skew": float(np.mean(skews)) if skews else 0.0,
+        "linearity": 0.0,
+    }
+
     if target_col and target_col in df.columns:
         y = df[target_col]
-        
-        # Determine Task Type
-        if y.dtype == 'object' or y.nunique() < 10:
-            stats['task_type'] = "Classification"
+        task = detect_task_type(y)
+        stats["task_type"] = task.value
+        if task == TaskType.CLASSIFICATION:
+            shares = y.value_counts(normalize=True)
+            stats["n_classes"] = int(len(shares))
+            stats["minority_class_share"] = round(float(shares.min()), 4) if len(shares) else None
+            stats["class_distribution"] = {str(k): round(float(v), 4) for k, v in shares.head(20).items()}
+            profile["minority_share"] = float(shares.min()) if len(shares) >= 2 else 0.0
+            y_num = pd.Series(pd.factorize(y)[0], index=y.index).where(y.notna())
         else:
-            stats['task_type'] = "Regression"
-            
-        # Stats for Regression
-        if stats['task_type'] == "Regression" and pd.api.types.is_numeric_dtype(y):
-            stats['target_mean'] = round(y.mean(), 2)
-            stats['target_std'] = round(y.std(), 2)
-            stats['target_skewness'] = round(skew(y.dropna()), 2)
-            
-            # Check linearity (Correlation with other num cols)
-            correlations = df[num_cols].corrwith(y).abs().mean()
-            if correlations > 0.5:
-                stats['linearity'] = "High (Linear Models might work)"
-            else:
-                stats['linearity'] = "Low (Non-linear/Tree models needed)"
-                
-            # Check Stationarity (Only if Time Series)
-            if stats['is_time_series']:
-                stats['stationarity'] = check_stationarity(y)
-                
+            y_num = pd.to_numeric(y, errors="coerce")
+            stats["target_mean"] = round(float(y_num.mean()), 4)
+            stats["target_std"] = round(float(y_num.std()), 4)
+            stats["target_skewness"] = round(float(skew(y_num.dropna())), 4)
+        if feat_num:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                corr = df[feat_num].corrwith(y_num).abs()
+            lin = float(corr.mean()) if corr.notna().any() else 0.0
+            profile["linearity"] = lin
+            stats["linearity"] = ("High (linear models might work)" if lin > 0.5
+                                  else "Low (non-linear / tree models likely better)")
+        if task == TaskType.REGRESSION and stats["is_time_series"]:
+            stats["stationarity"] = check_stationarity(y)
+    stats["profile"] = profile
     return stats
-
-# --- TEST BLOCK (Run this file independently to check) ---
-if __name__ == "__main__":
-    # Create dummy data to test
-    data = {
-        'Date': pd.date_range(start='1/1/2024', periods=100, freq='D'),
-        'Speed': np.random.normal(60, 10, 100), # Continuous
-        'Fault_Code': np.random.choice(['A', 'B'], 100) # Categorical
-    }
-    df = pd.DataFrame(data)
-    
-    print("--- ANALYZING DUMMY VEHICLE DATA ---")
-    summary = analyze_dataset(df, target_col='Speed')
-    
-    import json
-    print(json.dumps(summary, indent=4, default=str))

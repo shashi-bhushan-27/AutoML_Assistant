@@ -35,6 +35,15 @@ python ablation/run_ablation.py figures
 Each unit runs single-threaded (`OMP_NUM_THREADS=1`), so timings are comparable
 across models. `llm_calls.jsonl` is append-only and resumable.
 
+`--out NAME` (before the sub-command) writes to `ablation/NAME/` and `ablation/figures_<suffix>/` instead of
+`results/` and `figures/`; the re-run after the fixes on the `ui-redesign-and-fixes` branch used
+`--out results_after_fixes`. The harness also runs on Windows (SHAP jobs use `spawn` when `fork` is not
+available). Adaptations made for the post-fix code (public APIs changed): the matcher and best-model
+bookkeeping come from `app_backend.model_matcher` / `app_backend.leaderboard` instead of the old UI ports,
+meta-learning uses the profile similarity, SHAP records the app's own `budget_exceeded` status, the endpoint
+test passes the training-time test representation explicitly (the pipeline pickle no longer carries data),
+and the "as shipped" LLM configuration is the app's configured default model (`GROQ_MODEL`).
+
 Maintenance commands (both refit only the models they need, with the same seeds,
 and assert that the refit reproduces the brute-force metrics):
 

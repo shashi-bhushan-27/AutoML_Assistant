@@ -6,6 +6,16 @@
 !results/raw/
 !results/raw/*.json
 !results/raw/*.jsonl
+# re-run after the fixes (ablation/run_ablation.py --out results_after_fixes ...)
+!results_after_fixes/
+!results_after_fixes/*.csv
+!results_after_fixes/*.json
+!results_after_fixes/raw/
+!results_after_fixes/raw/*.json
+!results_after_fixes/raw/*.jsonl
+# throwaway smoke-test runs
+results_smoketest/
+figures_smoketest/
 # Local caches (datasets, temporary workspaces) are never committed.
 .cache/
 _tmp/

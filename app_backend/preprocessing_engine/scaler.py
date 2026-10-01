@@ -1,108 +1,69 @@
 """
 Scaler Module
-Feature scaling with intelligent strategy selection.
+Feature scaling fitted on the training rows. Binary / one-hot indicator columns (two
+distinct values) are left as 0/1; continuous columns are scaled with RobustScaler
+when more than 5% of training values lie beyond Q1/Q3 ± 3×IQR in some column,
+otherwise StandardScaler. ``apply`` uses the fitted parameters directly on the
+feature matrix (same arithmetic as scikit-learn's ``transform``).
 """
-import pandas as pd
+import logging
+from typing import Any, Dict, List
+
 import numpy as np
-from typing import Dict, Any, List
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+
+logger = logging.getLogger(__name__)
 
 
 class SmartScaler:
-    """Handles feature scaling with intelligent strategy selection."""
-    
     def __init__(self, strategy: str = "auto"):
-        """
-        Args:
-            strategy: 'auto', 'standard', 'minmax', or 'robust'
-        """
         self.log: List[Dict[str, Any]] = []
         self.strategy = strategy
         self.scaler = None
         self.columns: List[str] = []
-    
-    def _log(self, step: str, action: str, reason: str, status: str = "applied"):
-        self.log.append({"step": step, "action": action, "reason": reason, "status": status})
-    
-    def _detect_outliers(self, df: pd.DataFrame) -> bool:
-        """Check if data has significant outliers."""
-        for col in df.columns:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                q1 = df[col].quantile(0.25)
-                q3 = df[col].quantile(0.75)
-                iqr = q3 - q1
-                outliers = ((df[col] < q1 - 3*iqr) | (df[col] > q3 + 3*iqr)).sum()
-                if outliers > len(df) * 0.05:  # More than 5% outliers
-                    return True
+        self.chosen_strategy: str = None
+        self._offset = self._factor = None
+
+    def _log(self, step, action, reason, status="applied", fitted_on="train"):
+        self.log.append({"step": step, "action": action, "reason": reason, "status": status,
+                         "fitted_on": fitted_on})
+
+    @staticmethod
+    def _has_outliers(M: np.ndarray) -> bool:
+        for j in range(M.shape[1]):
+            q1, q3 = np.quantile(M[:, j], [0.25, 0.75])
+            iqr = q3 - q1
+            if iqr and ((M[:, j] < q1 - 3 * iqr) | (M[:, j] > q3 + 3 * iqr)).mean() > 0.05:
+                return True
         return False
-    
-    def _select_strategy(self, df: pd.DataFrame) -> str:
-        """Select scaling strategy based on data characteristics."""
-        if self.strategy != "auto":
-            return self.strategy
-        
-        if self._detect_outliers(df):
-            return "robust"
-        else:
-            return "standard"
-    
-    def fit_transform(self, df: pd.DataFrame, target_col: str = None) -> pd.DataFrame:
-        """Fit and transform numeric features."""
-        df = df.copy()
-        
-        # Get numeric columns
-        self.columns = df.select_dtypes(include=[np.number]).columns.tolist()
-        if target_col and target_col in self.columns:
-            self.columns.remove(target_col)
-        
+
+    def fit(self, cols: Dict[str, np.ndarray]) -> "SmartScaler":
+        self.columns = [c for c, a in cols.items() if np.unique(a).size > 2]
         if not self.columns:
-            self._log("Scaling", "No numeric columns to scale", "Skipped", status="skipped")
-            return df
-        
-        # Select strategy
-        strategy = self._select_strategy(df[self.columns])
-        
+            self._log("Scaling", "No continuous columns to scale", "Only indicator columns", status="skipped")
+            return self
+        M = np.column_stack([cols[c] for c in self.columns]).astype(float)
+        strategy = self.strategy
+        if strategy == "auto":
+            strategy = "robust" if self._has_outliers(M) else "standard"
+        self.chosen_strategy = strategy
+        self.scaler = {"standard": StandardScaler, "minmax": MinMaxScaler, "robust": RobustScaler}[strategy]().fit(M)
         if strategy == "standard":
-            self.scaler = StandardScaler()
-            reason = "No significant outliers, using StandardScaler"
-        elif strategy == "minmax":
-            self.scaler = MinMaxScaler()
-            reason = "Using MinMaxScaler (0-1 range)"
+            self._offset, self._factor = self.scaler.mean_, self.scaler.scale_
         elif strategy == "robust":
-            self.scaler = RobustScaler()
-            reason = "Outliers detected, using RobustScaler"
+            self._offset, self._factor = self.scaler.center_, self.scaler.scale_
+        reason = ("More than 5% extreme values in a column, RobustScaler" if strategy == "robust"
+                  else "No heavy outliers, StandardScaler") if self.strategy == "auto" else f"{strategy} requested"
+        self._log("Scaling", f"{strategy.capitalize()} scaling on {len(self.columns)} continuous columns",
+                  reason + "; 0/1 indicator columns are not scaled")
+        return self
+
+    def apply(self, M: np.ndarray, positions: List[int]) -> np.ndarray:
+        """Scale the given column positions of the feature matrix in place."""
+        if self.scaler is None:
+            return M
+        if self.chosen_strategy == "minmax":
+            M[:, positions] = M[:, positions] * self.scaler.scale_ + self.scaler.min_
         else:
-            self.scaler = StandardScaler()
-            reason = "Default StandardScaler"
-        
-        # Fit and transform
-        df[self.columns] = self.scaler.fit_transform(df[self.columns])
-        self._log("Scaling", f"{strategy.capitalize()} scaling on {len(self.columns)} columns", reason)
-        
-        return df
-    
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Transform new data using fitted scaler."""
-        if self.scaler is None:
-            return df
-        
-        df = df.copy()
-        cols_to_scale = [c for c in self.columns if c in df.columns]
-        
-        if cols_to_scale:
-            df[cols_to_scale] = self.scaler.transform(df[cols_to_scale])
-        
-        return df
-    
-    def inverse_transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Inverse transform scaled data."""
-        if self.scaler is None:
-            return df
-        
-        df = df.copy()
-        cols_to_scale = [c for c in self.columns if c in df.columns]
-        
-        if cols_to_scale:
-            df[cols_to_scale] = self.scaler.inverse_transform(df[cols_to_scale])
-        
-        return df
+            M[:, positions] = (M[:, positions] - self._offset) / self._factor
+        return M

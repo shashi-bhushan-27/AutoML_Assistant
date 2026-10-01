@@ -1,0 +1,5 @@
+# Test / development dependencies (in addition to requirements.txt)
+pytest==9.1.1
+httpx==0.28.1        # FastAPI TestClient and the Deploy page's API check
+psutil==7.2.2        # ablation harness (memory sampling)
+matplotlib==3.11.2   # ablation figures

@@ -233,8 +233,12 @@ def schema_tests(prep, models, variants, refs, task):
     return out
 
 
-def endpoint_tests(prep, models, variants, refs, raw_test, target, task, name):
-    """Real FastAPI /predict, workspace written by the real WorkspaceManager (temp dir)."""
+def endpoint_tests(prep, models, variants, refs, raw_test, target, task, name, X_test_ref=None):
+    """Real FastAPI /predict, workspace written by the real WorkspaceManager (temp dir).
+
+    ``X_test_ref``: the training-time test representation (after the fixes the pickled pipeline no
+    longer carries its data, so ``prep.X_test`` is None on the reloaded object)."""
+    X_test_ref = X_test_ref if X_test_ref is not None else prep.X_test
     from fastapi.testclient import TestClient
 
     from rag_ablation import temp_workspace_dir
@@ -282,7 +286,7 @@ def endpoint_tests(prep, models, variants, refs, raw_test, target, task, name):
         pkl_models = os.path.getsize(os.path.join(wmod.WORKSPACE_DIR, f"{ws.workspace_id}_trained_models.pkl"))
         pkl_prep = os.path.getsize(os.path.join(wmod.WORKSPACE_DIR, f"{ws.workspace_id}_pipeline.pkl"))
         for m in models:
-            times, codes = [], []
+            times, codes, server = [], [], []
             with contextlib.redirect_stdout(io.StringIO()):
                 client.post("/predict", json=body(m, singles[0]))   # warm-up
                 for rows in singles:
@@ -290,13 +294,16 @@ def endpoint_tests(prep, models, variants, refs, raw_test, target, task, name):
                     r = client.post("/predict", json=body(m, rows))
                     times.append((time.perf_counter() - t0) * 1000)
                     codes.append(r.status_code)
+                    if r.status_code == 200 and "timing_ms" in r.json():
+                        server.append(r.json()["timing_ms"]["total"])
             model_ms = []
             for i in range(len(singles)):
                 t0 = time.perf_counter()
-                _predict(models[m], prep.X_test.iloc[[i]])
+                _predict(models[m], X_test_ref.iloc[[i]])
                 model_ms.append((time.perf_counter() - t0) * 1000)
             latency.append({"model": m, "n_requests": len(times),
                             "median_ms": float(np.median(times)), "p95_ms": float(np.percentile(times, 95)),
+                            "server_median_ms": float(np.median(server)) if server else None,
                             "status_codes": {str(c): codes.count(c) for c in sorted(set(codes))},
                             "model_only_median_ms": float(np.median(model_ms)),
                             "trained_models_pkl_mb": pkl_models / 1e6, "pipeline_pkl_mb": pkl_prep / 1e6})
@@ -371,7 +378,7 @@ def run_preproc_ablation(dataset, seed, df, target, prep, trained_models, model_
     schema = schema_tests(prep_s, models, variants, refs, task)
     try:
         endpoint, latency = endpoint_tests(prep_s, models, variants, refs, raw_test, target, task,
-                                           f"api_{dataset}_s{seed}")
+                                           f"api_{dataset}_s{seed}", X_test_ref=X_test)
     except Exception as e:  # recorded, never hidden
         endpoint, latency = [{"error": _err(e)}], []
 

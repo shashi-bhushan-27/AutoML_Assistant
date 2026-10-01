@@ -1,0 +1,151 @@
+dataset,seed,variant,model,perturbed_column,status,agreement_vs_offline,error
+adult,0,baseline,XGBoost,,ok,1.0,
+adult,0,baseline,Random Forest,,ok,1.0,
+adult,0,baseline,Logistic Regression,,ok,1.0,
+adult,0,reordered_columns,XGBoost,,ok,1.0,
+adult,0,reordered_columns,Random Forest,,ok,1.0,
+adult,0,reordered_columns,Logistic Regression,,ok,1.0,
+adult,0,unseen_category,XGBoost,workclass,ok,1.0,
+adult,0,unseen_category,Random Forest,workclass,ok,0.921875,
+adult,0,unseen_category,Logistic Regression,workclass,ok,0.96875,
+adult,0,missing_column,XGBoost,age,crash,,SchemaError: missing required column(s): ['age']
+adult,0,missing_column,Random Forest,age,crash,,SchemaError: missing required column(s): ['age']
+adult,0,missing_column,Logistic Regression,age,crash,,SchemaError: missing required column(s): ['age']
+adult,1,baseline,XGBoost,,ok,1.0,
+adult,1,baseline,Random Forest,,ok,1.0,
+adult,1,baseline,Logistic Regression,,ok,1.0,
+adult,1,reordered_columns,XGBoost,,ok,1.0,
+adult,1,reordered_columns,Random Forest,,ok,1.0,
+adult,1,reordered_columns,Logistic Regression,,ok,1.0,
+adult,1,unseen_category,XGBoost,workclass,ok,0.96875,
+adult,1,unseen_category,Random Forest,workclass,ok,0.9375,
+adult,1,unseen_category,Logistic Regression,workclass,ok,0.9375,
+adult,1,missing_column,XGBoost,age,crash,,SchemaError: missing required column(s): ['age']
+adult,1,missing_column,Random Forest,age,crash,,SchemaError: missing required column(s): ['age']
+adult,1,missing_column,Logistic Regression,age,crash,,SchemaError: missing required column(s): ['age']
+adult,2,baseline,XGBoost,,ok,1.0,
+adult,2,baseline,Random Forest,,ok,1.0,
+adult,2,baseline,Logistic Regression,,ok,1.0,
+adult,2,reordered_columns,XGBoost,,ok,1.0,
+adult,2,reordered_columns,Random Forest,,ok,1.0,
+adult,2,reordered_columns,Logistic Regression,,ok,1.0,
+adult,2,unseen_category,XGBoost,workclass,ok,1.0,
+adult,2,unseen_category,Random Forest,workclass,ok,0.953125,
+adult,2,unseen_category,Logistic Regression,workclass,ok,1.0,
+adult,2,missing_column,XGBoost,age,crash,,SchemaError: missing required column(s): ['age']
+adult,2,missing_column,Random Forest,age,crash,,SchemaError: missing required column(s): ['age']
+adult,2,missing_column,Logistic Regression,age,crash,,SchemaError: missing required column(s): ['age']
+adult,3,baseline,XGBoost,,ok,1.0,
+adult,3,baseline,Random Forest,,ok,1.0,
+adult,3,baseline,Logistic Regression,,ok,1.0,
+adult,3,reordered_columns,XGBoost,,ok,1.0,
+adult,3,reordered_columns,Random Forest,,ok,1.0,
+adult,3,reordered_columns,Logistic Regression,,ok,1.0,
+adult,3,unseen_category,XGBoost,workclass,ok,0.953125,
+adult,3,unseen_category,Random Forest,workclass,ok,0.953125,
+adult,3,unseen_category,Logistic Regression,workclass,ok,0.9375,
+adult,3,missing_column,XGBoost,age,crash,,SchemaError: missing required column(s): ['age']
+adult,3,missing_column,Random Forest,age,crash,,SchemaError: missing required column(s): ['age']
+adult,3,missing_column,Logistic Regression,age,crash,,SchemaError: missing required column(s): ['age']
+adult,4,baseline,XGBoost,,ok,1.0,
+adult,4,baseline,Random Forest,,ok,1.0,
+adult,4,baseline,Logistic Regression,,ok,1.0,
+adult,4,reordered_columns,XGBoost,,ok,1.0,
+adult,4,reordered_columns,Random Forest,,ok,1.0,
+adult,4,reordered_columns,Logistic Regression,,ok,1.0,
+adult,4,unseen_category,XGBoost,workclass,ok,0.96875,
+adult,4,unseen_category,Random Forest,workclass,ok,1.0,
+adult,4,unseen_category,Logistic Regression,workclass,ok,0.96875,
+adult,4,missing_column,XGBoost,age,crash,,SchemaError: missing required column(s): ['age']
+adult,4,missing_column,Random Forest,age,crash,,SchemaError: missing required column(s): ['age']
+adult,4,missing_column,Logistic Regression,age,crash,,SchemaError: missing required column(s): ['age']
+credit,0,baseline,XGBoost,,ok,1.0,
+credit,0,baseline,Random Forest,,ok,1.0,
+credit,0,baseline,Logistic Regression,,ok,1.0,
+credit,0,reordered_columns,XGBoost,,ok,1.0,
+credit,0,reordered_columns,Random Forest,,ok,1.0,
+credit,0,reordered_columns,Logistic Regression,,ok,1.0,
+credit,0,missing_column,XGBoost,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,0,missing_column,Random Forest,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,0,missing_column,Logistic Regression,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,1,baseline,XGBoost,,ok,1.0,
+credit,1,baseline,Random Forest,,ok,1.0,
+credit,1,baseline,Logistic Regression,,ok,1.0,
+credit,1,reordered_columns,XGBoost,,ok,1.0,
+credit,1,reordered_columns,Random Forest,,ok,1.0,
+credit,1,reordered_columns,Logistic Regression,,ok,1.0,
+credit,1,missing_column,XGBoost,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,1,missing_column,Random Forest,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,1,missing_column,Logistic Regression,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,2,baseline,XGBoost,,ok,1.0,
+credit,2,baseline,Random Forest,,ok,1.0,
+credit,2,baseline,Logistic Regression,,ok,1.0,
+credit,2,reordered_columns,XGBoost,,ok,1.0,
+credit,2,reordered_columns,Random Forest,,ok,1.0,
+credit,2,reordered_columns,Logistic Regression,,ok,1.0,
+credit,2,missing_column,XGBoost,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,2,missing_column,Random Forest,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,2,missing_column,Logistic Regression,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,3,baseline,XGBoost,,ok,1.0,
+credit,3,baseline,Random Forest,,ok,1.0,
+credit,3,baseline,Logistic Regression,,ok,1.0,
+credit,3,reordered_columns,XGBoost,,ok,1.0,
+credit,3,reordered_columns,Random Forest,,ok,1.0,
+credit,3,reordered_columns,Logistic Regression,,ok,1.0,
+credit,3,missing_column,XGBoost,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,3,missing_column,Random Forest,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,3,missing_column,Logistic Regression,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,4,baseline,XGBoost,,ok,1.0,
+credit,4,baseline,Random Forest,,ok,1.0,
+credit,4,baseline,Logistic Regression,,ok,1.0,
+credit,4,reordered_columns,XGBoost,,ok,1.0,
+credit,4,reordered_columns,Random Forest,,ok,1.0,
+credit,4,reordered_columns,Logistic Regression,,ok,1.0,
+credit,4,missing_column,XGBoost,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,4,missing_column,Random Forest,V14,crash,,SchemaError: missing required column(s): ['V14']
+credit,4,missing_column,Logistic Regression,V14,crash,,SchemaError: missing required column(s): ['V14']
+california,0,baseline,XGBoost,,ok,1.0,
+california,0,baseline,Random Forest,,ok,1.0,
+california,0,baseline,Ridge,,ok,1.0,
+california,0,reordered_columns,XGBoost,,ok,1.0,
+california,0,reordered_columns,Random Forest,,ok,1.0,
+california,0,reordered_columns,Ridge,,ok,1.0,
+california,0,missing_column,XGBoost,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,0,missing_column,Random Forest,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,0,missing_column,Ridge,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,1,baseline,XGBoost,,ok,1.0,
+california,1,baseline,Random Forest,,ok,1.0,
+california,1,baseline,Ridge,,ok,1.0,
+california,1,reordered_columns,XGBoost,,ok,1.0,
+california,1,reordered_columns,Random Forest,,ok,1.0,
+california,1,reordered_columns,Ridge,,ok,1.0,
+california,1,missing_column,XGBoost,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,1,missing_column,Random Forest,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,1,missing_column,Ridge,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,2,baseline,XGBoost,,ok,1.0,
+california,2,baseline,Random Forest,,ok,1.0,
+california,2,baseline,Ridge,,ok,1.0,
+california,2,reordered_columns,XGBoost,,ok,1.0,
+california,2,reordered_columns,Random Forest,,ok,1.0,
+california,2,reordered_columns,Ridge,,ok,1.0,
+california,2,missing_column,XGBoost,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,2,missing_column,Random Forest,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,2,missing_column,Ridge,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,3,baseline,XGBoost,,ok,1.0,
+california,3,baseline,Random Forest,,ok,1.0,
+california,3,baseline,Ridge,,ok,1.0,
+california,3,reordered_columns,XGBoost,,ok,1.0,
+california,3,reordered_columns,Random Forest,,ok,1.0,
+california,3,reordered_columns,Ridge,,ok,1.0,
+california,3,missing_column,XGBoost,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,3,missing_column,Random Forest,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,3,missing_column,Ridge,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,4,baseline,XGBoost,,ok,1.0,
+california,4,baseline,Random Forest,,ok,1.0,
+california,4,baseline,Ridge,,ok,1.0,
+california,4,reordered_columns,XGBoost,,ok,1.0,
+california,4,reordered_columns,Random Forest,,ok,1.0,
+california,4,reordered_columns,Ridge,,ok,1.0,
+california,4,missing_column,XGBoost,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,4,missing_column,Random Forest,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
+california,4,missing_column,Ridge,MedInc,crash,,SchemaError: missing required column(s): ['MedInc']
